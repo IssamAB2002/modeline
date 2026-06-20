@@ -11,3 +11,5 @@ backend/*.pyc
 .env.*
 PRE_DEPLOY_CHECKLIST.md
 client design imgs/
+.claude/
+caddy/
