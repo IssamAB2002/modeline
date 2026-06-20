@@ -1,0 +1,62 @@
+{
+  "topbar": "توصيل مجاني للطلبات فوق 5000 دج · الدفع عند الاستلام",
+  "hero": {
+    "breadcrumbHome": "الرئيسية",
+    "breadcrumbShop": "المتجر",
+    "breadcrumbCart": "سلة التسوق",
+    "title": ["سلتك", ""],
+    "subtitle": "راجع الكميات وتفاصيل التوصيل. الدفع عند الاستلام — بدون دفع إلكتروني."
+  },
+  "sections": {
+    "items": {
+      "eyebrow": "العناصر",
+      "title": "قطع {{em}}مختارة{{/em}}"
+    },
+    "delivery": {
+      "eyebrow": "التوصيل",
+      "title": "تفاصيل {{em}}الشحن{{/em}}"
+    },
+    "order": {
+      "eyebrow": "الطلب",
+      "title": "إجمالي {{em}}السلة{{/em}}"
+    }
+  },
+  "empty": "سلة التسوق فارغة.",
+  "item": {
+    "size": "المقاس: {{size}}",
+    "color": "اللون: {{color}}",
+    "sku": "رقم المنتج: {{sku}}",
+    "remove": "إزالة"
+  },
+  "deliveryForm": {
+    "fullName": "الاسم الكامل",
+    "fullNamePlaceholder": "مثال: أميرة بن علي",
+    "phone": "الهاتف",
+    "phonePlaceholder": "مثال: +213 5xx xx xx xx",
+    "city": "المدينة / الولاية",
+    "cityPlaceholder": "مثال: الجزائر",
+    "address": "العنوان",
+    "addressPlaceholder": "الشارع، العمارة، الشقة، معلم...",
+    "notes": "ملاحظات الطلب (اختياري)",
+    "notesPlaceholder": "تعليمات التوصيل، الوقت المفضل، إلخ."
+  },
+  "summary": {
+    "subtotal": "المجموع الفرعي",
+    "shipping": "الشحن",
+    "total": "الإجمالي",
+    "checkout": "تأكيد الطلب",
+    "safeNote": "الدفع عند الاستلام. لا يلزم بطاقة أو دفع إلكتروني.",
+    "continue": "مواصلة التسوق",
+    "submitting": "جاري تأكيد الطلب…",
+    "validationError": "يرجى تعبئة جميع حقول التوصيل المطلوبة.",
+    "serverError": "تعذّر تقديم الطلب. يرجى المحاولة مجدداً."
+  },
+  "confirmation": {
+    "eyebrow": "تم تأكيد الطلب",
+    "title": "شكراً {{em}}لك{{/em}}",
+    "subtitle": "تم استلام طلبك. سيتصل بك فريقنا لتأكيد التوصيل.",
+    "orderNumber": "رقم الطلب",
+    "clientName": "طُلب باسم",
+    "continue": "مواصلة التسوق"
+  }
+}

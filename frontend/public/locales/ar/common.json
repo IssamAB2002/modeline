@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "shop": "المتجر",
+    "about": "عنّا",
+    "contact": "اتصل بنا",
+    "basket": "سلة التسوق",
+    "brand": "Modeline",
+    "tagline": "متجر تراثي · منذ 1994"
+  },
+  "topbar": "شحن مجاني على الطلبات التي تزيد عن 5000 دج · حرفية أصيلة مضمونة",
+  "buttons": {
+    "addToBasket": "أضف إلى السلة",
+    "remove": "إزالة",
+    "applyFilters": "تطبيق الفلاتر",
+    "continueShopping": "مواصلة التسوق",
+    "proceed": "المتابعة (الدفع معطل)",
+    "subscribe": "اشترك",
+    "submit": "إرسال",
+    "send": "إرسال",
+    "viewAll": "عرض الكل",
+    "browseAll": "تصفح الكل",
+    "shopNow": "تسوق الآن",
+    "explore": "استكشف"
+  },
+  "footer": {
+    "brand": "Modeline",
+    "since": "منذ 1994",
+    "desc": "متجر عائلي مكرس لتقديم أجمل الملابس التقليدية الجزائرية وملابس الأطفال. كل قطعة ترمز لتراث حقيقي.",
+    "collections": "المجموعات",
+    "information": "المعلومات",
+    "contact": "تواصل معنا",
+    "links": {
+      "mensBurnous": "برانيس الرجال",
+      "womensKaftans": "قفطان النساء",
+      "ceremonial": "اللباس التقليدي",
+      "heritage": "معدات تراثية",
+      "footwear": "أحذية",
+      "newArrivals": "وصل حديثاً",
+      "ourStory": "قصتنا",
+      "ourArtisans": "مورّدونا",
+      "authenticity": "سياسة الأصالة",
+      "shipping": "الشحن والتوصيل",
+      "returns": "الإرجاع",
+      "sizeGuide": "دليل المقاسات",
+      "whatsapp": "واتساب",
+      "email": "بريدنا الإلكتروني",
+      "showroom": "زيارة صالة العرض",
+      "trackOrder": "تتبع طلبك"
+    },
+    "bottom": {
+      "left": "حقوق النشر © 2026 Modeline. جميع الحقوق محفوظة.",
+      "right": "غرداية"
+    }
+  },
+  "productBadges": {
+    "new": "جديد",
+    "sale": "تخفيض",
+    "limited": "محدود",
+    "bestseller": "الأكثر مبيعاً"
+  },
+  "currency": "دج",
+  "sortOptions": {
+    "featured": "الترتيب: المميز",
+    "lowToHigh": "السعر: من الأقل إلى الأعلى",
+    "highToLow": "السعر: من الأعلى إلى الأقل",
+    "newest": "الأحدث أولاً",
+    "bestReviewed": "الأعلى تقييماً"
+  },
+  "pagination": {
+    "prev": "← السابق",
+    "next": "التالي →"
+  },
+  "messages": {
+    "addedToBasket": "✦ تمت الإضافة إلى السلة — {{product}}",
+    "emptyBasket": "سلة التسوق فارغة.",
+    "updatedCart": "✦ تم تحديث السلة"
+  },
+  "formLabels": {
+    "fullName": "الاسم الكامل",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "city": "المدينة / الولاية",
+    "address": "العنوان",
+    "subject": "الموضوع",
+    "message": "الرسالة",
+    "size": "المقاس",
+    "color": "اللون",
+    "quantity": "الكمية",
+    "search": "بحث"
+  }
+}

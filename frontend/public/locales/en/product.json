@@ -1,0 +1,130 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "shop": "Shop",
+    "mensBurnous": "Men's Burnous"
+  },
+  "product": {
+    "name": "Grand Ivory Burnous",
+    "subtitle": "Tlemcen · Pure Wool · Hand-stitched Trim",
+    "price": 12500,
+    "oldPrice": null,
+    "sku": "BB-TLE-001-IV",
+    "rating": 4.9,
+    "reviewCount": 24,
+    "origin": "Tlemcen",
+    "material": "100% Pure Wool",
+    "craftTime": "14–18 days",
+    "artisan": "Hadj Mourad Benali",
+    "availability": "In Stock",
+    "description": "A prestige burnous woven from the finest Tlemcen wool, featuring hand-stitched trim and a heritage drape favoured for weddings and celebrations. The burnous is the quintessential garment of the Maghreb — a cloak of dignity, warmth, and unmistakable presence.",
+    "details": [
+      "Hand-woven on traditional Tlemcen looms by fourth-generation artisans",
+      "Pure undyed wool with natural ivory tone — no chemical bleaching",
+      "Hand-stitched braided trim along the hood edge and front opening",
+      "Weighted hem for graceful drape and wind resistance",
+      "Includes wax-sealed artisan certificate and provenance card",
+      "Ships in a hand-stamped cotton storage bag"
+    ],
+    "care": [
+      "Dry clean only — preserve the natural wool oils",
+      "Store flat or on a wide hanger to maintain shape",
+      "Avoid prolonged direct sunlight to prevent natural yellowing",
+      "Air seasonally — wool benefits from gentle ventilation"
+    ],
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "sizeGuide": {
+      "S": { "chest": "104 cm", "length": "125 cm", "sleeve": "58 cm" },
+      "M": { "chest": "110 cm", "length": "130 cm", "sleeve": "60 cm" },
+      "L": { "chest": "116 cm", "length": "135 cm", "sleeve": "62 cm" },
+      "XL": { "chest": "124 cm", "length": "140 cm", "sleeve": "64 cm" },
+      "XXL": { "chest": "132 cm", "length": "145 cm", "sleeve": "66 cm" }
+    },
+    "colors": [
+      { "name": "Ivory", "hex": "#F5F0E8" },
+      { "name": "Espresso", "hex": "#2C1A08" },
+      { "name": "Sand", "hex": "#C4A882" },
+      { "name": "Forest", "hex": "#1B3A2E" }
+    ]
+  },
+  "tabs": {
+    "description": "Description",
+    "details": "Details & Care",
+    "shipping": "Shipping",
+    "reviews": "Reviews"
+  },
+  "notFound": {
+    "title": "Product Not Found",
+    "subtitle": "This product does not exist or has been removed.",
+    "cta": "Back to Shop"
+  },
+  "labels": {
+    "colour": "Colour",
+    "size": "Size",
+    "sizeGuide": "View Size Guide",
+    "quantity": "Quantity",
+    "addToBasket": "Add to Basket",
+    "artisan": "Artisan",
+    "craftTime": "Craft Time",
+    "material": "Material",
+    "availability": "Availability",
+    "sku": "SKU",
+    "reviews": "Verified Reviews"
+  },
+  "shippingInfo": {
+    "intro": "We ship across Algeria and to select international destinations. Every piece is inspected, wrapped in acid-free tissue, and placed in a hand-stamped cotton storage bag before dispatch.",
+    "algeria": "Algeria: 2–4 business days (free over 5,000 DA)",
+    "france": "France & Europe: 5–8 business days",
+    "northAmerica": "North America: 8–12 business days",
+    "tracking": "All shipments include tracking and insurance"
+  },
+  "zoom": {
+    "in": "Click to zoom in",
+    "out": "Click to zoom out"
+  },
+  "addedToast": "✦ Added to Basket — {{name}} ({{size}}, {{color}}) × {{qty}}",
+  "related": {
+    "eyebrow": "You May Also Appreciate",
+    "title": "Related {{em}}Pieces{{/em}}",
+    "subtitle": "Garments that share the same spirit of craft and regional tradition."
+  },
+  "relatedProducts": [
+    {
+      "name": "Constantine Silk Kaftan",
+      "origin": "Constantine · Pure Silk",
+      "price": 19800,
+      "oldPrice": 24000,
+      "badge": "Sale",
+      "rating": "★★★★★",
+      "reviews": 37
+    },
+    {
+      "name": "Midnight Djellaba",
+      "origin": "Tlemcen · Wool-cotton blend",
+      "price": 9400,
+      "oldPrice": null,
+      "badge": "Bestseller",
+      "rating": "★★★★★",
+      "reviews": 31
+    },
+    {
+      "name": "Chechia & Tagelmust Set",
+      "origin": "Kabylie · Handloomed Wool",
+      "price": 3200,
+      "oldPrice": null,
+      "badge": null,
+      "rating": "★★★★☆",
+      "reviews": 15
+    },
+    {
+      "name": "Ornate Khodmi Belt",
+      "origin": "Annaba · Silver-thread craft",
+      "price": 8900,
+      "oldPrice": null,
+      "badge": "Limited",
+      "rating": "★★★★★",
+      "reviews": 8
+    }
+  ],
+  "pageTitle": "Product {{em}}Detail{{/em}}"
+}

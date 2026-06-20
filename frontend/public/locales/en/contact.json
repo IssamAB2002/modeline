@@ -1,0 +1,137 @@
+{
+  "hero": {
+    "breadcrumbHome": "Home",
+    "breadcrumbContact": "Contact Us",
+    "title": ["Reach", "Our Store"],
+    "subtitle": "Whether you seek a custom order, wish to visit our showrooms, or simply have a question — we are here."
+  },
+  "intro": {
+    "eyebrow": "Heritage Store · Algiers",
+    "title": "Every inquiry deserves {{em}}the care of a reply{{/em}}",
+    "text": "We believe that the relationship between a store and its patrons should be as enduring as the garments we offer. Whether you are ordering a piece for a special occasion, seeking guidance on sizing and fit, or wishing to arrange a visit to our showrooms — we read every message with the same attention we give to every detail."
+  },
+  "goldRule": "✦ Est. 1994 ✦",
+  "form": {
+    "eyebrow": "Write to Us",
+    "title": "Send Us {{em}}Your Word{{/em}}",
+    "fields": {
+      "inquiryType": "Inquiry Type",
+      "name": "Your Name",
+      "email": "Email Address",
+      "phone": "Phone (Optional)",
+      "subject": "Subject",
+      "message": "Your Message"
+    },
+    "placeholders": {
+      "name": "e.g. Amira Benali",
+      "email": "e.g. amira@email.com",
+      "phone": "e.g. +213 5xx xx xx xx",
+      "subject": "e.g. Custom burnous for wedding",
+      "message": "Tell us about your occasion, your size, your preferred region of craft, or any questions you may have..."
+    },
+    "types": [
+      { "value": "general", "label": "General Inquiry" },
+      { "value": "order", "label": "Order & Shipping" },
+      { "value": "custom", "label": "Custom Order" },
+      { "value": "wholesale", "label": "Wholesale & Partnership" },
+      { "value": "returns", "label": "Returns & Exchanges" },
+      { "value": "artisan", "label": "Supplier Collaboration" }
+    ],
+    "submit": "Send Message",
+    "submitting": "Sending…",
+    "error": "Failed to send your message. Please try again.",
+    "success": {
+      "title": "Your words have reached us.",
+      "subtitle": "We will reply within 24 hours during business days."
+    }
+  },
+  "contactInfo": {
+    "eyebrow": "Direct Contact",
+    "title": "Speak with {{em}}Our Team{{/em}}",
+    "subtitle": "Our store team is available six days a week to assist with orders, custom requests, and showroom appointments. For urgent matters, WhatsApp receives the fastest response.",
+    "emailLabel": "Email the Store",
+    "phoneLabel": "Telephone",
+    "whatsappLabel": "WhatsApp",
+    "hoursLabel": "Business Hours",
+    "hoursValue": "Saturday – Thursday, 09:00 – 18:00",
+    "email": "hello@burnousandbrocade.dz",
+    "phone": "+213 555 12 34 56",
+    "whatsapp": "+213 555 12 34 56"
+  },
+  "commissions": {
+    "eyebrow": "Custom Orders",
+    "title": "Bespoke {{em}}Pieces{{/em}}",
+    "desc": "For {{strong}}custom orders{{/strong}} — wedding burnous, bridal chedda, ceremonial ensembles, or kids' traditional outfits — we recommend scheduling a consultation either in person at our Algiers showroom or via video call. {{strong}}Delivery time is typically 3–6 weeks{{/strong}} depending on complexity and artisan availability.",
+    "note": "Please include your event date, preferred region of craft (Tlemcen, Constantine, Kabylie), and any reference images in your message."
+  },
+  "partnerships": {
+    "eyebrow": "Press & Partnerships",
+    "title": "Collaborate {{em}}With Us{{/em}}",
+    "text": "For press inquiries, wholesale partnerships, or supplier collaboration proposals, please direct your message to {{email}}. We welcome conversations that advance the cause of Algerian traditional clothing."
+  },
+  "showrooms": {
+    "eyebrow": "Visit Us",
+    "title": "Our {{em}}Showrooms{{/em}}",
+    "subtitle": "You are welcome to visit us at any of our locations to see, touch, and try the pieces before buying.",
+    "empty": "No showroom locations listed yet.",
+    "labels": {
+      "address": "Address",
+      "hours": "Hours",
+      "phone": "Phone",
+      "email": "Email"
+    },
+    "list": [
+      {
+        "city": "Algiers",
+        "address": "12 Rue Hadj Omar, Casbah",
+        "hours": "Sat–Thu, 09:00–18:00",
+        "phone": "+213 555 12 34 56",
+        "email": "algiers@burnousandbrocade.dz",
+        "note": "Main showroom & store"
+      },
+      {
+        "city": "Oran",
+        "address": "45 Boulevard Mohamed VI, Place d'Armes",
+        "hours": "Sat–Thu, 10:00–19:00",
+        "phone": "+213 555 78 90 12",
+        "email": "oran@burnousandbrocade.dz",
+        "note": "West Algeria showroom"
+      },
+      {
+        "city": "Constantine",
+        "address": "8 Rue Sidi M'Cid, Vieille Ville",
+        "hours": "Sat–Thu, 09:30–17:30",
+        "phone": "+213 555 34 56 78",
+        "email": "constantine@burnousandbrocade.dz",
+        "note": "Showroom visits by appointment"
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Common Questions",
+    "title": "Frequently {{em}}Asked{{/em}}",
+    "subtitle": "Answers to the questions we receive most often.",
+    "items": [
+      {
+        "q": "How long does a custom burnous order take?",
+        "a": "A bespoke burnous requires 14–18 days from order to delivery. Our partner artisans source the finest wool, weave on traditional looms, and add hand-stitched trim work. For urgent occasions, please contact us directly — we maintain a small reserve of ready-to-wear pieces."
+      },
+      {
+        "q": "Do you ship internationally?",
+        "a": "We currently ship within Algeria only. We are working on expanding international shipping soon — stay tuned for updates."
+      },
+      {
+        "q": "Can I visit the showrooms?",
+        "a": "You are welcome to visit our showrooms. To check availability and schedule a visit, please contact us via the contact form or WhatsApp and we will get back to you promptly."
+      },
+      {
+        "q": "What is your return policy?",
+        "a": "We offer a 30-day return window for unworn pieces in original condition with all tags and certificates intact. Custom orders are non-returnable but may be adjusted within 14 days of receipt. Return shipping is complimentary within Algeria."
+      },
+      {
+        "q": "Do you offer gift wrapping?",
+        "a": "Every order ships in protective packaging designed to ensure your piece arrives in perfect condition."
+      }
+    ]
+  }
+}

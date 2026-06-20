@@ -1,0 +1,29 @@
+modeline.dz {
+    # React SPA — serve built dist, fall back to index.html for client-side routing
+    root * /var/www/modeline/dist
+    encode gzip
+    try_files {path} /index.html
+
+    # Django static files (collected via collectstatic)
+    handle /static/* {
+        root * /app
+        file_server
+    }
+
+    # Django media files (uploads)
+    handle /media/* {
+        root * /app
+        file_server
+    }
+
+    # Reverse proxy to Gunicorn for API and admin
+    handle /api/* {
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    handle /admin/* {
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    file_server
+}

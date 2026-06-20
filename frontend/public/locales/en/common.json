@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "about": "About",
+    "contact": "Contact US",
+    "basket": "Basket",
+    "brand": "Modeline",
+    "tagline": "Heritage Store · Since 1994"
+  },
+  "topbar": "Free shipping on orders over 5,000 DA · Authentic craftsmanship guaranteed",
+  "buttons": {
+    "addToBasket": "Add to Basket",
+    "remove": "Remove",
+    "applyFilters": "Apply Filters",
+    "continueShopping": "Continue Shopping",
+    "proceed": "Proceed (Checkout disabled)",
+    "subscribe": "Subscribe",
+    "submit": "Submit",
+    "send": "Send",
+    "viewAll": "View All",
+    "browseAll": "Browse All",
+    "shopNow": "Shop Now",
+    "explore": "Explore"
+  },
+  "footer": {
+    "brand": "MODELINE",
+    "since": "Since 1994",
+    "desc": "A family-run store dedicated to bringing you the finest Algerian traditional clothing and kids' wear. Every piece tells a story.",
+    "collections": "Collections",
+    "information": "Information",
+    "contact": "Contact",
+    "links": {
+      "mensBurnous": "Men's Burnous",
+      "womensKaftans": "Women's Kaftans",
+      "ceremonial": "Ceremonial Wear",
+      "heritage": "Heritage Equipment",
+      "footwear": "Footwear",
+      "newArrivals": "New Arrivals",
+      "ourStory": "Our Story",
+      "ourArtisans": "Our Suppliers",
+      "authenticity": "Authenticity Policy",
+      "shipping": "Shipping & Delivery",
+      "returns": "Returns",
+      "sizeGuide": "Size Guide",
+      "whatsapp": "WhatsApp Us",
+      "email": "Email Us",
+      "showroom": "Visit Our Showroom",
+      "trackOrder": "Track Your Order"
+    },
+    "bottom": {
+      "left": "Copyright 2026 MODELINE. All rights reserved.",
+      "right": "Ghardaïa"
+    }
+  },
+  "productBadges": {
+    "new": "New",
+    "sale": "Sale",
+    "limited": "Limited",
+    "bestseller": "Bestseller"
+  },
+  "currency": "DA",
+  "sortOptions": {
+    "featured": "Sort: Featured",
+    "lowToHigh": "Price: Low to High",
+    "highToLow": "Price: High to Low",
+    "newest": "Newest First",
+    "bestReviewed": "Best Reviewed"
+  },
+  "pagination": {
+    "prev": "← Prev",
+    "next": "Next →"
+  },
+  "messages": {
+    "addedToBasket": "✦ Added to Basket — {{product}}",
+    "emptyBasket": "Your basket is empty.",
+    "updatedCart": "✦ Updated cart"
+  },
+  "formLabels": {
+    "fullName": "Full Name",
+    "phone": "Phone",
+    "email": "Email",
+    "city": "City / Wilaya",
+    "address": "Address",
+    "subject": "Subject",
+    "message": "Message",
+    "size": "Size",
+    "color": "Colour",
+    "quantity": "Quantity",
+    "search": "Search"
+  }
+}

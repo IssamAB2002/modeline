@@ -1,0 +1,104 @@
+{
+  "hero": {
+    "breadcrumbHome": "Home",
+    "breadcrumbAbout": "About",
+    "title": ["Our", "Story"],
+    "subtitle": "Three decades of devotion to Algerian traditional clothing — worn, cherished, and passed down."
+  },
+  "intro": {
+    "eyebrow": "Heritage Store · Algiers",
+    "title": "Where every piece carries the {{em}}weight of tradition{{/em}}",
+    "text": "Founded in 1994 by Hadj Mourad Benali, Modeline was born from a passion for Algerian textile heritage — a heritage too beautiful to stay locked in museum glass. It deserved to be worn, celebrated, and handed down through generations. We have spent thirty years bringing that heritage to you."
+  },
+  "story": {
+    "eyebrow": "Our Founding",
+    "title": "A family store, {{em}}rooted in tradition{{/em}}",
+    "paragraph1": "Hadj Mourad discovered his love for traditional Algerian dress in the old medina of Tlemcen. {{strong}}What began as a small boutique in the Casbah of Algiers{{/strong}} has grown into a curated selection from trusted artisan families spanning six wilayas — yet the ethos remains unchanged.",
+    "paragraph2": "We source exclusively from {{strong}}master craftspeople who have inherited their techniques across at least three generations{{/strong}}. Every piece is carefully selected and inspected before reaching you — authenticated, documented, and accompanied by a certificate naming the artisan who made it.",
+    "paragraph3": "This is not fast fashion dressed in traditional motifs. {{strong}}These are living objects{{/strong}}, carrying the specific vocabulary of their region: the braided closures of Tlemcen, the gold-thread arabesques of Constantine, the geometric precision of Ghardaïa. We believe you should know the difference — and so should the people who inherit these pieces from you."
+  },
+  "stats": [
+    { "value": "30+", "label": "Years of heritage selling" },
+    { "value": "6", "label": "Algerian regions represented" },
+    { "value": "48", "label": "Artisan families partnered" },
+    { "value": "4k+", "label": "Pieces placed in homes" }
+  ],
+  "pillars": {
+    "eyebrow": "What We Stand For",
+    "title": "Principles that {{em}}guide every sale{{/em}}",
+    "subtitle": "Three commitments that have never wavered since the first day we opened.",
+    "items": [
+      {
+        "num": "01",
+        "icon": "🧵",
+        "title": "Authentic Provenance",
+        "desc": "Every piece is sourced directly from its regional artisan family. We never use intermediaries, and we never compromise on origin. Each item ships with a signed artisan certificate and a wax-sealed provenance card."
+      },
+      {
+        "num": "02",
+        "icon": "⚖️",
+        "title": "Fair Trade Economy",
+        "desc": "Artisan families receive no less than 65% of the final sale price — a standard far above the industry norm. We believe the people who carry this knowledge deserve prosperity, not just recognition."
+      },
+      {
+        "num": "03",
+        "icon": "🏛️",
+        "title": "Living Heritage",
+        "desc": "We invest a portion of every sale into apprenticeship programmes in Tlemcen, Constantine, and Kabylie, ensuring that the techniques behind these garments are passed to the next generation of Algerian hands."
+      }
+    ]
+  },
+  "artisans": {
+    "eyebrow": "The Hands Behind What We Sell",
+    "title": "Our {{em}}trusted suppliers{{/em}}",
+    "subtitle": "The craftspeople whose work fills every corner of our collection.",
+    "people": [
+      {
+        "name": "Hadj Mourad Benali",
+        "role": "Founder & Traditional Burnous Expert · Tlemcen",
+        "bio": "A fourth-generation connoisseur of traditional Algerian dress who spent years studying the finest burnous traditions of Tlemcen. Hadj Mourad's eye for quality is the foundation of everything Modeline sells."
+      },
+      {
+        "name": "Lalla Fatima Chérif",
+        "role": "Head of Embroidery Selection · Constantine",
+        "bio": "Inheritor of the Qasrantina gold-thread tradition, Lalla Fatima has curated Constantine embroidery for the store since 2001. Her bridal chedda ensembles are ordered years in advance."
+      },
+      {
+        "name": "Amayas Aït Ouyahia",
+        "role": "Kabyle Textile Supplier · Tizi Ouzou",
+        "bio": "Keeper of traditional Kabyle weaving craft. Amayas supplies the distinctive geometric textiles of Kabylie — their patterns a written language older than the alphabet."
+      }
+    ]
+  },
+  "reviews": {
+    "eyebrow": "Client Voices",
+    "title": "Words from those who {{em}}shop with us{{/em}}",
+    "subtitle": "Every review is left by a verified customer. We share them unedited — the praise and the suggestions alike — because trust is only built in the open.",
+    "overall": "{{rating}} · Based on {{count}} verified reviews",
+    "empty": "No reviews yet — be the first to share your experience.",
+    "form": {
+      "title": "Leave Your Word",
+      "ratingLabel": "Your Rating",
+      "nameLabel": "Your Name",
+      "locationLabel": "City / Wilaya",
+      "reviewLabel": "Your Review",
+      "submit": "Submit Your Review",
+      "submitting": "Submitting…",
+      "namePlaceholder": "e.g. Amira B.",
+      "locationPlaceholder": "e.g. Constantine",
+      "reviewPlaceholder": "Tell us about your piece, the occasion, how it felt to wear it…",
+      "errorRating": "Please choose a star rating before submitting.",
+      "errorName": "Please enter your name.",
+      "errorBody": "Please write your review.",
+      "errorSubmit": "Failed to submit your review. Please try again.",
+      "successQuote": "Thank you for your words.",
+      "successMessage": "Your review has been received and will appear shortly."
+    },
+    "success": {
+      "title": "Thank you for your words.",
+      "subtitle": "Your review has been received and will appear shortly."
+    },
+    "recentDivider": "✦ Recent Reviews ✦",
+    "verified": "✓ Verified Purchase"
+  }
+}

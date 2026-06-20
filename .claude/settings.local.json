@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py check)",
+      "Bash(python manage.py makemigrations home about contact cart shop)",
+      "Bash(python manage.py migrate)",
+      "Bash(python manage.py shell -c \"from django.contrib.auth.models import User; print\\(User.objects.filter\\(is_superuser=True\\).count\\(\\)\\)\")",
+      "Bash(python manage.py shell -c ' *)",
+      "Bash(python manage.py shell)",
+      "Bash(python manage.py showmigrations home)",
+      "Bash(python manage.py shell -c \"from apps.home.models import FrontSettings; obj = FrontSettings.load\\(\\); print\\(obj.home_topbar\\); print\\(obj.about_story_paragraph_1[:50]\\); print\\(obj.contact_intro_title_main\\)\")",
+      "Bash(python manage.py runserver 127.0.0.1:8000)",
+      "Bash(curl -s http://127.0.0.1:8000/api/front-settings/)",
+      "Bash(python -c ' *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:5173/ -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s \"http://localhost:5173/src/pages/AboutPage.jsx\" -o /dev/null -w \"AboutPage: %{http_code}\\\\n\")",
+      "Bash(curl -s \"http://localhost:5173/src/pages/ContactPage.jsx\" -o /dev/null -w \"ContactPage: %{http_code}\\\\n\")",
+      "Bash(curl -s \"http://localhost:5173/src/pages/HomePage.jsx\" -o /dev/null -w \"HomePage: %{http_code}\\\\n\")",
+      "Bash(python manage.py makemigrations home --check --dry-run)",
+      "Bash(python manage.py migrate home)",
+      "Bash(cd \"/c/Users/COMTEL/OneDrive/Desktop/Client Projects/Modeline Website/frontend/public/locales/ar\" && cat home.json about.json contact.json 2>/dev/null)",
+      "Read(//c/c/Users/COMTEL/OneDrive/Desktop/Client Projects/Modeline Website/frontend/public/locales/ar/**)",
+      "Bash(cd \"/c/Users/COMTEL/OneDrive/Desktop/Client Projects/Modeline Website/frontend\" && cat package.json | head -30)",
+      "Read(//c/c/Users/COMTEL/OneDrive/Desktop/Client Projects/Modeline Website/frontend/**)",
+      "Bash(python manage.py runserver)",
+      "Bash(xargs -I{} sh -c 'echo ==={}===; cat {}')",
+      "Bash(diff styles.css pageStyles/home.css)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
