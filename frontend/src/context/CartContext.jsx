@@ -11,6 +11,17 @@ function getOrCreateSessionKey() {
   return key;
 }
 
+export function getCookie(name) {
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+  return match ? match[2] : null;
+}
+
+export async function ensureCsrf() {
+  if (!getCookie("csrftoken")) {
+    await fetch(`${API}/csrf/`, { credentials: "include" });
+  }
+}
+
 function normalizeItem(raw) {
   return {
     id: raw.id,
@@ -38,14 +49,18 @@ export function CartProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Grab the CSRF cookie once, as early as possible
+  useEffect(() => {
+    ensureCsrf();
+  }, []);
+
   // Load existing cart on mount
   useEffect(() => {
     if (!cartId) return;
     setLoading(true);
-    fetch(`${API}/cart/${cartId}/`)
+    fetch(`${API}/cart/${cartId}/`, { credentials: "include" })
       .then((r) => {
         if (r.status === 404) {
-          // Cart expired or deleted — reset
           localStorage.removeItem("bb_cart_id");
           setCartId(null);
           setCartItems([]);
@@ -57,7 +72,6 @@ export function CartProvider({ children }) {
         if (data) setCartItems((data.items || []).map(normalizeItem));
       })
       .catch(() => {
-        // Backend offline — start with empty local state
         setCartItems([]);
       })
       .finally(() => setLoading(false));
@@ -65,10 +79,15 @@ export function CartProvider({ children }) {
 
   const ensureCart = useCallback(async () => {
     if (cartId) return cartId;
+    await ensureCsrf();
     const sessionKey = getOrCreateSessionKey();
     const res = await fetch(`${API}/cart/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
       body: JSON.stringify({ session_key: sessionKey }),
     });
     const data = await res.json();
@@ -81,9 +100,14 @@ export function CartProvider({ children }) {
     setError(null);
     try {
       const id = await ensureCart();
+      await ensureCsrf();
       const res = await fetch(`${API}/cart/${id}/items/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
         body: JSON.stringify({
           product_id: productId,
           quantity: qty,
@@ -112,14 +136,18 @@ export function CartProvider({ children }) {
   const updateQty = useCallback(async (itemId, newQty) => {
     if (newQty < 1) return;
     setError(null);
-    // Optimistic update
     setCartItems((prev) =>
       prev.map((i) => (i.id === itemId ? { ...i, qty: newQty } : i))
     );
     try {
+      await ensureCsrf();
       const res = await fetch(`${API}/cart/items/${itemId}/`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
         body: JSON.stringify({ quantity: newQty }),
       });
       if (!res.ok) throw new Error("Failed to update quantity");
@@ -133,10 +161,14 @@ export function CartProvider({ children }) {
 
   const removeItem = useCallback(async (itemId) => {
     setError(null);
-    // Optimistic remove
     setCartItems((prev) => prev.filter((i) => i.id !== itemId));
     try {
-      await fetch(`${API}/cart/items/${itemId}/delete/`, { method: "DELETE" });
+      await ensureCsrf();
+      await fetch(`${API}/cart/items/${itemId}/delete/`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+      });
     } catch (err) {
       setError(err.message);
     }

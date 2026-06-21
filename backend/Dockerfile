@@ -23,10 +23,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+# RUN python manage.py collectstatic --noinput
 
 # Create non-root user for security
-RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
+RUN mkdir -p /app/staticfiles /app/media && \
+    adduser --disabled-password --gecos '' appuser && \
+    chown -R appuser:appuser /app
 USER appuser
 
 # Expose port

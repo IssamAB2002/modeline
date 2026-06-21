@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const API = 'http://127.0.0.1:8000/api';
+const API = import.meta.env.VITE_API_URL;
 
 function starString(rating) {
   const r = Math.min(5, Math.max(0, Math.round(parseFloat(rating) || 0)));

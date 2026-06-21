@@ -2,6 +2,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
+
+def get_csrf_token(request):
+    return JsonResponse({"detail": get_token(request)})
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -17,6 +22,7 @@ urlpatterns = [
     path("api/cart/", include("apps.cart.urls")),
     # Orders: create + retrieve by order_number
     path("api/orders/", include("apps.orders.urls")),
+    path("api/csrf/", get_csrf_token),
 ]
 
 if settings.DEBUG:

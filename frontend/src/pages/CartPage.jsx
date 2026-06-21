@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Nav from "../components/Nav";
 import "../pageStyles/cart.css";
 import { useLang } from "../hooks/useLang";
-import { useCart } from "../context/CartContext";
+import { useCart, getCookie, ensureCsrf } from "../context/CartContext";
 import { useFrontSettings } from "../context/FrontSettingsContext";
 
 const API = import.meta.env.VITE_API_URL;
@@ -83,9 +83,14 @@ const CartPage = () => {
 
     setSubmitting(true);
     try {
+      await ensureCsrf();
       const res = await fetch(`${API}/orders/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
         body: JSON.stringify({
           cart_id: cartId,
           shipping_da: shippingDA,

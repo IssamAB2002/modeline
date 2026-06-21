@@ -4,6 +4,7 @@ import Nav from '../components/Nav';
 import { useFrontSettings } from '../context/FrontSettingsContext';
 import { useLang } from '../hooks/useLang';
 import '../pageStyles/contact.css';
+import { useCart, getCookie, ensureCsrf } from "../context/CartContext";
 
 function renderEmphasis(text) {
   const parts = String(text).split(/\{\{em\}\}|\{\{\/em\}\}/);
@@ -82,13 +83,14 @@ const ContactPage = () => {
   };
 
   const handleSubmit = async (e) => {
+    await ensureCsrf();
     e.preventDefault();
     setSubmittingContact(true);
     setContactError('');
     try {
       const res = await fetch(`${API}/contact/messages/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', "X-CSRFToken": getCookie("csrftoken"),},
         body: JSON.stringify({
           inquiry_type: formData.inquiryType,
           name: formData.name,

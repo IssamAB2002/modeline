@@ -1,0 +1,72 @@
+services:
+  db:
+    image: postgres:16
+    container_name: modeline_db
+    restart: unless-stopped
+    env_file: ./backend/.env.prod
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  redis:
+    image: redis:7-alpine
+    container_name: modeline_redis
+    restart: unless-stopped
+    networks: [internal]
+
+  backend:
+    build: ./backend
+    container_name: modeline_backend
+    restart: unless-stopped
+    env_file: ./backend/.env.prod
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    networks: [internal]
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+
+  # Uncomment once Celery tasks exist in settings.py
+  # celery:
+  #   build: ./backend
+  #   container_name: modeline_celery
+  #   restart: unless-stopped
+  #   env_file: ./backend/.env.prod
+  #   depends_on: [db, redis]
+  #   networks: [internal]
+  #   command: celery -A config worker -l info
+
+  edge:
+    image: caddy:alpine
+    container_name: modeline_edge
+    restart: unless-stopped
+    depends_on: [backend]
+    volumes:
+      - ./Caddyfile.edge:/etc/caddy/Caddyfile:ro
+      - ./frontend/dist:/srv/frontend:ro
+      - static_volume:/srv/static:ro
+      - media_volume:/srv/media:ro
+    networks: [internal, proxy]   # <- the line that connects Modeline to the shared Caddy
+
+networks:
+  internal:
+    driver: bridge
+  proxy:
+    external: true
+
+volumes:
+  pgdata:
+  static_volume:
+  media_volume:

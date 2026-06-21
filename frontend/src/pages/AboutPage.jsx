@@ -4,7 +4,7 @@ import Nav from '../components/Nav';
 import { useLang } from '../hooks/useLang';
 import { useFrontSettings } from '../context/FrontSettingsContext';
 import '../pageStyles/about.css';
-
+import { useCart, getCookie, ensureCsrf } from "../context/CartContext";
 const API = import.meta.env.VITE_API_URL;
 
 function renderEmphasis(text) {
@@ -112,9 +112,10 @@ export default function AboutPage() {
     setSubmitting(true);
     setSubmitError('');
     try {
+      await ensureCsrf();
       const res = await fetch(`${API}/about/reviews/submit/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie("csrftoken"),},
         body: JSON.stringify({
           rating: selectedRating,
           body_ar: reviewBody.trim(),

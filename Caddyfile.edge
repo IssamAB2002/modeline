@@ -1,0 +1,40 @@
+:80 {
+    encode gzip
+
+    @api path /api/*
+    handle @api {
+        reverse_proxy backend:8000
+    }
+
+    @admin path /admin/*
+    handle @admin {
+        reverse_proxy backend:8000
+    }
+
+    @static path /static/*
+    handle @static {
+        root * /srv/static
+        uri strip_prefix /static
+        file_server
+    }
+
+    @media path /media/*
+    handle @media {
+        root * /srv/media
+        uri strip_prefix /media
+        file_server
+    }
+
+    @locales path /locales/*
+    handle @locales {
+        root * /srv/frontend
+        header Cache-Control "public, max-age=300"
+        file_server
+    }
+
+    handle {
+        root * /srv/frontend
+        try_files {path} /index.html
+        file_server
+    }
+}
