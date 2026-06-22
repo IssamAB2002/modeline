@@ -15,6 +15,10 @@ class Order(models.Model):
         DELIVERED = "delivered", "تم التسليم"
         CANCELLED = "cancelled", "ملغى"
 
+    class ShippingType(models.TextChoices):
+        HOME = "home", "توصيل للبيت"
+        DESK = "desk", "مكتب التوصيل"
+
     order_number = models.CharField(max_length=20, unique=True, editable=False, verbose_name='رقم الطلب')
     status = models.CharField(
         max_length=15, choices=Status.choices, default=Status.PENDING, verbose_name='الحالة'
@@ -38,13 +42,17 @@ class Order(models.Model):
     grand_total_da = models.DecimalField(
         max_digits=12, decimal_places=2, default=Decimal("0.00"), verbose_name='المجموع الكلي (دج)'
     )
-    currency = models.CharField(max_length=10, default="DA", verbose_name='العملة')
+
+    # Shipping method
+    shipping_type = models.CharField(
+        max_length=10, choices=ShippingType.choices, default=ShippingType.HOME, verbose_name='طريقة التوصيل'
+    )
 
     # Customer / delivery
     full_name = models.CharField(max_length=200, verbose_name='الاسم الكامل')
     phone = models.CharField(max_length=30, verbose_name='الهاتف')
-    city = models.CharField(max_length=100, verbose_name='المدينة')
-    address_line = models.CharField(max_length=400, verbose_name='العنوان')
+    city = models.CharField(max_length=100, blank=True, default='', verbose_name='الولاية')
+    address_line = models.CharField(max_length=400, blank=True, default='', verbose_name='العنوان')
     notes = models.TextField(blank=True, verbose_name='ملاحظات')
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الطلب')
@@ -78,6 +86,8 @@ class OrderItem(models.Model):
     unit_price_da_snapshot = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='سعر الوحدة (دج)')
     sku_snapshot = models.CharField(max_length=64, blank=True, verbose_name='رمز المنتج')
     product_name_snapshot_ar = models.CharField(max_length=220, blank=True, verbose_name='اسم المنتج')
+    selected_size_snapshot = models.CharField(max_length=50, blank=True, default='', verbose_name='المقاس')
+    selected_color_snapshot = models.CharField(max_length=50, blank=True, default='', verbose_name='اللون')
 
     class Meta:
         verbose_name = "عنصر الطلب"

@@ -69,6 +69,9 @@ export default function Footer() {
         <span>{t('footer.bottom.left')}</span>
         <span>{t('footer.bottom.right')}</span>
       </div>
+      <div className="footer-credit">
+        <a href="https://www.facebook.com/issam.ab.79393/" target="_blank" rel="noopener noreferrer">Website Created By Issam AB</a>
+      </div>
     </footer>
   );
 }

@@ -61,6 +61,48 @@
     border: 1px solid #ccc;
     vertical-align: middle;
   }
+
+  /* ── Mobile responsive for orders list & detail ──────── */
+  @media (max-width: 767px) {
+    /* Make the changelist table scroll horizontally instead of breaking layout */
+    #changelist .results { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    #changelist table { min-width: 600px; }
+
+    /* Shrink the nav sidebar away on mobile */
+    #nav-sidebar { display: none; }
+    #nav-sidebar + #main { padding-right: 0; }
+
+    /* Status dropdown in list_editable — full width on mobile */
+    #changelist table select { width: 100%; min-width: 110px; font-size: 0.82rem; }
+
+    /* Order detail fieldsets — stack fields vertically */
+    .form-row { flex-direction: column; }
+    fieldset .form-row > .field-box { width: 100% !important; }
+
+    /* Inline tabular (order items) — horizontal scroll */
+    .inline-group .tabular { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .inline-group .tabular table { min-width: 560px; }
+
+    /* Breadcrumbs — smaller text */
+    div.breadcrumbs { font-size: 0.8rem; padding: 6px 12px; }
+
+    /* Content area padding */
+    #content { padding: 8px 10px; }
+
+    /* Object tools (History, etc.) */
+    ul.object-tools { float: none; margin-bottom: 8px; }
+    ul.object-tools li { display: inline-block; margin-left: 4px; }
+
+    /* Submit row buttons — stack on very small screens */
+    .submit-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-start; }
+    .submit-row input, .submit-row a.deletelink { width: auto; }
+
+    /* Header site name */
+    #site-name a { font-size: 1rem; }
+
+    /* Filters sidebar — show inline below table on mobile */
+    #changelist-filter { float: none; clear: both; margin: 10px 0 0; width: 100%; }
+  }
 </style>
 {% endblock %}
 

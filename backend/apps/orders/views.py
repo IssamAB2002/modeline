@@ -47,10 +47,11 @@ class OrderCreateView(APIView):
             subtotal_da=subtotal,
             shipping_da=shipping,
             grand_total_da=grand_total,
+            shipping_type=data.get("shipping_type", Order.ShippingType.HOME),
             full_name=data["full_name"],
             phone=data["phone"],
-            city=data["city"],
-            address_line=data["address_line"],
+            city=data.get("city", ""),
+            address_line=data.get("address_line", ""),
             notes=data.get("notes", ""),
         )
 
@@ -62,6 +63,8 @@ class OrderCreateView(APIView):
                 unit_price_da_snapshot=item.unit_price_da_snapshot,
                 sku_snapshot=item.sku_snapshot,
                 product_name_snapshot_ar=item.product_name_snapshot_ar,
+                selected_size_snapshot=item.selected_size or "",
+                selected_color_snapshot=item.selected_color or "",
             )
             for item in cart_items
         ])

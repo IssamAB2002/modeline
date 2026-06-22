@@ -513,8 +513,13 @@
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.cart-page .cart-faux-checkout-btn:disabled {
   cursor: not-allowed;
-  opacity: 0.75;
+  opacity: 0.55;
 }
 
 .cart-page .cart-safe-note {
@@ -544,6 +549,63 @@
   background: var(--espresso);
   color: var(--gold-pale);
   border-color: var(--espresso);
+}
+
+/* ---------- Shipping Type Selector ---------- */
+.cart-page .shipping-type-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.cart-page .shipping-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px;
+  background: var(--cream);
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border-radius: 2px;
+  text-align: center;
+  font-family: 'EB Garamond', serif;
+}
+
+.cart-page .shipping-type-btn:hover {
+  border-color: var(--gold);
+  background: rgba(245, 230, 192, 0.3);
+}
+
+.cart-page .shipping-type-btn.active {
+  border-color: var(--gold);
+  background: rgba(184, 134, 11, 0.08);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+.cart-page .shipping-type-icon {
+  font-size: 26px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.cart-page .shipping-type-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+
+.cart-page .shipping-type-sub {
+  font-size: 12px;
+  color: var(--warm-gray);
+  font-style: italic;
+}
+
+.cart-page .shipping-type-btn.active .shipping-type-label {
+  color: var(--bark);
 }
 
 /* ---------- Toast ---------- */

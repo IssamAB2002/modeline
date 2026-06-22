@@ -8,6 +8,13 @@ import { useFrontSettings } from '../context/FrontSettingsContext';
 
 const API = import.meta.env.VITE_API_URL;
 
+const BADGE_AR = {
+  sale: 'تخفيض',
+  new: 'جديد',
+  limited: 'كمية محدودة',
+  bestseller: 'الأكثر مبيعاً',
+};
+const badgeAr = (badge) => BADGE_AR[badge?.toLowerCase()] ?? badge;
 
 /* ═══════════════════════════════════════════════════════════════
    BURNOUS & BROCADE — Product Detail Page
@@ -227,6 +234,7 @@ const ProductDetailPage = () => {
                 : "متوفر",
         images: buildImages(apiProduct),
         subtitle: `${apiProduct.origin || fallbackProduct.origin} · ${apiProduct.material || fallbackProduct.material}`,
+        badge: apiProduct.badge && apiProduct.badge !== 'none' ? apiProduct.badge : null,
       }
     : fallbackProduct;
 
@@ -937,6 +945,18 @@ const ProductDetailPage = () => {
       padding: '5px 10px',
       textTransform: 'uppercase'
     },
+    mainBadge: {
+      position: 'absolute',
+      top: '20px',
+      right: 0,
+      background: 'var(--espresso)',
+      color: 'var(--gold-pale)',
+      fontFamily: "'Amiri', serif",
+      fontSize: '13px',
+      letterSpacing: '0.06em',
+      padding: '6px 16px',
+      zIndex: 2,
+    },
     relatedInfo: {
       padding: '18px 20px 22px'
     },
@@ -1129,224 +1149,378 @@ const ProductDetailPage = () => {
       <style>{styles.responsive}</style>
 
       {/* ══ TOP BAR ══ */}
-      <div style={styles.topbar}>{settings.home_topbar || t('common:topbar')}</div>
+      <div style={styles.topbar}>
+        {settings.home_topbar || t("common:topbar")}
+      </div>
 
       {/* ══ NAVIGATION ══ */}
-      <Nav variant="default" cartCount={cartCount} activePath={location.pathname} navTagline={settings.home_nav_logo_tagline} />
+      <Nav
+        variant="default"
+        cartCount={cartCount}
+        activePath={location.pathname}
+        navTagline={settings.home_nav_logo_tagline}
+      />
 
       {/* ══ NOT FOUND ══ */}
       {productLoaded && productNotFound && (
-        <div style={{ textAlign: 'center', padding: '80px 40px', minHeight: '40vh' }}>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: '11px', letterSpacing: '0.28em', color: 'var(--gold)', textTransform: 'uppercase', marginBottom: '18px' }}>404</div>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 600, color: 'var(--espresso)', marginBottom: '16px' }}>
-            {t('product:notFound.title') || 'Product Not Found'}
+        <div
+          style={{
+            textAlign: "center",
+            padding: "80px 40px",
+            minHeight: "40vh",
+          }}>
+          <div
+            style={{
+              fontFamily: "'Cinzel', serif",
+              fontSize: "11px",
+              letterSpacing: "0.28em",
+              color: "var(--gold)",
+              textTransform: "uppercase",
+              marginBottom: "18px",
+            }}>
+            404
+          </div>
+          <h2
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: "clamp(28px, 4vw, 46px)",
+              fontWeight: 600,
+              color: "var(--espresso)",
+              marginBottom: "16px",
+            }}>
+            {t("product:notFound.title") || "Product Not Found"}
           </h2>
-          <p style={{ color: 'var(--warm-gray)', fontStyle: 'italic', marginBottom: '28px' }}>
-            {t('product:notFound.subtitle') || 'This product does not exist or has been removed.'}
+          <p
+            style={{
+              color: "var(--warm-gray)",
+              fontStyle: "italic",
+              marginBottom: "28px",
+            }}>
+            {t("product:notFound.subtitle") ||
+              "This product does not exist or has been removed."}
           </p>
-          <Link to="/shop" style={{ background: 'var(--espresso)', color: 'var(--gold-pale)', padding: '12px 32px', fontFamily: "'Cinzel', serif", fontSize: '11px', letterSpacing: '0.22em', textDecoration: 'none', textTransform: 'uppercase' }}>
-            {t('product:notFound.cta') || 'Back to Shop'}
+          <Link
+            to="/shop"
+            style={{
+              background: "var(--espresso)",
+              color: "var(--gold-pale)",
+              padding: "12px 32px",
+              fontFamily: "'Cinzel', serif",
+              fontSize: "11px",
+              letterSpacing: "0.22em",
+              textDecoration: "none",
+              textTransform: "uppercase",
+            }}>
+            {t("product:notFound.cta") || "Back to Shop"}
           </Link>
         </div>
       )}
 
       {/* ══ PAGE CONTENT (hidden when not found) ══ */}
-      {!productNotFound && <>
-      {/* ══ PAGE HERO ══ */}
-      <div style={styles.pageHero} className="page-hero">
-        <div style={styles.breadcrumb}>
-          <Link to="/" style={styles.breadcrumbLink}>{t('product:breadcrumb.home')}</Link>
-          <span style={{margin: '0 8px'}}>·</span>
-          <Link to="/shop" style={styles.breadcrumbLink}>{t('product:breadcrumb.shop')}</Link>
-          <span style={{margin: '0 8px'}}>·</span>
-          <span style={{color: 'var(--gold-pale)'}}>{product.name}</span>
-        </div>
-        <h1 style={styles.pageTitle}>{t('product:pageTitle').split('{{em}}')[0]}<em style={styles.pageTitleEm}>{t('product:pageTitle').split('{{em}}')[1]?.replace('{{/em}}','') || ''}</em></h1>
-      </div>
+      {!productNotFound && (
+        <>
+          {/* ══ PAGE HERO ══ */}
+          <div style={styles.pageHero} className="page-hero">
+            <div style={styles.breadcrumb}>
+              <Link to="/" style={styles.breadcrumbLink}>
+                {t("product:breadcrumb.home")}
+              </Link>
+              <span style={{ margin: "0 8px" }}>·</span>
+              <Link to="/shop" style={styles.breadcrumbLink}>
+                {t("product:breadcrumb.shop")}
+              </Link>
+              <span style={{ margin: "0 8px" }}>·</span>
+              <span style={{ color: "var(--gold-pale)" }}>{product.name}</span>
+            </div>
+            <h1 style={styles.pageTitle}>
+              {t("product:pageTitle").split("{{em}}")[0]}
+              <em style={styles.pageTitleEm}>
+                {t("product:pageTitle")
+                  .split("{{em}}")[1]
+                  ?.replace("{{/em}}", "") || ""}
+              </em>
+            </h1>
+          </div>
 
-      {/* ══ GOLD DIVIDER ══ */}
-      <div style={{...styles.goldRule, paddingTop: '40px', paddingBottom: '20px'}} className="gold-rule">
-        <div style={styles.goldRuleLine}></div>
-        <span style={styles.goldRuleIcon}>✦ صنع تراثي ✦</span>
-        <div style={styles.goldRuleLine}></div>
-      </div>
-
-      {/* ══ PRODUCT LAYOUT ══ */}
-      <div style={styles.productLayout} className="product-layout">
-
-        {/* ── LEFT: Image Slider ── */}
-        <div style={styles.sliderWrap}>
+          {/* ══ GOLD DIVIDER ══ */}
           <div
-            style={styles.mainImageWrap}
-            onClick={() => hasImages && setIsZoomed(!isZoomed)}
-            onMouseMove={handleZoomMove}
-            onMouseLeave={() => setIsZoomed(false)}
-          >
-            {hasImages ? (
-              <img
-                src={product.images[currentImg]}
-                alt={product.name}
-                style={styles.mainImage}
-              />
-            ) : (
-              <div style={{ width: '100%', height: '100%', background: 'var(--parchment)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontFamily: "'Cinzel', serif", fontSize: '11px', letterSpacing: '0.2em', color: 'var(--warm-gray)', textTransform: 'uppercase' }}>
-                  {'لا توجد صورة'}
+            style={{
+              ...styles.goldRule,
+              paddingTop: "40px",
+              paddingBottom: "20px",
+            }}
+            className="gold-rule">
+            <div style={styles.goldRuleLine}></div>
+            <span style={styles.goldRuleIcon}>✦ صنع تراثي ✦</span>
+            <div style={styles.goldRuleLine}></div>
+          </div>
+
+          {/* ══ PRODUCT LAYOUT ══ */}
+          <div style={styles.productLayout} className="product-layout">
+            {/* ── LEFT: Image Slider ── */}
+            <div style={styles.sliderWrap}>
+              <div
+                style={styles.mainImageWrap}
+                onClick={() => hasImages && setIsZoomed(!isZoomed)}
+                onMouseMove={handleZoomMove}
+                onMouseLeave={() => setIsZoomed(false)}>
+                {hasImages ? (
+                  <img
+                    src={product.images[currentImg]}
+                    alt={product.name}
+                    style={styles.mainImage}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      background: "var(--parchment)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}>
+                    <span
+                      style={{
+                        fontFamily: "'Cinzel', serif",
+                        fontSize: "11px",
+                        letterSpacing: "0.2em",
+                        color: "var(--warm-gray)",
+                        textTransform: "uppercase",
+                      }}>
+                      {"لا توجد صورة"}
+                    </span>
+                  </div>
+                )}
+                {product.badge && (
+                  <span style={{
+                    ...styles.mainBadge,
+                    ...(product.badge.toLowerCase() === 'sale' ? { background: '#7a1a0a' } : {}),
+                    ...(product.badge.toLowerCase() === 'limited' ? { background: '#5a2d00' } : {}),
+                  }}>
+                    {badgeAr(product.badge)}
+                  </span>
+                )}
+                {hasImages && (
+                  <>
+                    <div style={styles.imgCounter}>
+                      {currentImg + 1} / {product.images.length}
+                    </div>
+                    <div style={styles.zoomHint}>
+                      {isZoomed ? "Click to zoom out" : "Click to zoom in"}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Arrows — only when more than one image */}
+              {hasImages && product.images.length > 1 && (
+                <>
+                  <button
+                    style={{ ...styles.sliderArrow, left: "12px" }}
+                    onClick={prevImg}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "var(--gold)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "var(--border)";
+                    }}>
+                    ‹
+                  </button>
+                  <button
+                    style={{ ...styles.sliderArrow, right: "12px" }}
+                    onClick={nextImg}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "var(--gold)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "var(--border)";
+                    }}>
+                    ›
+                  </button>
+                </>
+              )}
+
+              {/* Thumbnails — only when more than one image */}
+              {hasImages && product.images.length > 1 && (
+                <div style={styles.thumbStrip} ref={sliderRef}>
+                  {product.images.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`${product.name} ${idx + 1}`}
+                      style={{
+                        ...styles.thumb,
+                        ...(idx === currentImg
+                          ? styles.thumbActive
+                          : styles.thumbInactive),
+                      }}
+                      onClick={() => setCurrentImg(idx)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── RIGHT: Product Info ── */}
+            <div style={styles.productInfo}>
+              <span style={styles.productEyebrow}>
+                {product.origin} · {product.material}
+              </span>
+              <h1 style={styles.productName}>
+                {product.name_ar || product.name}
+              </h1>
+              <p style={styles.productSubtitle}>{product.subtitle}</p>
+
+              {/* Rating — computed from actual approved reviews */}
+              <div style={styles.ratingRow}>
+                {(() => {
+                  const displayRating =
+                    computedRating !== null
+                      ? parseFloat(computedRating)
+                      : parseFloat(product.rating) || 0;
+                  const r = Math.min(5, Math.max(0, Math.round(displayRating)));
+                  return (
+                    <span style={styles.stars}>
+                      {"★".repeat(r)}
+                      {"☆".repeat(5 - r)}
+                    </span>
+                  );
+                })()}
+                <span style={styles.ratingText}>
+                  {computedRating !== null ? computedRating : product.rating}
+                  {" · "}
+                  {computedReviewCount !== null
+                    ? computedReviewCount
+                    : product.reviewCount}{" "}
+                  {t("product:labels.reviews")}
                 </span>
               </div>
-            )}
-            {hasImages && (
-              <>
-                <div style={styles.imgCounter}>{currentImg + 1} / {product.images.length}</div>
-                <div style={styles.zoomHint}>{isZoomed ? 'Click to zoom out' : 'Click to zoom in'}</div>
-              </>
-            )}
-          </div>
 
-          {/* Arrows — only when more than one image */}
-          {hasImages && product.images.length > 1 && (
-            <>
-              <button
-                style={{...styles.sliderArrow, left: '12px'}}
-                onClick={prevImg}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
-              >‹</button>
-              <button
-                style={{...styles.sliderArrow, right: '12px'}}
-                onClick={nextImg}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
-              >›</button>
-            </>
-          )}
+              {/* Price */}
+              <div style={styles.priceRow}>
+                <span style={styles.price}>
+                  {product.price.toLocaleString("fr-DZ")} DA
+                </span>
+                {product.oldPrice && (
+                  <span style={styles.oldPrice}>
+                    {product.oldPrice.toLocaleString("fr-DZ")} DA
+                  </span>
+                )}
+                <span style={{ ...styles.sku, marginLeft: "auto" }}>
+                  SKU: {product.sku}
+                </span>
+              </div>
 
-          {/* Thumbnails — only when more than one image */}
-          {hasImages && product.images.length > 1 && (
-            <div style={styles.thumbStrip} ref={sliderRef}>
-              {product.images.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`${product.name} ${idx + 1}`}
-                  style={{
-                    ...styles.thumb,
-                    ...(idx === currentImg ? styles.thumbActive : styles.thumbInactive)
+              {/* Color — only shown when the admin has defined colours */}
+              {product.colors && product.colors.length > 0 && (
+                <>
+                  <span style={styles.selectorLabel}>
+                    {"اللون"}
+                    {selectedColor && (
+                      <span
+                        style={{
+                          fontStyle: "italic",
+                          color: "var(--bark)",
+                          marginLeft: "6px",
+                        }}>
+                        — {selectedColor}
+                      </span>
+                    )}
+                  </span>
+                  <div style={styles.colorRow}>
+                    {product.colors.map((c) => (
+                      <button
+                        key={c.name}
+                        style={{
+                          ...styles.colorSwatch,
+                          background: c.hex,
+                          ...(selectedColor === c.name
+                            ? styles.colorSwatchActive
+                            : {}),
+                        }}
+                        onClick={() => setSelectedColor(c.name)}
+                        title={c.name}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Size — only shown when the admin has defined sizes */}
+              {product.sizes && product.sizes.length > 0 && (
+                <>
+                  <span style={styles.selectorLabel}>
+                    {"المقاس"}
+                    {selectedSize && (
+                      <span
+                        style={{
+                          fontStyle: "italic",
+                          color: "var(--bark)",
+                          marginLeft: "6px",
+                        }}>
+                        — {selectedSize}
+                      </span>
+                    )}
+                  </span>
+                  <div style={styles.sizeRow}>
+                    {product.sizes.map((s) => (
+                      <button
+                        key={s}
+                        className="size-btn"
+                        style={{
+                          ...styles.sizeBtn,
+                          ...(selectedSize === s ? styles.sizeBtnActive : {}),
+                          padding: "0 14px",
+                        }}
+                        onClick={() => setSelectedSize(s)}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Qty & Actions */}
+              <div style={styles.actionRow} className="action-row">
+                <div style={styles.qtyWrap} className="qty-wrap">
+                  <button
+                    style={styles.qtyBtn}
+                    onClick={() => setQty(Math.max(1, qty - 1))}>
+                    −
+                  </button>
+                  <span style={styles.qtyDisplay}>{qty}</span>
+                  <button style={styles.qtyBtn} onClick={() => setQty(qty + 1)}>
+                    +
+                  </button>
+                </div>
+                <button
+                  style={styles.addToCartBtn}
+                  className="add-to-cart-btn"
+                  onClick={handleAddToCart}
+                  disabled={addingToCart}
+                  onMouseEnter={(e) => {
+                    if (!addingToCart)
+                      e.currentTarget.style.background = "var(--bark)";
                   }}
-                  onClick={() => setCurrentImg(idx)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ── RIGHT: Product Info ── */}
-        <div style={styles.productInfo}>
-          <span style={styles.productEyebrow}>{product.origin} · {product.material}</span>
-          <h1 style={styles.productName}>{product.name_ar || product.name}</h1>
-          <p style={styles.productSubtitle}>{product.subtitle}</p>
-
-          {/* Rating — computed from actual approved reviews */}
-          <div style={styles.ratingRow}>
-            {(() => {
-              const displayRating = computedRating !== null ? parseFloat(computedRating) : parseFloat(product.rating) || 0;
-              const r = Math.min(5, Math.max(0, Math.round(displayRating)));
-              return <span style={styles.stars}>{'★'.repeat(r)}{'☆'.repeat(5 - r)}</span>;
-            })()}
-            <span style={styles.ratingText}>
-              {computedRating !== null ? computedRating : product.rating}
-              {' · '}
-              {computedReviewCount !== null ? computedReviewCount : product.reviewCount}
-              {' '}{t('product:labels.reviews')}
-            </span>
-          </div>
-
-          {/* Price */}
-          <div style={styles.priceRow}>
-            <span style={styles.price}>{product.price.toLocaleString('fr-DZ')} DA</span>
-            {product.oldPrice && <span style={styles.oldPrice}>{product.oldPrice.toLocaleString('fr-DZ')} DA</span>}
-            <span style={{...styles.sku, marginLeft: 'auto'}}>SKU: {product.sku}</span>
-          </div>
-
-          {/* Color — only shown when the admin has defined colours */}
-          {product.colors && product.colors.length > 0 && (
-            <>
-              <span style={styles.selectorLabel}>
-                {'اللون'}
-                {selectedColor && <span style={{fontStyle: 'italic', color: 'var(--bark)', marginLeft: '6px'}}>— {selectedColor}</span>}
-              </span>
-              <div style={styles.colorRow}>
-                {product.colors.map((c) => (
-                  <button
-                    key={c.name}
-                    style={{
-                      ...styles.colorSwatch,
-                      background: c.hex,
-                      ...(selectedColor === c.name ? styles.colorSwatchActive : {})
-                    }}
-                    onClick={() => setSelectedColor(c.name)}
-                    title={c.name}
-                  />
-                ))}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "var(--espresso)";
+                  }}>
+                  {addingToCart
+                    ? "تمت الإضافة! جاري التوجيه…"
+                    : `${t("product:labels.addToBasket")} — ${(product.price * qty).toLocaleString("fr-DZ")} DA`}
+                </button>
+                <button
+                  style={styles.wishlistBtn}
+                  className="wishlist-btn"
+                  onClick={() => setIsWishlisted(!isWishlisted)}>
+                  {isWishlisted ? "♥" : "♡"}
+                </button>
               </div>
-            </>
-          )}
 
-          {/* Size — only shown when the admin has defined sizes */}
-          {product.sizes && product.sizes.length > 0 && (
-            <>
-              <span style={styles.selectorLabel}>
-                {'المقاس'}
-                {selectedSize && <span style={{fontStyle: 'italic', color: 'var(--bark)', marginLeft: '6px'}}>— {selectedSize}</span>}
-              </span>
-              <div style={styles.sizeRow}>
-                {product.sizes.map((s) => (
-                  <button
-                    key={s}
-                    className="size-btn"
-                    style={{
-                      ...styles.sizeBtn,
-                      ...(selectedSize === s ? styles.sizeBtnActive : {}),
-                      padding: '0 14px',
-                    }}
-                    onClick={() => setSelectedSize(s)}
-                  >{s}</button>
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* Qty & Actions */}
-          <div style={styles.actionRow} className="action-row">
-            <div style={styles.qtyWrap} className="qty-wrap">
-              <button style={styles.qtyBtn} onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
-              <span style={styles.qtyDisplay}>{qty}</span>
-              <button style={styles.qtyBtn} onClick={() => setQty(qty + 1)}>+</button>
-            </div>
-            <button
-              style={styles.addToCartBtn}
-              className="add-to-cart-btn"
-              onClick={handleAddToCart}
-              disabled={addingToCart}
-              onMouseEnter={(e) => { if (!addingToCart) e.currentTarget.style.background = 'var(--bark)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--espresso)'; }}
-            >
-              {addingToCart
-                ? 'تمت الإضافة! جاري التوجيه…'
-                : `${t('product:labels.addToBasket')} — ${(product.price * qty).toLocaleString('fr-DZ')} DA`}
-            </button>
-            <button
-              style={styles.wishlistBtn}
-              className="wishlist-btn"
-              onClick={() => setIsWishlisted(!isWishlisted)}
-            >
-              {isWishlisted ? '♥' : '♡'}
-            </button>
-          </div>
-
-          {/* Meta */}
-          <div style={styles.metaGrid} className="meta-grid">
-            {/* <div style={styles.metaItem}>
+              {/* Meta */}
+              <div style={styles.metaGrid} className="meta-grid">
+                {/* <div style={styles.metaItem}>
               <span style={styles.metaLabel}>Artisan</span>
               <span style={styles.metaValue}>{product.artisan}</span>
             </div>
@@ -1354,267 +1528,485 @@ const ProductDetailPage = () => {
               <span style={styles.metaLabel}>Craft Time</span>
               <span style={styles.metaValue}>{product.craftTime}</span>
             </div> */}
-            <div style={styles.metaItem}>
-              <span style={styles.metaLabel}>مصنوع من</span>
-              <span style={styles.metaValue}>{product.material}</span>
-            </div>
-            <div style={styles.metaItem}>
-              <span style={styles.metaLabel}>متوفر</span>
-              <span style={{...styles.metaValue, color: '#2d5a27'}}>{product.availability}</span>
-            </div>
-          </div>
-
-          {/* Tabs */}
-          <div style={styles.tabsWrap}>
-            <div style={styles.tabList} className="tab-list">
-              {[
-                { id: 'description', label: t('product:tabs.description') },
-                { id: 'details', label: t('product:tabs.details') },
-                { id: 'shipping', label: t('product:tabs.shipping') },
-                { id: 'reviews', label: t('product:tabs.reviews') }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  style={{
-                    ...styles.tabBtn,
-                    ...(activeTab === tab.id ? styles.tabBtnActive : {})
-                  }}
-                  onClick={() => setActiveTab(tab.id)}
-                >{tab.label}</button>
-              ))}
-            </div>
-
-            <div style={styles.tabContent}>
-              {activeTab === 'description' && (
-                <p>{product.description_ar || product.description}</p>
-              )}
-              {activeTab === 'details' && (
-                <ul style={styles.detailList}>
-                  {/* Product details */}
-                  {product.details.length > 0 ? product.details.map((d, i) => (
-                    <li key={i} style={styles.detailItem}>
-                      <span style={styles.detailBullet}>✦</span>
-                      {d}
-                    </li>
-                  )) : (
-                    <li style={{...styles.detailItem, color: 'var(--warm-gray)', fontStyle: 'italic'}}>
-                      <span style={styles.detailBullet}>✦</span>
-                      {'لا تفاصيل متوفرة بعد.'}
-                    </li>
-                  )}
-
-                  {/* Care instructions */}
-                  <li style={{...styles.detailItem, borderBottom: 'none', marginTop: '14px'}}>
-                    <span style={styles.detailBullet}>◈</span>
-                    <strong style={{color: 'var(--espresso)', fontStyle: 'normal'}}>
-                      {'تعليمات العناية:'}
-                    </strong>
-                  </li>
-                  {product.care.length > 0 ? product.care.map((c, i) => (
-                    <li key={`care-${i}`} style={{...styles.detailItem, paddingInlineStart: '30px'}}>
-                      {c}
-                    </li>
-                  )) : (
-                    <li style={{...styles.detailItem, paddingInlineStart: '30px', color: 'var(--warm-gray)', fontStyle: 'italic'}}>
-                      {'لا تعليمات عناية متوفرة.'}
-                    </li>
-                  )}
-                </ul>
-              )}
-              {activeTab === 'shipping' && (
-                <div>
-                  <p style={{marginBottom: '16px'}}>{settings.product_shipping_intro}</p>
-                  <div style={{marginBottom: '20px'}}>
-                    <label style={{...styles.selectorLabel, display: 'block', marginBottom: '8px'}}>
-                      {'الولاية'}
-                    </label>
-                    <select
-                      value={selectedWilaya?.id || ''}
-                      onChange={(e) => setSelectedWilaya(wilayas.find((w) => w.id === parseInt(e.target.value, 10)) || null)}
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        border: '1px solid var(--border)',
-                        background: 'var(--cream)',
-                        fontFamily: "'EB Garamond', Georgia, serif",
-                        fontSize: '15px',
-                        color: 'var(--espresso)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <option value="">{'اختر الولاية'}</option>
-                      {wilayas.map((w) => (
-                        <option key={w.id} value={w.id}>
-                          {w.name_ar}
-                        </option>
-                      ))}
-                    </select>
-                    {selectedWilaya && (
-                      <p style={{marginTop: '10px', color: 'var(--bark)', fontStyle: 'italic'}}>
-                        {`شحن إلى ${selectedWilaya.name_ar}: ${Number(selectedWilaya.shipping_price_da).toLocaleString('fr-DZ')} DA`}
-                      </p>
-                    )}
-                  </div>
-                  <ul style={styles.detailList}>
-                    <li style={styles.detailItem}><span style={styles.detailBullet}>✦</span>{settings.product_shipping_algeria}</li>
-                    <li style={styles.detailItem}><span style={styles.detailBullet}>✦</span>{settings.product_shipping_france}</li>
-                    <li style={styles.detailItem}><span style={styles.detailBullet}>✦</span>{settings.product_shipping_tracking}</li>
-                  </ul>
+                <div style={styles.metaItem}>
+                  <span style={styles.metaLabel}>مصنوع من</span>
+                  <span style={styles.metaValue}>{product.material}</span>
                 </div>
-              )}
-              {activeTab === 'reviews' && (
-                <div>
-                  {/* Existing approved reviews */}
-                  {!reviewsLoaded ? (
-                    <p style={{color: 'var(--warm-gray)', fontStyle: 'italic'}}>
-                      {'جاري التحميل…'}
-                    </p>
-                  ) : reviews.length === 0 ? (
-                    <p style={{color: 'var(--warm-gray)', fontStyle: 'italic', marginBottom: '28px'}}>
-                      {'لا توجد تقييمات بعد. كن أول من يقيّم!'}
-                    </p>
-                  ) : (
-                    <ul style={{...styles.detailList, marginBottom: '28px'}}>
-                      {reviews.map((rv) => {
-                        const r = Math.min(5, Math.max(0, rv.rating));
-                        return (
-                          <li key={rv.id} style={{...styles.detailItem, flexDirection: 'column', alignItems: 'flex-start', gap: '6px'}}>
-                            <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                              <span style={{color: 'var(--gold)', fontSize: '14px', letterSpacing: '2px'}}>
-                                {'★'.repeat(r)}{'☆'.repeat(5 - r)}
-                              </span>
-                              <span style={{...styles.metaLabel}}>{rv.reviewer_name}</span>
-                            </div>
-                            {rv.body ? <p style={{margin: 0, fontStyle: 'italic'}}>{rv.body}</p> : null}
+                <div style={styles.metaItem}>
+                  <span style={styles.metaLabel}>متوفر</span>
+                  <span style={{ ...styles.metaValue, color: "#2d5a27" }}>
+                    {product.availability}
+                  </span>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div style={styles.tabsWrap}>
+                <div style={styles.tabList} className="tab-list">
+                  {[
+                    { id: "description", label: t("product:tabs.description") },
+                    { id: "details", label: t("product:tabs.details") },
+                    { id: "shipping", label: t("product:tabs.shipping") },
+                    { id: "reviews", label: t("product:tabs.reviews") },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      style={{
+                        ...styles.tabBtn,
+                        ...(activeTab === tab.id ? styles.tabBtnActive : {}),
+                      }}
+                      onClick={() => setActiveTab(tab.id)}>
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div style={styles.tabContent}>
+                  {activeTab === "description" && (
+                    <p>{product.description_ar || product.description}</p>
+                  )}
+                  {activeTab === "details" && (
+                    <ul style={styles.detailList}>
+                      {/* Product details */}
+                      {product.details.length > 0 ? (
+                        product.details.map((d, i) => (
+                          <li key={i} style={styles.detailItem}>
+                            <span style={styles.detailBullet}>✦</span>
+                            {d}
                           </li>
-                        );
-                      })}
+                        ))
+                      ) : (
+                        <li
+                          style={{
+                            ...styles.detailItem,
+                            color: "var(--warm-gray)",
+                            fontStyle: "italic",
+                          }}>
+                          <span style={styles.detailBullet}>✦</span>
+                          {"لا تفاصيل متوفرة بعد."}
+                        </li>
+                      )}
+
+                      {/* Care instructions */}
+                      <li
+                        style={{
+                          ...styles.detailItem,
+                          borderBottom: "none",
+                          marginTop: "14px",
+                        }}>
+                        <span style={styles.detailBullet}>◈</span>
+                        <strong
+                          style={{
+                            color: "var(--espresso)",
+                            fontStyle: "normal",
+                          }}>
+                          {"تعليمات العناية:"}
+                        </strong>
+                      </li>
+                      {product.care.length > 0 ? (
+                        product.care.map((c, i) => (
+                          <li
+                            key={`care-${i}`}
+                            style={{
+                              ...styles.detailItem,
+                              paddingInlineStart: "30px",
+                            }}>
+                            {c}
+                          </li>
+                        ))
+                      ) : (
+                        <li
+                          style={{
+                            ...styles.detailItem,
+                            paddingInlineStart: "30px",
+                            color: "var(--warm-gray)",
+                            fontStyle: "italic",
+                          }}>
+                          {"لا تعليمات عناية متوفرة."}
+                        </li>
+                      )}
                     </ul>
                   )}
-
-                  {/* Submit a review */}
-                  <div style={{borderTop: '1px solid var(--border)', paddingTop: '24px', marginTop: '8px'}}>
-                    <p style={{...styles.selectorLabel, marginBottom: '18px'}}>
-                      {'أضف تقييمك'}
-                    </p>
-                    <form onSubmit={handleReviewSubmit} style={{display: 'flex', flexDirection: 'column', gap: '14px'}}>
-                      <input
-                        type="text"
-                        required
-                        placeholder={'اسمك'}
-                        value={reviewForm.reviewer_name}
-                        onChange={(e) => setReviewForm((f) => ({...f, reviewer_name: e.target.value}))}
-                        style={{padding: '10px 14px', border: '1px solid var(--border)', background: 'var(--cream)', fontFamily: "'EB Garamond', Georgia, serif", fontSize: '15px', color: 'var(--espresso)'}}
-                      />
-                      <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                        <span style={{...styles.selectorLabel, marginBottom: 0}}>{'التقييم'}</span>
-                        {[1,2,3,4,5].map((n) => (
-                          <button
-                            key={n}
-                            type="button"
-                            onClick={() => setReviewForm((f) => ({...f, rating: n}))}
+                  {activeTab === "shipping" && (
+                    <div>
+                      <p style={{ marginBottom: "16px" }}>
+                        {settings.product_shipping_intro}
+                      </p>
+                      <div style={{ marginBottom: "20px" }}>
+                        <label
+                          style={{
+                            ...styles.selectorLabel,
+                            display: "block",
+                            marginBottom: "8px",
+                          }}>
+                          {"الولاية"}
+                        </label>
+                        <select
+                          value={selectedWilaya?.id || ""}
+                          onChange={(e) =>
+                            setSelectedWilaya(
+                              wilayas.find(
+                                (w) => w.id === parseInt(e.target.value, 10),
+                              ) || null,
+                            )
+                          }
+                          style={{
+                            width: "100%",
+                            padding: "10px 14px",
+                            border: "1px solid var(--border)",
+                            background: "var(--cream)",
+                            fontFamily: "'EB Garamond', Georgia, serif",
+                            fontSize: "15px",
+                            color: "var(--espresso)",
+                            cursor: "pointer",
+                          }}>
+                          <option value="">{"اختر الولاية"}</option>
+                          {wilayas.map((w) => (
+                            <option key={w.id} value={w.id}>
+                              {w.name_ar}
+                            </option>
+                          ))}
+                        </select>
+                        {selectedWilaya && (
+                          <p
                             style={{
-                              background: 'none',
-                              border: 'none',
-                              cursor: 'pointer',
-                              fontSize: '22px',
-                              color: n <= reviewForm.rating ? 'var(--gold)' : 'var(--border)',
-                              padding: '0 2px',
-                              lineHeight: 1
-                            }}
-                          >★</button>
-                        ))}
+                              marginTop: "10px",
+                              color: "var(--bark)",
+                              fontStyle: "italic",
+                            }}>
+                            {`شحن إلى ${selectedWilaya.name_ar}: ${Number(selectedWilaya.shipping_price_da).toLocaleString("fr-DZ")} DA`}
+                          </p>
+                        )}
                       </div>
-                      <textarea
-                        placeholder={'تعليقك (اختياري)'}
-                        value={reviewForm.body}
-                        onChange={(e) => setReviewForm((f) => ({...f, body: e.target.value}))}
-                        rows={3}
-                        style={{padding: '10px 14px', border: '1px solid var(--border)', background: 'var(--cream)', fontFamily: "'EB Garamond', Georgia, serif", fontSize: '15px', color: 'var(--espresso)', resize: 'vertical'}}
-                      />
-                      <button
-                        type="submit"
-                        disabled={reviewSubmitting}
-                        style={{...styles.addToCartBtn, height: '46px', flex: 'none', width: 'fit-content', padding: '0 32px'}}
-                      >
-                        {reviewSubmitting ? 'جاري الإرسال…' : 'إرسال التقييم'}
-                      </button>
-                      {reviewMsg && (
-                        <p style={{color: 'var(--bark)', fontStyle: 'italic', margin: 0}}>{reviewMsg}</p>
+                      <ul style={styles.detailList}>
+                        <li style={styles.detailItem}>
+                          <span style={styles.detailBullet}>✦</span>
+                          {settings.product_shipping_algeria}
+                        </li>
+                        <li style={styles.detailItem}>
+                          <span style={styles.detailBullet}>✦</span>
+                          {settings.product_shipping_france}
+                        </li>
+                        <li style={styles.detailItem}>
+                          <span style={styles.detailBullet}>✦</span>
+                          {settings.product_shipping_tracking}
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                  {activeTab === "reviews" && (
+                    <div>
+                      {/* Existing approved reviews */}
+                      {!reviewsLoaded ? (
+                        <p
+                          style={{
+                            color: "var(--warm-gray)",
+                            fontStyle: "italic",
+                          }}>
+                          {"جاري التحميل…"}
+                        </p>
+                      ) : reviews.length === 0 ? (
+                        <p
+                          style={{
+                            color: "var(--warm-gray)",
+                            fontStyle: "italic",
+                            marginBottom: "28px",
+                          }}>
+                          {"لا توجد تقييمات بعد. كن أول من يقيّم!"}
+                        </p>
+                      ) : (
+                        <ul
+                          style={{
+                            ...styles.detailList,
+                            marginBottom: "28px",
+                          }}>
+                          {reviews.map((rv) => {
+                            const r = Math.min(5, Math.max(0, rv.rating));
+                            return (
+                              <li
+                                key={rv.id}
+                                style={{
+                                  ...styles.detailItem,
+                                  flexDirection: "column",
+                                  alignItems: "flex-start",
+                                  gap: "6px",
+                                }}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "12px",
+                                  }}>
+                                  <span
+                                    style={{
+                                      color: "var(--gold)",
+                                      fontSize: "14px",
+                                      letterSpacing: "2px",
+                                    }}>
+                                    {"★".repeat(r)}
+                                    {"☆".repeat(5 - r)}
+                                  </span>
+                                  <span style={{ ...styles.metaLabel }}>
+                                    {rv.reviewer_name}
+                                  </span>
+                                </div>
+                                {rv.body ? (
+                                  <p style={{ margin: 0, fontStyle: "italic" }}>
+                                    {rv.body}
+                                  </p>
+                                ) : null}
+                              </li>
+                            );
+                          })}
+                        </ul>
                       )}
-                    </form>
-                  </div>
+
+                      {/* Submit a review */}
+                      <div
+                        style={{
+                          borderTop: "1px solid var(--border)",
+                          paddingTop: "24px",
+                          marginTop: "8px",
+                        }}>
+                        <p
+                          style={{
+                            ...styles.selectorLabel,
+                            marginBottom: "18px",
+                          }}>
+                          {"أضف تقييمك"}
+                        </p>
+                        <form
+                          onSubmit={handleReviewSubmit}
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "14px",
+                          }}>
+                          <input
+                            type="text"
+                            required
+                            placeholder={"اسمك"}
+                            value={reviewForm.reviewer_name}
+                            onChange={(e) =>
+                              setReviewForm((f) => ({
+                                ...f,
+                                reviewer_name: e.target.value,
+                              }))
+                            }
+                            style={{
+                              padding: "10px 14px",
+                              border: "1px solid var(--border)",
+                              background: "var(--cream)",
+                              fontFamily: "'EB Garamond', Georgia, serif",
+                              fontSize: "15px",
+                              color: "var(--espresso)",
+                            }}
+                          />
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "12px",
+                            }}>
+                            <span
+                              style={{
+                                ...styles.selectorLabel,
+                                marginBottom: 0,
+                              }}>
+                              {"التقييم"}
+                            </span>
+                            {[1, 2, 3, 4, 5].map((n) => (
+                              <button
+                                key={n}
+                                type="button"
+                                onClick={() =>
+                                  setReviewForm((f) => ({ ...f, rating: n }))
+                                }
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: "22px",
+                                  color:
+                                    n <= reviewForm.rating
+                                      ? "var(--gold)"
+                                      : "var(--border)",
+                                  padding: "0 2px",
+                                  lineHeight: 1,
+                                }}>
+                                ★
+                              </button>
+                            ))}
+                          </div>
+                          <textarea
+                            placeholder={"تعليقك (اختياري)"}
+                            value={reviewForm.body}
+                            onChange={(e) =>
+                              setReviewForm((f) => ({
+                                ...f,
+                                body: e.target.value,
+                              }))
+                            }
+                            rows={3}
+                            style={{
+                              padding: "10px 14px",
+                              border: "1px solid var(--border)",
+                              background: "var(--cream)",
+                              fontFamily: "'EB Garamond', Georgia, serif",
+                              fontSize: "15px",
+                              color: "var(--espresso)",
+                              resize: "vertical",
+                            }}
+                          />
+                          <button
+                            type="submit"
+                            disabled={reviewSubmitting}
+                            style={{
+                              ...styles.addToCartBtn,
+                              height: "46px",
+                              flex: "none",
+                              width: "fit-content",
+                              padding: "0 32px",
+                            }}>
+                            {reviewSubmitting
+                              ? "جاري الإرسال…"
+                              : "إرسال التقييم"}
+                          </button>
+                          {reviewMsg && (
+                            <p
+                              style={{
+                                color: "var(--bark)",
+                                fontStyle: "italic",
+                                margin: 0,
+                              }}>
+                              {reviewMsg}
+                            </p>
+                          )}
+                        </form>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* ══ ADDED TO CART TOAST ══ */}
-      <div style={styles.addedToast}>
-        ✦ Added to Basket — {product.name} ({selectedSize}, {selectedColor}) × {qty}
-      </div>
+          {/* ══ ADDED TO CART TOAST ══ */}
+          <div style={styles.addedToast}>
+            ✦ Added to Basket — {product.name} ({selectedSize}, {selectedColor})
+            × {qty}
+          </div>
 
-      {/* ══ RELATED PRODUCTS ══ */}
-      <section style={styles.relatedSection} className="related-section">
-        <div style={styles.sectionHeader}>
-          <span style={styles.sectionEyebrow}>You May Also Appreciate</span>
-          <h2 style={styles.sectionTitle}>Related <em style={styles.sectionTitleEm}>Pieces</em></h2>
-          <p style={{fontSize: '16px', color: 'var(--warm-gray)', fontStyle: 'italic', maxWidth: '500px', margin: '0 auto'}}>Garments that share the same spirit of craft and regional tradition.</p>
-        </div>
+          {/* ══ RELATED PRODUCTS ══ */}
+          <section style={styles.relatedSection} className="related-section">
+            <div style={styles.sectionHeader}>
+              <span style={styles.sectionEyebrow}>قد تقدر أيضا</span>
+              <h2 style={styles.sectionTitle}>
+                منتجات <em style={styles.sectionTitleEm}>ذات صلة </em>
+              </h2>
+              <p
+                style={{
+                  fontSize: "16px",
+                  color: "var(--warm-gray)",
+                  fontStyle: "italic",
+                  maxWidth: "500px",
+                  margin: "0 auto",
+                }}>
+                الملابس التي تشترك في نفس روح الحرفة والتقاليد الإقليمية.
+              </p>
+            </div>
 
-        <div style={styles.relatedGrid} className="related-grid">
-          {relatedProducts.map((item) => (
-            <Link
-              key={item.id}
-              to={`/product/${item.id}`}
-              style={styles.relatedCard}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(28,14,4,0.12)';
-                const img = e.currentTarget.querySelector('img');
-                if (img) img.style.transform = 'scale(1.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
-                const img = e.currentTarget.querySelector('img');
-                if (img) img.style.transform = 'scale(1)';
-              }}
-            >
-              <div style={styles.relatedImgWrap}>
-                {item.image_url
-                  ? <img src={item.image_url} alt={item.name} style={styles.relatedImg} />
-                  : <div style={{width: '100%', height: '100%', background: 'var(--parchment)'}} />
-                }
-                {item.badge && item.badge !== 'none' && (
-                  <span style={{
-                    ...styles.relatedBadge,
-                    ...(item.badge === 'Sale' ? {background: '#7a1a0a'} : {}),
-                    ...(item.badge === 'Limited' ? {background: '#5a2d00'} : {})
-                  }}>{item.badge}</span>
-                )}
-              </div>
-              <div style={styles.relatedInfo}>
-                <span style={styles.relatedStars}>
-                  {(() => { const r = Math.min(5, Math.max(0, Math.round(parseFloat(item.rating) || 0))); return '★'.repeat(r) + '☆'.repeat(5 - r); })()}
-                </span>
-                <span style={{ fontSize: '11px', color: 'var(--warm-gray)', fontStyle: 'italic', display: 'block', marginBottom: '6px' }}>
-                  ({item.review_count || 0})
-                </span>
-                <div style={styles.relatedName}>{item.name_ar || item.name}</div>
-                <div style={styles.relatedOrigin}>{item.origin}</div>
-                <div style={styles.relatedPriceRow}>
-                  <span style={styles.relatedPrice}>{Number(item.price).toLocaleString('fr-DZ')} DA</span>
-                  {item.old_price && <span style={styles.relatedOldPrice}>{Number(item.old_price).toLocaleString('fr-DZ')} DA</span>}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+            <div style={styles.relatedGrid} className="related-grid">
+              {relatedProducts.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/product/${item.id}`}
+                  style={styles.relatedCard}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow =
+                      "0 8px 32px rgba(28,14,4,0.12)";
+                    const img = e.currentTarget.querySelector("img");
+                    if (img) img.style.transform = "scale(1.05)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = "none";
+                    const img = e.currentTarget.querySelector("img");
+                    if (img) img.style.transform = "scale(1)";
+                  }}>
+                  <div style={styles.relatedImgWrap}>
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        style={styles.relatedImg}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          background: "var(--parchment)",
+                        }}
+                      />
+                    )}
+                    {item.badge && item.badge !== "none" && (
+                      <span
+                        style={{
+                          ...styles.relatedBadge,
+                          ...(item.badge === "Sale"
+                            ? { background: "#7a1a0a" }
+                            : {}),
+                          ...(item.badge === "Limited"
+                            ? { background: "#5a2d00" }
+                            : {}),
+                        }}>
+                        {badgeAr(item.badge)}
+                      </span>
+                    )}
+                  </div>
+                  <div style={styles.relatedInfo}>
+                    <span style={styles.relatedStars}>
+                      {(() => {
+                        const r = Math.min(
+                          5,
+                          Math.max(0, Math.round(parseFloat(item.rating) || 0)),
+                        );
+                        return "★".repeat(r) + "☆".repeat(5 - r);
+                      })()}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--warm-gray)",
+                        fontStyle: "italic",
+                        display: "block",
+                        marginBottom: "6px",
+                      }}>
+                      ({item.review_count || 0})
+                    </span>
+                    <div style={styles.relatedName}>
+                      {item.name_ar || item.name}
+                    </div>
+                    <div style={styles.relatedOrigin}>{item.origin}</div>
+                    <div style={styles.relatedPriceRow}>
+                      <span style={styles.relatedPrice}>
+                        {Number(item.price).toLocaleString("fr-DZ")} DA
+                      </span>
+                      {item.old_price && (
+                        <span style={styles.relatedOldPrice}>
+                          {Number(item.old_price).toLocaleString("fr-DZ")} DA
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
 
-      <Footer />
-      </>}
+          <Footer />
+        </>
+      )}
     </div>
   );
 };

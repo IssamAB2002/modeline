@@ -22,7 +22,15 @@ export async function ensureCsrf() {
   }
 }
 
+const BADGE_AR = {
+  sale: 'تخفيض',
+  new: 'جديد',
+  limited: 'كمية محدودة',
+  bestseller: 'الأكثر مبيعاً',
+};
+
 function normalizeItem(raw) {
+  const badgeRaw = raw.product_badge && raw.product_badge !== 'none' ? raw.product_badge : null;
   return {
     id: raw.id,
     productId: raw.product,
@@ -35,6 +43,7 @@ function normalizeItem(raw) {
     image: raw.product_image_url || "",
     productOrigin: raw.product_origin || "",
     lineTotal: parseFloat(raw.line_total),
+    badge: badgeRaw ? (BADGE_AR[badgeRaw.toLowerCase()] ?? badgeRaw) : null,
   };
 }
 

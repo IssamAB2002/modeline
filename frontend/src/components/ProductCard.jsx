@@ -16,6 +16,13 @@ function badgeClass(badgeType) {
   return '';
 }
 
+const BADGE_AR = {
+  sale: 'تخفيض',
+  new: 'جديد',
+  limited: 'كمية محدودة',
+  bestseller: 'الأكثر مبيعاً',
+};
+
 /**
  * Shared product card for Home (grid only) and Shop (grid + list).
  *
@@ -85,7 +92,7 @@ const ProductCard = ({
 
         {product.badge && (
           <span className={`product-badge${bc ? ` ${bc}` : ''}`}>
-            {product.badge}
+            {(product.badgeType && BADGE_AR[product.badgeType]) || product.badge}
           </span>
         )}
 

@@ -18,6 +18,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "unit_price_da_snapshot",
             "sku_snapshot",
             "product_name_snapshot_ar",
+            "selected_size_snapshot",
+            "selected_color_snapshot",
             "line_total",
         )
 
@@ -34,7 +36,6 @@ class OrderSerializer(serializers.ModelSerializer):
             "subtotal_da",
             "shipping_da",
             "grand_total_da",
-            "currency",
             "created_at",
             "updated_at",
             "items",
@@ -47,8 +48,19 @@ class OrderCreateSerializer(serializers.Serializer):
     shipping_da = serializers.DecimalField(
         max_digits=12, decimal_places=2, required=False, default=Decimal("0.00")
     )
+    shipping_type = serializers.ChoiceField(
+        choices=Order.ShippingType.choices, default=Order.ShippingType.HOME
+    )
     full_name = serializers.CharField(max_length=200)
     phone = serializers.CharField(max_length=30)
-    city = serializers.CharField(max_length=100)
-    address_line = serializers.CharField(max_length=400)
+    city = serializers.CharField(max_length=100, allow_blank=True, required=False, default="")
+    address_line = serializers.CharField(max_length=400, allow_blank=True, required=False, default="")
     notes = serializers.CharField(allow_blank=True, required=False, default="")
+
+    def validate(self, data):
+        if data.get("shipping_type") == Order.ShippingType.HOME:
+            if not data.get("city", "").strip():
+                raise serializers.ValidationError({"city": "الولاية مطلوبة لتوصيل البيت."})
+            if not data.get("address_line", "").strip():
+                raise serializers.ValidationError({"address_line": "العنوان مطلوب لتوصيل البيت."})
+        return data

@@ -22,6 +22,7 @@ const CartPage = () => {
 
   const [wilayas, setWilayas] = useState([]);
   const [selectedWilaya, setSelectedWilaya] = useState(null);
+  const [shippingType, setShippingType] = useState("home");
 
   const [deliveryAddress, setDeliveryAddress] = useState({
     fullName: "",
@@ -56,10 +57,11 @@ const CartPage = () => {
     [cartItems],
   );
 
-  const shippingDA = useMemo(
-    () => (cartItems.length === 0 ? 0 : selectedWilaya ? Number(selectedWilaya.shipping_price_da) : 700),
-    [cartItems.length, selectedWilaya],
-  );
+  const shippingDA = useMemo(() => {
+    if (cartItems.length === 0) return 0;
+    if (shippingType === "desk") return 0;
+    return selectedWilaya ? Number(selectedWilaya.shipping_price_da) : 700;
+  }, [cartItems.length, shippingType, selectedWilaya]);
 
   const totalDA = useMemo(() => subtotalDA + shippingDA, [subtotalDA, shippingDA]);
 
@@ -71,7 +73,12 @@ const CartPage = () => {
 
   const handlePlaceOrder = async () => {
     const { fullName, phone, city, addressLine, notes } = deliveryAddress;
-    if (!fullName.trim() || fullName.trim().length < 2 || !phone.trim() || !selectedWilaya || !addressLine.trim()) {
+    const needsAddress = shippingType === "home";
+    if (!fullName.trim() || fullName.trim().length < 2 || !phone.trim()) {
+      showToast(t("cart:summary.validationError"), 3000);
+      return;
+    }
+    if (needsAddress && (!selectedWilaya || !addressLine.trim())) {
       showToast(t("cart:summary.validationError"), 3000);
       return;
     }
@@ -93,10 +100,11 @@ const CartPage = () => {
         body: JSON.stringify({
           cart_id: cartId,
           shipping_da: shippingDA,
+          shipping_type: shippingType,
           full_name: fullName.trim(),
           phone: phone.trim(),
-          city: city.trim(),
-          address_line: addressLine.trim(),
+          city: shippingType === "home" ? city.trim() : "",
+          address_line: shippingType === "home" ? addressLine.trim() : "",
           notes: notes.trim(),
         }),
       });
@@ -227,6 +235,28 @@ const CartPage = () => {
               <div className="section-rule" />
             </div>
 
+            {/* Shipping type selector */}
+            <div className="shipping-type-group">
+              <button
+                type="button"
+                className={`shipping-type-btn${shippingType === "home" ? " active" : ""}`}
+                onClick={() => setShippingType("home")}
+              >
+                <span className="shipping-type-icon">🏠</span>
+                <span className="shipping-type-label">توصيل للبيت</span>
+                <span className="shipping-type-sub">الولاية والعنوان مطلوبان</span>
+              </button>
+              <button
+                type="button"
+                className={`shipping-type-btn${shippingType === "desk" ? " active" : ""}`}
+                onClick={() => setShippingType("desk")}
+              >
+                <span className="shipping-type-icon">📦</span>
+                <span className="shipping-type-label">مكتب التوصيل</span>
+                <span className="shipping-type-sub">الاستلام من أقرب مكتب</span>
+              </button>
+            </div>
+
             <div className="cart-form-grid">
               <div className="form-row">
                 <div className="form-group">
@@ -250,7 +280,10 @@ const CartPage = () => {
               </div>
 
               <div className="form-group full">
-                <label className="cart-field-label">{t("cart:deliveryForm.city")}</label>
+                <label className="cart-field-label">
+                  {t("cart:deliveryForm.city")}
+                  {shippingType === "home" && <span style={{ color: "var(--gold)", marginRight: "4px" }}>*</span>}
+                </label>
                 <select
                   className="cart-input"
                   value={selectedWilaya?.id || ''}
@@ -270,7 +303,10 @@ const CartPage = () => {
               </div>
 
               <div className="form-group full">
-                <label className="cart-field-label">{t("cart:deliveryForm.address")}</label>
+                <label className="cart-field-label">
+                  {t("cart:deliveryForm.address")}
+                  {shippingType === "home" && <span style={{ color: "var(--gold)", marginRight: "4px" }}>*</span>}
+                </label>
                 <input
                   className="cart-input"
                   value={deliveryAddress.addressLine}
@@ -324,6 +360,12 @@ const CartPage = () => {
                 <div className="cart-summary-row">
                   <span>{t("cart:confirmation.clientName")}</span>
                   <span>{confirmedOrder.full_name}</span>
+                </div>
+                <div className="cart-summary-row">
+                  <span>طريقة التوصيل</span>
+                  <span style={{ fontWeight: 600 }}>
+                    {confirmedOrder.shipping_type === "desk" ? "📦 مكتب التوصيل" : "🏠 توصيل للبيت"}
+                  </span>
                 </div>
                 <div className="cart-summary-total">
                   <div className="cart-total-label">{t("cart:summary.total")}</div>

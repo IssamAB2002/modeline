@@ -1148,6 +1148,22 @@ footer {
   text-transform: uppercase;
   color: rgba(253, 248, 238, 0.3);
 }
+.footer-credit {
+  text-align: center;
+  padding-top: 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.footer-credit a {
+  color: var(--gold-pale);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-credit a:hover {
+  color: #fff;
+}
 
 @media (min-width: 820px) {
   .desktop-hide svg{
