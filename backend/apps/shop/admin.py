@@ -1,15 +1,90 @@
+from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Category, Product, ProductImage, ProductReview, Wilaya
+from .models import Category, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
 
+
+# ── Color picker widget ─────────────────────────────────────────────────────
+
+class ColorPickerWidget(forms.TextInput):
+    """Renders an HTML5 <input type="color"> with a hex text field alongside."""
+
+    input_type = "color"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.attrs.update({
+            "style": "width:60px;height:38px;padding:2px;border:1px solid #ccc;cursor:pointer;vertical-align:middle;",
+        })
+
+
+class ProductColorForm(forms.ModelForm):
+    hex = forms.CharField(
+        widget=ColorPickerWidget(),
+        label="اللون",
+        help_text="انقر على المربع لاختيار اللون",
+    )
+
+    class Meta:
+        model = ProductColor
+        fields = ("name_ar", "hex", "order")
+
+
+# ── Inlines ─────────────────────────────────────────────────────────────────
+
+class ProductSizeInline(admin.TabularInline):
+    model = ProductSize
+    extra = 3
+    fields = ("name", "order")
+    verbose_name = "مقاس"
+    verbose_name_plural = "المقاسات — أضف مقاساً في كل سطر"
+
+
+class ProductColorInline(admin.TabularInline):
+    model = ProductColor
+    form = ProductColorForm
+    extra = 2
+    fields = ("name_ar", "hex", "color_preview", "order")
+    readonly_fields = ("color_preview",)
+    verbose_name = "لون"
+    verbose_name_plural = "الألوان — اختر اللون وأدخل اسمه بالعربية"
+
+    @admin.display(description="معاينة")
+    def color_preview(self, obj):
+        if obj and obj.pk and obj.hex:
+            return format_html(
+                '<div style="background:{};width:38px;height:38px;border-radius:4px;'
+                'border:1px solid #ccc;display:inline-block;vertical-align:middle;"></div>',
+                obj.hex,
+            )
+        return "—"
+
+
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+    fields = ("image", "alt_text", "order", "is_active", "preview")
+    readonly_fields = ("preview",)
+    ordering = ("order",)
+
+    @admin.display(description="معاينة")
+    def preview(self, obj):
+        if obj and obj.image:
+            return format_html(
+                '<img src="{}" style="height:48px;border-radius:4px;" />',
+                obj.image.url,
+            )
+        return "—"
+
+
+# ── Category Admin ───────────────────────────────────────────────────────────
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = (
         "thumbnail_preview",
         "name_ar",
-        "name",
         "parent",
         "order",
         "is_active",
@@ -19,26 +94,22 @@ class CategoryAdmin(admin.ModelAdmin):
     )
     list_filter = ("is_active", "is_featured", "parent")
     list_editable = ("order", "is_active", "is_featured")
-    search_fields = ("name_ar", "name", "slug", "description")
-    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ("name_ar", "slug")
+    prepopulated_fields = {"slug": ("name_ar",)}
     autocomplete_fields = ("parent",)
     readonly_fields = ("created_at", "updated_at", "image_preview")
 
     fieldsets = (
         (
-            "Arabic (Primary)",
-            {"fields": ("name_ar",)},
+            "الهوية",
+            {"fields": ("name_ar", "slug", "parent")},
         ),
         (
-            "English (Secondary)",
-            {"fields": ("name", "slug", "parent", "description")},
-        ),
-        (
-            "Image",
+            "الصورة",
             {"fields": ("image", "image_preview")},
         ),
         (
-            "Display",
+            "العرض",
             {"fields": ("order", "is_active", "is_featured")},
         ),
         (
@@ -49,7 +120,7 @@ class CategoryAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Meta",
+            "بيانات",
             {
                 "classes": ("collapse",),
                 "fields": ("created_at", "updated_at"),
@@ -57,57 +128,36 @@ class CategoryAdmin(admin.ModelAdmin):
         ),
     )
 
-    @admin.display(description="Products")
+    @admin.display(description="المنتجات")
     def product_count(self, obj):
         return obj.products.count()
 
-    @admin.display(description="Image")
+    @admin.display(description="صورة")
     def thumbnail_preview(self, obj):
         if obj.image:
             return format_html(
                 '<img src="{}" style="height:42px;width:42px;object-fit:cover;border-radius:4px;" />',
                 obj.image.url,
             )
-        if obj.image_url if hasattr(obj, "image_url") else None:
-            return format_html(
-                '<img src="{}" style="height:42px;width:42px;object-fit:cover;border-radius:4px;" />',
-                obj.image_url,
-            )
         return "—"
 
-    @admin.display(description="Preview")
+    @admin.display(description="معاينة")
     def image_preview(self, obj):
         if obj and obj.image:
             return format_html(
                 '<img src="{}" style="max-height:240px;border-radius:6px;" />',
                 obj.image.url,
             )
-        return "No image uploaded."
+        return "لا توجد صورة."
 
 
-class ProductImageInline(admin.TabularInline):
-    model = ProductImage
-    extra = 1
-    fields = ("image", "alt_text", "order", "is_active", "preview")
-    readonly_fields = ("preview",)
-    ordering = ("order",)
-
-    @admin.display(description="Preview")
-    def preview(self, obj):
-        if obj and obj.image:
-            return format_html(
-                '<img src="{}" style="height:48px;border-radius:4px;" />',
-                obj.image.url,
-            )
-        return "—"
-
+# ── Product Admin ────────────────────────────────────────────────────────────
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "thumbnail",
         "name_ar",
-        "name",
         "sku",
         "category",
         "price",
@@ -138,8 +188,8 @@ class ProductAdmin(admin.ModelAdmin):
         "is_active",
         "is_featured",
     )
-    search_fields = ("name_ar", "name", "sku", "slug", "short_description_ar", "short_description", "description")
-    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ("name_ar", "sku", "slug", "short_description_ar")
+    prepopulated_fields = {"slug": ("name_ar",)}
     autocomplete_fields = ("category",)
     list_select_related = ("category",)
     list_per_page = 30
@@ -155,25 +205,22 @@ class ProductAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (
-            "Arabic (Primary Language)",
+            "الهوية",
             {
                 "fields": (
                     "name_ar",
-                    "short_description_ar",
-                    "description_ar",
+                    "slug",
+                    "sku",
+                    "category",
                 )
             },
         ),
         (
-            "English (Secondary Language)",
-            {"fields": ("name", "slug", "sku", "category")},
+            "الوصف",
+            {"fields": ("short_description_ar", "description_ar", "care_instructions", "details")},
         ),
         (
-            "Descriptions (English)",
-            {"fields": ("short_description", "description", "care_instructions", "details")},
-        ),
-        (
-            "Pricing",
+            "التسعير",
             {
                 "fields": (
                     "price",
@@ -185,7 +232,7 @@ class ProductAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Inventory",
+            "المخزون",
             {
                 "fields": (
                     "track_inventory",
@@ -196,22 +243,22 @@ class ProductAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Heritage details",
-            {"fields": ("origin", "material", "color", "available_sizes", "available_colors")},
+            "تفاصيل التراث",
+            {"fields": ("origin", "material")},
         ),
         (
-            "Shipping",
+            "الشحن",
             {
                 "classes": ("collapse",),
                 "fields": ("weight_grams", "length_cm", "width_cm", "height_cm"),
             },
         ),
         (
-            "Media",
+            "الوسائط",
             {"fields": ("image", "image_url", "image_preview")},
         ),
         (
-            "Marketing",
+            "التسويق",
             {"fields": (
                 "is_active",
                 "is_featured",
@@ -221,7 +268,7 @@ class ProductAdmin(admin.ModelAdmin):
             )},
         ),
         (
-            "Reviews",
+            "التقييمات",
             {"fields": ("rating", "review_count", "sales_count")},
         ),
         (
@@ -232,7 +279,7 @@ class ProductAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Meta",
+            "بيانات",
             {
                 "classes": ("collapse",),
                 "fields": ("created_at", "updated_at"),
@@ -240,13 +287,13 @@ class ProductAdmin(admin.ModelAdmin):
         ),
     )
 
-    inlines = [ProductImageInline]
+    inlines = [ProductSizeInline, ProductColorInline, ProductImageInline]
 
-    @admin.display(description="Old price")
+    @admin.display(description="السعر القديم")
     def old_price_display(self, obj):
         return f"{obj.old_price:,.2f} DA" if obj.old_price else "—"
 
-    @admin.display(description="Image")
+    @admin.display(description="صورة")
     def thumbnail(self, obj):
         if obj.image:
             return format_html(
@@ -262,7 +309,7 @@ class ProductAdmin(admin.ModelAdmin):
             )
         return "—"
 
-    @admin.display(description="Preview")
+    @admin.display(description="معاينة")
     def image_preview(self, obj):
         if obj and obj.image:
             return format_html(
@@ -274,7 +321,7 @@ class ProductAdmin(admin.ModelAdmin):
                 '<img src="{}" style="max-height:240px;border-radius:6px;" />',
                 obj.image_url,
             )
-        return "No image uploaded."
+        return "لا توجد صورة."
 
     def get_queryset(self, request):
         return (
@@ -284,16 +331,18 @@ class ProductAdmin(admin.ModelAdmin):
         )
 
 
+# ── ProductImage Admin ───────────────────────────────────────────────────────
+
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = ("preview", "product", "order", "is_active", "updated_at")
     list_filter = ("is_active",)
     list_editable = ("order", "is_active")
-    search_fields = ("product__name", "alt_text")
+    search_fields = ("product__name_ar", "alt_text")
     autocomplete_fields = ("product",)
     readonly_fields = ("preview", "created_at", "updated_at")
 
-    @admin.display(description="Image")
+    @admin.display(description="صورة")
     def preview(self, obj):
         if obj and obj.image:
             return format_html(
@@ -302,6 +351,8 @@ class ProductImageAdmin(admin.ModelAdmin):
             )
         return "—"
 
+
+# ── Wilaya Admin ─────────────────────────────────────────────────────────────
 
 @admin.register(Wilaya)
 class WilayaAdmin(admin.ModelAdmin):
@@ -312,12 +363,14 @@ class WilayaAdmin(admin.ModelAdmin):
     ordering = ("code",)
 
 
+# ── ProductReview Admin ──────────────────────────────────────────────────────
+
 @admin.register(ProductReview)
 class ProductReviewAdmin(admin.ModelAdmin):
     list_display = ("reviewer_name", "product", "rating", "is_approved", "created_at")
     list_filter = ("is_approved", "rating")
     list_editable = ("is_approved",)
-    search_fields = ("reviewer_name", "body", "product__name_ar", "product__name")
+    search_fields = ("reviewer_name", "body", "product__name_ar")
     autocomplete_fields = ("product",)
     readonly_fields = ("created_at", "updated_at")
     ordering = ("-created_at",)

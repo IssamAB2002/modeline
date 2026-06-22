@@ -1,14 +1,13 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { frontSettingsDefaults } from '../data';
-import { useLang } from '../hooks/useLang';
 
 const API_URL = `${import.meta.env.VITE_API_URL}/home/front-settings/`;
 
-const FrontSettingsContext = createContext(frontSettingsDefaults.en);
+const FrontSettingsContext = createContext(frontSettingsDefaults.ar);
 
 function buildSettings(apiData, lang) {
-  const defaults = frontSettingsDefaults[lang] || frontSettingsDefaults.en;
-  const fallbackLang = lang === 'ar' ? 'en' : 'ar';
+  const defaults = frontSettingsDefaults[lang] || frontSettingsDefaults.ar;
+  const fallbackLang = 'en';
   const merged = { ...defaults };
 
   if (!apiData) return merged;
@@ -31,8 +30,7 @@ function buildSettings(apiData, lang) {
 }
 
 export function FrontSettingsProvider({ children }) {
-  const { currentLang } = useLang();
-  const lang = currentLang.split('-')[0] === 'ar' ? 'ar' : 'en';
+  const lang = 'ar';
   const [apiData, setApiData] = useState(null);
 
   useEffect(() => {
@@ -53,7 +51,7 @@ export function FrontSettingsProvider({ children }) {
     };
   }, []);
 
-  const settings = useMemo(() => buildSettings(apiData, lang), [apiData, lang]);
+  const settings = useMemo(() => buildSettings(apiData, lang), [apiData]);
 
   return <FrontSettingsContext.Provider value={settings}>{children}</FrontSettingsContext.Provider>;
 }

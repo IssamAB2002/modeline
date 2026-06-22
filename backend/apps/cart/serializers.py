@@ -19,7 +19,6 @@ class CartItemSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "unit_price_da_snapshot",
             "product_name_snapshot_ar",
-            "product_name_snapshot_en",
             "sku_snapshot",
             "line_total",
             "product_image_url",

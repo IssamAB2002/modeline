@@ -69,8 +69,7 @@ class CartItemAddView(APIView):
             selected_size=size,
             selected_color=color,
             unit_price_da_snapshot=product.price,
-            product_name_snapshot_ar=product.name,
-            product_name_snapshot_en=product.name,
+            product_name_snapshot_ar=product.name_ar,
             sku_snapshot=product.sku,
         )
         return Response(CartItemSerializer(item).data, status=status.HTTP_201_CREATED)

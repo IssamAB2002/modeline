@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Nav from "../components/Nav";
+import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import "../pageStyles/shop.css";
 import { useLang } from "../hooks/useLang";
@@ -14,8 +15,7 @@ const ShopPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { currentLang, t } = useLang();
-  const lang = currentLang.split('-')[0] === 'ar' ? 'ar' : 'en';
+  const { t } = useLang();
   const { addToCart, cartCount } = useCart();
   const settings = useFrontSettings();
 
@@ -34,7 +34,6 @@ const ShopPage = () => {
 
   // Data state
   const [dbCategories, setDbCategories] = useState([]);
-  const [footerContactInfo, setFooterContactInfo] = useState(null);
   const [activeCategory, setActiveCategory] = useState(
     () => searchParams.get("category") || null
   );
@@ -48,13 +47,6 @@ const ShopPage = () => {
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => setDbCategories(Array.isArray(data) ? data : []))
       .catch(() => setDbCategories([]));
-  }, []);
-
-  useEffect(() => {
-    fetch(`${API}/home/contact-info/`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setFooterContactInfo(data))
-      .catch(() => setFooterContactInfo(null));
   }, []);
 
   // Fetch products — re-runs when page or activeCategory changes
@@ -89,7 +81,7 @@ const ShopPage = () => {
     const badgeRaw = p.badge && p.badge !== "none" && p.badge !== "" ? p.badge : null;
     return {
       id: p.id,
-      name: (lang === 'ar' && p.name_ar) ? p.name_ar : p.name,
+      name: p.name_ar || p.name,
       origin: p.origin || "",
       price: parseFloat(p.price),
       oldPrice: p.old_price ? parseFloat(p.old_price) : null,
@@ -98,7 +90,7 @@ const ShopPage = () => {
       image: p.image_url || "",
       rating: parseFloat(p.rating) || 0,
       reviewCount: p.review_count || 0,
-      desc: (lang === 'ar' && p.short_description_ar) ? p.short_description_ar : (p.short_description || ""),
+      desc: p.short_description_ar || p.short_description || "",
       isFeatured: !!p.is_featured,
     };
   };
@@ -143,7 +135,7 @@ const ShopPage = () => {
   };
 
   const formatPrice = (price) =>
-    `${price.toLocaleString(currentLang, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ${t("currency")}`;
+    `${price.toLocaleString('ar-DZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ${t("currency")}`;
 
   // Scroll to products section when navigating from category links with #products hash
   const initialHashRef = useRef(location.hash);
@@ -261,7 +253,7 @@ const ShopPage = () => {
                 <button
                   className={activeCategory === cat.slug ? "active" : ""}
                   onClick={() => handleCategoryChange(cat.slug)}>
-                  {lang === 'ar' ? (cat.name_ar || cat.name) : cat.name}
+                  {cat.name_ar || cat.name}
                 </button>
               </li>
             ))}
@@ -305,7 +297,7 @@ const ShopPage = () => {
                       checked={activeCategory === cat.slug}
                       onChange={() => handleCategoryChange(cat.slug)}
                     />
-                    <label htmlFor={`cat-${cat.id}`}>{lang === 'ar' ? (cat.name_ar || cat.name) : cat.name}</label>
+                    <label htmlFor={`cat-${cat.id}`}>{cat.name_ar || cat.name}</label>
                   </li>
                 ))}
               </ul>
@@ -401,7 +393,6 @@ const ShopPage = () => {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  lang={lang}
                   viewMode={viewMode}
                   formatPrice={formatPrice}
                   t={t}
@@ -423,55 +414,7 @@ const ShopPage = () => {
         {t("shop:addedToast", { product: addedProduct })}
       </div>
 
-      {/* FOOTER */}
-      <footer className="shop-footer">
-        <div className="footer-grid">
-          <div>
-            <div className="footer-brand">{t("footer.brand")}<span>{t("footer.since")}</span></div>
-            <p className="footer-desc">{t("footer.desc")}</p>
-            <div className="footer-socials">
-              <a href={footerContactInfo?.facebook_url || '#'}>f</a>
-              <a href={footerContactInfo?.linkedin_url || '#'}>in</a>
-              <a href={footerContactInfo?.whatsapp_url || '#'}>wa</a>
-              <a href={footerContactInfo?.instagram_url || '#'}>ig</a>
-            </div>
-          </div>
-          <div>
-            <div className="footer-col-title">{t("footer.collections")}</div>
-            <ul className="footer-links">
-              {dbCategories.length > 0
-                ? dbCategories.map((cat) => (
-                    <li key={cat.id}><Link to={`/shop?category=${cat.slug}#products`}>{lang === 'ar' ? (cat.name_ar || cat.name) : cat.name}</Link></li>
-                  ))
-                : null}
-              <li><Link to="/shop?sort=new#products">{t("footer.links.newArrivals")}</Link></li>
-            </ul>
-          </div>
-          <div>
-            <div className="footer-col-title">{t("footer.information")}</div>
-            <ul className="footer-links">
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.ourStory")}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.ourArtisans")}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.authenticity")}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.shipping")}</Link></li>
-              {/* <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.returns")}</Link></li> */}
-              {/* <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.sizeGuide")}</Link></li> */}
-            </ul>
-          </div>
-          <div>
-            <div className="footer-col-title">{t("footer.contact")}</div>
-            <ul className="footer-links">
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.whatsapp")}</Link></li>
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.email")}</Link></li>
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.showroom")}</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <span>{t("footer.bottom.left")}</span>
-          <span>{t("footer.bottom.right")}</span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

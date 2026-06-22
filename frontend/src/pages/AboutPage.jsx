@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 import { useLang } from '../hooks/useLang';
 import { useFrontSettings } from '../context/FrontSettingsContext';
 import '../pageStyles/about.css';
@@ -47,8 +48,7 @@ function StarPicker({ value, onChange }) {
 export default function AboutPage() {
   const location = useLocation();
   const settings = useFrontSettings();
-  const { t, currentLang } = useLang();
-  const lang = currentLang.split('-')[0] === 'ar' ? 'ar' : 'en';
+  const { t } = useLang();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -64,8 +64,6 @@ export default function AboutPage() {
   // DB data
   const [principles, setPrinciples] = useState(null); // null = loading
   const [dbReviews, setDbReviews] = useState(null);   // null = loading
-  const [footerCategories, setFooterCategories] = useState([]);
-  const [footerContactInfo, setFooterContactInfo] = useState(null);
 
   useEffect(() => {
     fetch(`${API}/about/principles/`)
@@ -79,20 +77,6 @@ export default function AboutPage() {
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => setDbReviews(Array.isArray(data) ? data : []))
       .catch(() => setDbReviews([]));
-  }, []);
-
-  useEffect(() => {
-    fetch(`${API}/shop/categories/`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setFooterCategories(Array.isArray(data) ? data : []))
-      .catch(() => setFooterCategories([]));
-  }, []);
-
-  useEffect(() => {
-    fetch(`${API}/home/contact-info/`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setFooterContactInfo(data))
-      .catch(() => setFooterContactInfo(null));
   }, []);
 
   const submitReview = async () => {
@@ -115,7 +99,8 @@ export default function AboutPage() {
       await ensureCsrf();
       const res = await fetch(`${API}/about/reviews/submit/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie("csrftoken"),},
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
         body: JSON.stringify({
           rating: selectedRating,
           body_ar: reviewBody.trim(),
@@ -173,8 +158,8 @@ export default function AboutPage() {
     : principles.map((p) => ({
         num: String(p.sort_order + 1).padStart(2, '0'),
         icon: '',
-        title: lang === 'ar' ? p.title_ar : (p.title_en || p.title_ar),
-        desc: lang === 'ar' ? p.body_ar : (p.body_en || p.body_ar),
+        title: p.title_ar,
+        desc: p.body_ar,
       }));
 
   const renderReviews = () => {
@@ -187,9 +172,9 @@ export default function AboutPage() {
       );
     }
     return dbReviews.map((r, idx) => {
-      const body = lang === 'ar' ? r.body_ar : (r.body_en || r.body_ar);
-      const name = lang === 'ar' ? r.client_name_ar : (r.client_name_en || r.client_name_ar);
-      const loc = lang === 'ar' ? r.location_ar : (r.location_en || r.location_ar);
+      const body = r.body_ar;
+      const name = r.client_name_ar;
+      const loc = r.location_ar;
       const date = new Date(r.created_at).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
       return (
         <div key={r.id ?? idx} className="review-card">
@@ -229,9 +214,9 @@ export default function AboutPage() {
       {/* PAGE HERO */}
       <div className="page-hero">
         <div className="breadcrumb">
-          <Link to="/" style={{ color: 'rgba(253,248,238,0.55)', textDecoration: 'none' }}>Home</Link>
+          <Link to="/" style={{ color: 'rgba(253,248,238,0.55)', textDecoration: 'none' }}>الرئيسية</Link>
           <span>·</span>
-          <span style={{ color: 'var(--gold-pale)' }}>About</span>
+          <span style={{ color: 'var(--gold-pale)' }}>من نحن</span>
         </div>
         <h1 className="page-title">
           {settings.about_hero_title_main} <em>{settings.about_hero_title_emphasis}</em>
@@ -248,7 +233,7 @@ export default function AboutPage() {
 
       {/* GOLD RULE */}
       <div className="gold-rule" style={{ marginTop: 56 }}>
-        <span className="gold-rule-icon">✦ Est. 1994 ✦</span>
+        <span className="gold-rule-icon">✦ منذ سنين ✦</span>
       </div>
 
       {/* STORY SECTION */}
@@ -415,55 +400,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer id="contact">
-        <div className="footer-grid">
-          <div>
-            <div className="footer-brand">{t('footer.brand')}<span>{t('footer.since')}</span></div>
-            <p className="footer-desc">{t('footer.desc')}</p>
-            <div className="footer-socials">
-              <a href={footerContactInfo?.facebook_url || '#'}>f</a>
-              <a href={footerContactInfo?.linkedin_url || '#'}>in</a>
-              <a href={footerContactInfo?.whatsapp_url || '#'}>wa</a>
-              <a href={footerContactInfo?.instagram_url || '#'}>ig</a>
-            </div>
-          </div>
-          <div>
-            <div className="footer-col-title">{t('footer.collections')}</div>
-            <ul className="footer-links">
-              {footerCategories.length > 0
-                ? footerCategories.map((cat) => (
-                    <li key={cat.id}><Link to={`/shop?category=${cat.slug}#products`}>{lang === 'ar' ? (cat.name_ar || cat.name) : cat.name}</Link></li>
-                  ))
-                : null}
-              <li><Link to="/shop?sort=new#products">{t('footer.links.newArrivals')}</Link></li>
-            </ul>
-          </div>
-          <div>
-            <div className="footer-col-title">{t('footer.information')}</div>
-            <ul className="footer-links">
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.ourStory')}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.ourArtisans')}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.authenticity')}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.shipping')}</Link></li>
-              {/* <li><Link to="/about">{t('footer.links.returns')}</Link></li> */}
-              {/* <li><Link to="/about">{t('footer.links.sizeGuide')}</Link></li> */}
-            </ul>
-          </div>
-          <div>
-            <div className="footer-col-title">{t('footer.contact')}</div>
-            <ul className="footer-links">
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.whatsapp')}</Link></li>
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.email')}</Link></li>
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.showroom')}</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <span>{t('footer.bottom.left')}</span>
-          <span>{t('footer.bottom.right')}</span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

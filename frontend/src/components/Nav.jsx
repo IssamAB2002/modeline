@@ -9,7 +9,7 @@ import { useLang } from '../hooks/useLang';
  */
 export default function Nav({ variant = 'default', cartCount = 0, activePath = '', navTagline = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { currentLang, t, toggleLanguage } = useLang();
+  const { t } = useLang();
 
   const menuRef = useRef(null);
 
@@ -115,14 +115,6 @@ export default function Nav({ variant = 'default', cartCount = 0, activePath = '
             )}
           </Link>
 
-          {/* Language Switcher (explicit for i18n integration) */}
-          <button
-            onClick={toggleLanguage}
-            className="lang-switcher"
-            aria-label="Toggle language"
-          >
-            {currentLang === 'en' ? 'العربية' : 'English'}
-          </button>
         </div>
 
         {/* Mobile Hamburger Button */}

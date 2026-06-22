@@ -400,6 +400,7 @@ footer {
   grid-template-columns: 2fr 1fr 1fr;
   grid-template-rows: 320px 220px;
   gap: 12px;
+  overflow: hidden;
 }
 
 .cat-card {
@@ -409,11 +410,9 @@ footer {
   display: block;
   text-decoration: none;
   min-width: 0;
+  max-width: 100%;
 }
 
-.cat-card:nth-child(1) {
-  grid-row: 1 / 3;
-}
 
 .cat-card img {
   width: 100%;
@@ -1192,7 +1191,8 @@ footer {
     gap: 10px;
   }
 
-  .cat-card {
+  .cat-card,
+  .cat-card:nth-child(1) {
     aspect-ratio: 5 / 4;
     min-height: 110px;
   }
@@ -1246,6 +1246,12 @@ footer {
 
   .cat-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .cat-card:nth-child(1) {
+    grid-row: 1 / 3;
   }
 }
 

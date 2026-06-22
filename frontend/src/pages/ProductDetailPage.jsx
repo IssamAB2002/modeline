@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Nav from '../components/Nav';
-import { useCart } from '../context/CartContext';
+import Footer from '../components/Footer';
+import { useCart, ensureCsrf, getCookie } from '../context/CartContext';
 import { useLang } from '../hooks/useLang';
 import { useFrontSettings } from '../context/FrontSettingsContext';
 
@@ -18,9 +19,8 @@ const ProductDetailPage = () => {
   const navigate = useNavigate();
   const { productId } = useParams();
   const { addToCart, cartCount } = useCart();
-  const { t, currentLang } = useLang();
+  const { t } = useLang();
   const settings = useFrontSettings();
-  const lang = currentLang.split('-')[0] === 'ar' ? 'ar' : 'en';
 
   /* ── State ── */
   const [currentImg, setCurrentImg] = useState(0);
@@ -52,8 +52,6 @@ const ProductDetailPage = () => {
   const [wilayas, setWilayas] = useState([]);
   const [selectedWilaya, setSelectedWilaya] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
-  const [footerCategories, setFooterCategories] = useState([]);
-  const [footerContactInfo, setFooterContactInfo] = useState(null);
 
   /* ── API product override ── */
   const [apiProduct, setApiProduct] = useState(null);
@@ -72,14 +70,14 @@ const ProductDetailPage = () => {
         if (data) {
           setApiProduct(data);
           setProductLoaded(true);
-          const sizes = Array.isArray(data.available_sizes) ? data.available_sizes : [];
+          const sizes = Array.isArray(data.sizes) ? data.sizes : [];
           if (data.availability === 'out_of_stock' || data.availability === 'discontinued') {
             setSelectedSize(null);
           } else {
-            setSelectedSize(sizes.length > 0 ? sizes[0] : null);
+            setSelectedSize(sizes.length > 0 ? sizes[0].name : null);
           }
-          const colors = Array.isArray(data.available_colors) ? data.available_colors : [];
-          setSelectedColor(colors.length > 0 ? colors[0].name : null);
+          const colors = Array.isArray(data.colors) ? data.colors : [];
+          setSelectedColor(colors.length > 0 ? colors[0].name_ar : null);
           setCurrentImg(0);
           // Fetch related: same category + newest, deduplicated
           const catSlug = data.category?.slug;
@@ -116,20 +114,6 @@ const ProductDetailPage = () => {
       .catch(() => setWilayas([]));
   }, []);
 
-  useEffect(() => {
-    fetch(`${API}/shop/categories/`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setFooterCategories(Array.isArray(data) ? data : []))
-      .catch(() => setFooterCategories([]));
-  }, []);
-
-  useEffect(() => {
-    fetch(`${API}/home/contact-info/`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setFooterContactInfo(data))
-      .catch(() => setFooterContactInfo(null));
-  }, []);
-
   /* ── Product Data (fallback) ── */
   const fallbackProduct = {
     name: "Grand Ivory Burnous",
@@ -143,7 +127,7 @@ const ProductDetailPage = () => {
     material: "100% Pure Wool",
     craftTime: "14–18 days",
     artisan: "Hadj Mourad Benali",
-    availability: "In Stock",
+    availability: "متوفر",
     description: `A prestige burnous woven from the finest Tlemcen wool, featuring hand-stitched trim and a heritage drape favoured for weddings and celebrations. The burnous is the quintessential garment of the Maghreb — a cloak of dignity, warmth, and unmistakable presence.`,
     details: [
       "Hand-woven on traditional Tlemcen looms by fourth-generation artisans",
@@ -205,35 +189,46 @@ const ProductDetailPage = () => {
   };
 
   // Merge API data over fallback; keep rich display fields from fallback when API doesn't have them
-  const product = apiProduct ? {
-    ...fallbackProduct,
-    id: apiProduct.id,
-    name: apiProduct.name,
-    name_ar: apiProduct.name_ar,
-    sku: apiProduct.sku,
-    price: parseFloat(apiProduct.price),
-    oldPrice: apiProduct.old_price ? parseFloat(apiProduct.old_price) : null,
-    origin: apiProduct.origin || fallbackProduct.origin,
-    material: apiProduct.material || fallbackProduct.material,
-    description: apiProduct.description || fallbackProduct.description,
-    description_ar: apiProduct.description_ar || null,
-    // Empty string / no value → empty array so the "not available" message shows
-    details: splitLines(apiProduct.details),
-    care: splitLines(apiProduct.care_instructions),
-    sizes: Array.isArray(apiProduct.available_sizes) && apiProduct.available_sizes.length > 0
-      ? apiProduct.available_sizes
-      : fallbackProduct.sizes,
-    colors: Array.isArray(apiProduct.available_colors) && apiProduct.available_colors.length > 0
-      ? apiProduct.available_colors
-      : [],
-    rating: parseFloat(apiProduct.rating),
-    reviewCount: apiProduct.review_count,
-    availability: apiProduct.availability === 'in_stock' ? 'In Stock' :
-                  apiProduct.availability === 'low_stock' ? 'Low Stock' :
-                  apiProduct.availability === 'out_of_stock' ? 'Out of Stock' : 'In Stock',
-    images: buildImages(apiProduct),
-    subtitle: `${apiProduct.origin || fallbackProduct.origin} · ${apiProduct.material || fallbackProduct.material}`,
-  } : fallbackProduct;
+  const product = apiProduct
+    ? {
+        ...fallbackProduct,
+        id: apiProduct.id,
+        name: apiProduct.name,
+        name_ar: apiProduct.name_ar,
+        sku: apiProduct.sku,
+        price: parseFloat(apiProduct.price),
+        oldPrice: apiProduct.old_price
+          ? parseFloat(apiProduct.old_price)
+          : null,
+        origin: apiProduct.origin || fallbackProduct.origin,
+        material: apiProduct.material || fallbackProduct.material,
+        description: apiProduct.description || fallbackProduct.description,
+        description_ar: apiProduct.description_ar || null,
+        // Empty string / no value → empty array so the "not available" message shows
+        details: splitLines(apiProduct.details),
+        care: splitLines(apiProduct.care_instructions),
+        sizes:
+          Array.isArray(apiProduct.sizes) && apiProduct.sizes.length > 0
+            ? apiProduct.sizes.map((s) => s.name)
+            : fallbackProduct.sizes,
+        colors:
+          Array.isArray(apiProduct.colors) && apiProduct.colors.length > 0
+            ? apiProduct.colors.map((c) => ({ name: c.name_ar, hex: c.hex }))
+            : [],
+        rating: parseFloat(apiProduct.rating),
+        reviewCount: apiProduct.review_count,
+        availability:
+          apiProduct.availability === "in_stock"
+            ? "متوفر"
+            : apiProduct.availability === "low_stock"
+              ? "المخزون المنخفض"
+              : apiProduct.availability === "out_of_stock"
+                ? "غير متوفر"
+                : "متوفر",
+        images: buildImages(apiProduct),
+        subtitle: `${apiProduct.origin || fallbackProduct.origin} · ${apiProduct.material || fallbackProduct.material}`,
+      }
+    : fallbackProduct;
 
 
   /* ── Load reviews eagerly when product loads ── */
@@ -271,19 +266,24 @@ const ProductDetailPage = () => {
     if (!reviewForm.reviewer_name.trim()) return;
     setReviewSubmitting(true);
     try {
+      await ensureCsrf();
       const res = await fetch(`${API}/shop/products/${productId}/reviews/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
         body: JSON.stringify(reviewForm),
       });
       if (res.ok) {
-        setReviewMsg(lang === 'ar' ? 'شكراً! تقييمك قيد المراجعة.' : 'Thank you! Your review is pending approval.');
+        setReviewMsg('شكراً! تقييمك قيد المراجعة.');
         setReviewForm({ reviewer_name: '', rating: 5, body: '' });
       } else {
-        setReviewMsg(lang === 'ar' ? 'حدث خطأ، حاول مرة أخرى.' : 'Something went wrong. Please try again.');
+        setReviewMsg('حدث خطأ، حاول مرة أخرى.');
       }
     } catch {
-      setReviewMsg(lang === 'ar' ? 'حدث خطأ، حاول مرة أخرى.' : 'Something went wrong. Please try again.');
+      setReviewMsg('حدث خطأ، حاول مرة أخرى.');
     } finally {
       setReviewSubmitting(false);
     }
@@ -1090,7 +1090,8 @@ const ProductDetailPage = () => {
       letterSpacing: '0.3em',
       color: 'var(--gold)',
       textTransform: 'uppercase',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      marginTop: "1rem"
     },
     /* Responsive */
     responsive: `
@@ -1108,9 +1109,17 @@ const ProductDetailPage = () => {
         .footer-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
         .footer-bottom { flex-direction: column !important; gap: 10px !important; text-align: center !important; }
         .page-hero { padding: 40px 20px 30px !important; }
+        .gold-rule { padding: 0 20px !important; }
         .meta-grid { grid-template-columns: 1fr !important; }
-        .action-row { flex-wrap: wrap !important; }
-        .add-to-cart-btn { width: 100% !important; }
+        .action-row { flex-wrap: wrap !important; gap: 10px !important; }
+        .qty-wrap { order: 1; }
+        .wishlist-btn { order: 2; }
+        .add-to-cart-btn { order: 3 !important; flex: 0 0 100% !important; }
+      }
+      @media (max-width: 480px) {
+        .product-layout { padding: 20px 14px !important; }
+        .tab-list button { flex: 1 !important; min-width: 0 !important; padding: 12px 6px !important; font-size: 10px !important; letter-spacing: 0.1em !important; }
+        .size-btn { min-width: 40px !important; height: 38px !important; font-size: 11px !important; }
       }
     `
   };
@@ -1144,7 +1153,7 @@ const ProductDetailPage = () => {
       {/* ══ PAGE CONTENT (hidden when not found) ══ */}
       {!productNotFound && <>
       {/* ══ PAGE HERO ══ */}
-      <div style={styles.pageHero}>
+      <div style={styles.pageHero} className="page-hero">
         <div style={styles.breadcrumb}>
           <Link to="/" style={styles.breadcrumbLink}>{t('product:breadcrumb.home')}</Link>
           <span style={{margin: '0 8px'}}>·</span>
@@ -1156,9 +1165,9 @@ const ProductDetailPage = () => {
       </div>
 
       {/* ══ GOLD DIVIDER ══ */}
-      <div style={{...styles.goldRule, paddingTop: '40px', paddingBottom: '20px'}}>
+      <div style={{...styles.goldRule, paddingTop: '40px', paddingBottom: '20px'}} className="gold-rule">
         <div style={styles.goldRuleLine}></div>
-        <span style={styles.goldRuleIcon}>✦ Heritage Craft ✦</span>
+        <span style={styles.goldRuleIcon}>✦ صنع تراثي ✦</span>
         <div style={styles.goldRuleLine}></div>
       </div>
 
@@ -1182,7 +1191,7 @@ const ProductDetailPage = () => {
             ) : (
               <div style={{ width: '100%', height: '100%', background: 'var(--parchment)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontFamily: "'Cinzel', serif", fontSize: '11px', letterSpacing: '0.2em', color: 'var(--warm-gray)', textTransform: 'uppercase' }}>
-                  {lang === 'ar' ? 'لا توجد صورة' : 'No image'}
+                  {'لا توجد صورة'}
                 </span>
               </div>
             )}
@@ -1234,7 +1243,7 @@ const ProductDetailPage = () => {
         {/* ── RIGHT: Product Info ── */}
         <div style={styles.productInfo}>
           <span style={styles.productEyebrow}>{product.origin} · {product.material}</span>
-          <h1 style={styles.productName}>{lang === 'ar' ? (product.name_ar || product.name) : product.name}</h1>
+          <h1 style={styles.productName}>{product.name_ar || product.name}</h1>
           <p style={styles.productSubtitle}>{product.subtitle}</p>
 
           {/* Rating — computed from actual approved reviews */}
@@ -1263,7 +1272,7 @@ const ProductDetailPage = () => {
           {product.colors && product.colors.length > 0 && (
             <>
               <span style={styles.selectorLabel}>
-                {lang === 'ar' ? 'اللون' : 'Colour'}
+                {'اللون'}
                 {selectedColor && <span style={{fontStyle: 'italic', color: 'var(--bark)', marginLeft: '6px'}}>— {selectedColor}</span>}
               </span>
               <div style={styles.colorRow}>
@@ -1287,13 +1296,14 @@ const ProductDetailPage = () => {
           {product.sizes && product.sizes.length > 0 && (
             <>
               <span style={styles.selectorLabel}>
-                {lang === 'ar' ? 'المقاس' : 'Size'}
+                {'المقاس'}
                 {selectedSize && <span style={{fontStyle: 'italic', color: 'var(--bark)', marginLeft: '6px'}}>— {selectedSize}</span>}
               </span>
               <div style={styles.sizeRow}>
                 {product.sizes.map((s) => (
                   <button
                     key={s}
+                    className="size-btn"
                     style={{
                       ...styles.sizeBtn,
                       ...(selectedSize === s ? styles.sizeBtnActive : {}),
@@ -1308,7 +1318,7 @@ const ProductDetailPage = () => {
 
           {/* Qty & Actions */}
           <div style={styles.actionRow} className="action-row">
-            <div style={styles.qtyWrap}>
+            <div style={styles.qtyWrap} className="qty-wrap">
               <button style={styles.qtyBtn} onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
               <span style={styles.qtyDisplay}>{qty}</span>
               <button style={styles.qtyBtn} onClick={() => setQty(qty + 1)}>+</button>
@@ -1322,11 +1332,12 @@ const ProductDetailPage = () => {
               onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--espresso)'; }}
             >
               {addingToCart
-                ? (lang === 'ar' ? 'تمت الإضافة! جاري التوجيه…' : 'Added! Redirecting to cart…')
+                ? 'تمت الإضافة! جاري التوجيه…'
                 : `${t('product:labels.addToBasket')} — ${(product.price * qty).toLocaleString('fr-DZ')} DA`}
             </button>
             <button
               style={styles.wishlistBtn}
+              className="wishlist-btn"
               onClick={() => setIsWishlisted(!isWishlisted)}
             >
               {isWishlisted ? '♥' : '♡'}
@@ -1335,27 +1346,27 @@ const ProductDetailPage = () => {
 
           {/* Meta */}
           <div style={styles.metaGrid} className="meta-grid">
-            <div style={styles.metaItem}>
+            {/* <div style={styles.metaItem}>
               <span style={styles.metaLabel}>Artisan</span>
               <span style={styles.metaValue}>{product.artisan}</span>
             </div>
             <div style={styles.metaItem}>
               <span style={styles.metaLabel}>Craft Time</span>
               <span style={styles.metaValue}>{product.craftTime}</span>
-            </div>
+            </div> */}
             <div style={styles.metaItem}>
-              <span style={styles.metaLabel}>Material</span>
+              <span style={styles.metaLabel}>مصنوع من</span>
               <span style={styles.metaValue}>{product.material}</span>
             </div>
             <div style={styles.metaItem}>
-              <span style={styles.metaLabel}>Availability</span>
+              <span style={styles.metaLabel}>متوفر</span>
               <span style={{...styles.metaValue, color: '#2d5a27'}}>{product.availability}</span>
             </div>
           </div>
 
           {/* Tabs */}
           <div style={styles.tabsWrap}>
-            <div style={styles.tabList}>
+            <div style={styles.tabList} className="tab-list">
               {[
                 { id: 'description', label: t('product:tabs.description') },
                 { id: 'details', label: t('product:tabs.details') },
@@ -1375,7 +1386,7 @@ const ProductDetailPage = () => {
 
             <div style={styles.tabContent}>
               {activeTab === 'description' && (
-                <p>{lang === 'ar' ? (product.description_ar || product.description) : product.description}</p>
+                <p>{product.description_ar || product.description}</p>
               )}
               {activeTab === 'details' && (
                 <ul style={styles.detailList}>
@@ -1388,7 +1399,7 @@ const ProductDetailPage = () => {
                   )) : (
                     <li style={{...styles.detailItem, color: 'var(--warm-gray)', fontStyle: 'italic'}}>
                       <span style={styles.detailBullet}>✦</span>
-                      {lang === 'ar' ? 'لا تفاصيل متوفرة بعد.' : 'No details available yet.'}
+                      {'لا تفاصيل متوفرة بعد.'}
                     </li>
                   )}
 
@@ -1396,7 +1407,7 @@ const ProductDetailPage = () => {
                   <li style={{...styles.detailItem, borderBottom: 'none', marginTop: '14px'}}>
                     <span style={styles.detailBullet}>◈</span>
                     <strong style={{color: 'var(--espresso)', fontStyle: 'normal'}}>
-                      {lang === 'ar' ? 'تعليمات العناية:' : 'Care Instructions:'}
+                      {'تعليمات العناية:'}
                     </strong>
                   </li>
                   {product.care.length > 0 ? product.care.map((c, i) => (
@@ -1405,7 +1416,7 @@ const ProductDetailPage = () => {
                     </li>
                   )) : (
                     <li style={{...styles.detailItem, paddingInlineStart: '30px', color: 'var(--warm-gray)', fontStyle: 'italic'}}>
-                      {lang === 'ar' ? 'لا تعليمات عناية متوفرة.' : 'No care instructions available.'}
+                      {'لا تعليمات عناية متوفرة.'}
                     </li>
                   )}
                 </ul>
@@ -1415,7 +1426,7 @@ const ProductDetailPage = () => {
                   <p style={{marginBottom: '16px'}}>{settings.product_shipping_intro}</p>
                   <div style={{marginBottom: '20px'}}>
                     <label style={{...styles.selectorLabel, display: 'block', marginBottom: '8px'}}>
-                      {lang === 'ar' ? 'الولاية' : 'Wilaya'}
+                      {'الولاية'}
                     </label>
                     <select
                       value={selectedWilaya?.id || ''}
@@ -1431,18 +1442,16 @@ const ProductDetailPage = () => {
                         cursor: 'pointer'
                       }}
                     >
-                      <option value="">{lang === 'ar' ? 'اختر الولاية' : 'Select Wilaya'}</option>
+                      <option value="">{'اختر الولاية'}</option>
                       {wilayas.map((w) => (
                         <option key={w.id} value={w.id}>
-                          {lang === 'ar' ? w.name_ar : w.name_fr}
+                          {w.name_ar}
                         </option>
                       ))}
                     </select>
                     {selectedWilaya && (
                       <p style={{marginTop: '10px', color: 'var(--bark)', fontStyle: 'italic'}}>
-                        {lang === 'ar'
-                          ? `شحن إلى ${selectedWilaya.name_ar}: ${Number(selectedWilaya.shipping_price_da).toLocaleString('fr-DZ')} DA`
-                          : `Shipping to ${selectedWilaya.name_fr}: ${Number(selectedWilaya.shipping_price_da).toLocaleString('fr-DZ')} DA`}
+                        {`شحن إلى ${selectedWilaya.name_ar}: ${Number(selectedWilaya.shipping_price_da).toLocaleString('fr-DZ')} DA`}
                       </p>
                     )}
                   </div>
@@ -1458,11 +1467,11 @@ const ProductDetailPage = () => {
                   {/* Existing approved reviews */}
                   {!reviewsLoaded ? (
                     <p style={{color: 'var(--warm-gray)', fontStyle: 'italic'}}>
-                      {lang === 'ar' ? 'جاري التحميل…' : 'Loading…'}
+                      {'جاري التحميل…'}
                     </p>
                   ) : reviews.length === 0 ? (
                     <p style={{color: 'var(--warm-gray)', fontStyle: 'italic', marginBottom: '28px'}}>
-                      {lang === 'ar' ? 'لا توجد تقييمات بعد. كن أول من يقيّم!' : 'No reviews yet. Be the first to leave one!'}
+                      {'لا توجد تقييمات بعد. كن أول من يقيّم!'}
                     </p>
                   ) : (
                     <ul style={{...styles.detailList, marginBottom: '28px'}}>
@@ -1486,19 +1495,19 @@ const ProductDetailPage = () => {
                   {/* Submit a review */}
                   <div style={{borderTop: '1px solid var(--border)', paddingTop: '24px', marginTop: '8px'}}>
                     <p style={{...styles.selectorLabel, marginBottom: '18px'}}>
-                      {lang === 'ar' ? 'أضف تقييمك' : 'Leave a Review'}
+                      {'أضف تقييمك'}
                     </p>
                     <form onSubmit={handleReviewSubmit} style={{display: 'flex', flexDirection: 'column', gap: '14px'}}>
                       <input
                         type="text"
                         required
-                        placeholder={lang === 'ar' ? 'اسمك' : 'Your name'}
+                        placeholder={'اسمك'}
                         value={reviewForm.reviewer_name}
                         onChange={(e) => setReviewForm((f) => ({...f, reviewer_name: e.target.value}))}
                         style={{padding: '10px 14px', border: '1px solid var(--border)', background: 'var(--cream)', fontFamily: "'EB Garamond', Georgia, serif", fontSize: '15px', color: 'var(--espresso)'}}
                       />
                       <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
-                        <span style={{...styles.selectorLabel, marginBottom: 0}}>{lang === 'ar' ? 'التقييم' : 'Rating'}</span>
+                        <span style={{...styles.selectorLabel, marginBottom: 0}}>{'التقييم'}</span>
                         {[1,2,3,4,5].map((n) => (
                           <button
                             key={n}
@@ -1517,7 +1526,7 @@ const ProductDetailPage = () => {
                         ))}
                       </div>
                       <textarea
-                        placeholder={lang === 'ar' ? 'تعليقك (اختياري)' : 'Your comment (optional)'}
+                        placeholder={'تعليقك (اختياري)'}
                         value={reviewForm.body}
                         onChange={(e) => setReviewForm((f) => ({...f, body: e.target.value}))}
                         rows={3}
@@ -1528,9 +1537,7 @@ const ProductDetailPage = () => {
                         disabled={reviewSubmitting}
                         style={{...styles.addToCartBtn, height: '46px', flex: 'none', width: 'fit-content', padding: '0 32px'}}
                       >
-                        {reviewSubmitting
-                          ? (lang === 'ar' ? 'جاري الإرسال…' : 'Submitting…')
-                          : (lang === 'ar' ? 'إرسال التقييم' : 'Submit Review')}
+                        {reviewSubmitting ? 'جاري الإرسال…' : 'إرسال التقييم'}
                       </button>
                       {reviewMsg && (
                         <p style={{color: 'var(--bark)', fontStyle: 'italic', margin: 0}}>{reviewMsg}</p>
@@ -1594,7 +1601,7 @@ const ProductDetailPage = () => {
                 <span style={{ fontSize: '11px', color: 'var(--warm-gray)', fontStyle: 'italic', display: 'block', marginBottom: '6px' }}>
                   ({item.review_count || 0})
                 </span>
-                <div style={styles.relatedName}>{lang === 'ar' ? (item.name_ar || item.name) : item.name}</div>
+                <div style={styles.relatedName}>{item.name_ar || item.name}</div>
                 <div style={styles.relatedOrigin}>{item.origin}</div>
                 <div style={styles.relatedPriceRow}>
                   <span style={styles.relatedPrice}>{Number(item.price).toLocaleString('fr-DZ')} DA</span>
@@ -1606,66 +1613,7 @@ const ProductDetailPage = () => {
         </div>
       </section>
 
-      {/* ══ FOOTER ══ */}
-      <footer style={styles.footer}>
-        <div style={styles.footerGrid} className="footer-grid">
-          <div>
-            <div style={styles.footerBrand}>
-              {t('footer.brand')}
-              <span style={styles.footerBrandSpan}>{t('footer.since')}</span>
-            </div>
-            <p style={styles.footerDesc}>{t('footer.desc')}</p>
-            <div style={styles.footerSocials}>
-              <a href={footerContactInfo?.facebook_url || '#'} style={styles.footerSocialLink}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.background = 'rgba(184,134,11,0.12)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(184,134,11,0.35)'; e.currentTarget.style.background = 'transparent'; }}
-              >f</a>
-              <a href={footerContactInfo?.linkedin_url || '#'} style={styles.footerSocialLink}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.background = 'rgba(184,134,11,0.12)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(184,134,11,0.35)'; e.currentTarget.style.background = 'transparent'; }}
-              >in</a>
-              <a href={footerContactInfo?.whatsapp_url || '#'} style={styles.footerSocialLink}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.background = 'rgba(184,134,11,0.12)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(184,134,11,0.35)'; e.currentTarget.style.background = 'transparent'; }}
-              >wa</a>
-              <a href={footerContactInfo?.instagram_url || '#'} style={styles.footerSocialLink}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; e.currentTarget.style.background = 'rgba(184,134,11,0.12)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(184,134,11,0.35)'; e.currentTarget.style.background = 'transparent'; }}
-              >ig</a>
-            </div>
-          </div>
-          <div>
-            <div style={styles.footerColTitle}>{t('footer.collections')}</div>
-            <ul style={styles.footerLinks}>
-              {footerCategories.map((cat) => (
-                <li key={cat.id}><Link to={`/shop?category=${cat.slug}#products`} style={styles.footerLink}>{lang === 'ar' ? (cat.name_ar || cat.name) : cat.name}</Link></li>
-              ))}
-              <li><Link to="/shop?sort=new#products" style={styles.footerLink}>{t('footer.links.newArrivals')}</Link></li>
-            </ul>
-          </div>
-          <div>
-            <div style={styles.footerColTitle}>{t('footer.information')}</div>
-            <ul style={styles.footerLinks}>
-              <li><Link to="/about" style={styles.footerLink} onClick={() => window.scrollTo(0, 0)}>{t('footer.links.ourStory')}</Link></li>
-              <li><Link to="/about" style={styles.footerLink} onClick={() => window.scrollTo(0, 0)}>{t('footer.links.ourArtisans')}</Link></li>
-              <li><Link to="/about" style={styles.footerLink} onClick={() => window.scrollTo(0, 0)}>{t('footer.links.authenticity')}</Link></li>
-              <li><Link to="/about" style={styles.footerLink} onClick={() => window.scrollTo(0, 0)}>{t('footer.links.shipping')}</Link></li>
-            </ul>
-          </div>
-          <div>
-            <div style={styles.footerColTitle}>{t('footer.contact')}</div>
-            <ul style={styles.footerLinks}>
-              <li><Link to="/contact" style={styles.footerLink} onClick={() => window.scrollTo(0, 0)}>{t('footer.links.whatsapp')}</Link></li>
-              <li><Link to="/contact" style={styles.footerLink} onClick={() => window.scrollTo(0, 0)}>{t('footer.links.email')}</Link></li>
-              <li><Link to="/contact" style={styles.footerLink} onClick={() => window.scrollTo(0, 0)}>{t('footer.links.showroom')}</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div style={styles.footerBottom}>
-          <span>{t('footer.bottom.left')}</span>
-          <span>{t('footer.bottom.right')}</span>
-        </div>
-      </footer>
+      <Footer />
       </>}
     </div>
   );

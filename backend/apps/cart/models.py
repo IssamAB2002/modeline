@@ -46,7 +46,6 @@ class CartItem(models.Model):
     selected_color = models.CharField(max_length=50, blank=True, null=True)
     unit_price_da_snapshot = models.DecimalField(max_digits=10, decimal_places=2)
     product_name_snapshot_ar = models.CharField(max_length=220, blank=True)
-    product_name_snapshot_en = models.CharField(max_length=220, blank=True)
     sku_snapshot = models.CharField(max_length=64, blank=True)
 
     class Meta:

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
 import '../pageStyles/home.css';
 import { useLang } from '../hooks/useLang';
@@ -37,11 +38,10 @@ const FALLBACK_TRUST_KEYS = [
 ];
 
 export default function HomePage() {
-  const { t, currentLang } = useLang();
+  const { t } = useLang();
   const settings = useFrontSettings();
   const { addToCart, cartCount } = useCart();
   const navigate = useNavigate();
-  const lang = currentLang.split('-')[0] === 'ar' ? 'ar' : 'en';
 
   const [showAdded, setShowAdded] = useState(false);
   const [addedProduct, setAddedProduct] = useState('');
@@ -49,7 +49,6 @@ export default function HomePage() {
   const [dbProducts, setDbProducts] = useState(null);
   const [trustStrips, setTrustStrips] = useState(null);
   const [testimonials, setTestimonials] = useState(null);
-  const [footerContactInfo, setFooterContactInfo] = useState(null);
 
   useEffect(() => {
     fetch(`${API}/shop/categories/`)
@@ -84,13 +83,6 @@ export default function HomePage() {
       .catch(() => setTestimonials([]));
   }, []);
 
-  useEffect(() => {
-    fetch(`${API}/home/contact-info/`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setFooterContactInfo(data))
-      .catch(() => setFooterContactInfo(null));
-  }, []);
-
   const hero = {
     eyebrow: settings.home_hero_eyebrow,
     title: [settings.home_hero_title_line1, settings.home_hero_title_emphasis, settings.home_hero_title_line3],
@@ -107,14 +99,14 @@ export default function HomePage() {
         {dbCategories.map((cat) => (
           <Link key={cat.id} to={`/shop?category=${cat.slug}#products`} className="cat-card">
             {cat.image_url ? (
-              <img src={cat.image_url} alt={lang === 'ar' ? (cat.name_ar || cat.name) : cat.name} />
+              <img src={cat.image_url} alt={cat.name_ar || cat.name} />
             ) : (
               <div className="cat-card-placeholder" style={{ height: 220, background: '#e8dfc8' }} />
             )}
             <div className="cat-card-overlay">
               <div className="cat-card-label">{cat.is_featured ? t('home:categories.featuredLabel') : ''}</div>
               <div className={`cat-card-title${cat.is_featured ? ' cat-card-title--featured' : ''}`}>
-                {lang === 'ar' ? (cat.name_ar || cat.name) : cat.name}
+                {cat.name_ar || cat.name}
               </div>
               <span className="cat-card-arrow">{t('home:categories.cta')} </span>
             </div>
@@ -128,7 +120,7 @@ export default function HomePage() {
     const badgeRaw = p.badge && p.badge !== 'none' && p.badge !== '' ? p.badge : null;
     return {
       id: p.id,
-      name: lang === 'ar' ? (p.name_ar || p.name) : p.name,
+      name: p.name_ar || p.name,
       origin: p.origin || '',
       price: parseFloat(p.price),
       oldPrice: p.old_price ? parseFloat(p.old_price) : null,
@@ -137,7 +129,7 @@ export default function HomePage() {
       image: p.image_url || '',
       rating: parseFloat(p.rating) || 0,
       reviewCount: p.review_count || 0,
-      desc: lang === 'ar' ? (p.short_description_ar || p.short_description || '') : (p.short_description || ''),
+      desc: p.short_description_ar || p.short_description || '',
     };
   };
 
@@ -168,7 +160,6 @@ export default function HomePage() {
           <ProductCard
             key={p.id}
             product={normalizeHomeProduct(p)}
-            lang={lang}
             viewMode="grid"
             formatPrice={formatHomePrice}
             t={t}
@@ -193,8 +184,8 @@ export default function HomePage() {
       return trustStrips.map((strip) => (
         <div key={strip.id} className="trust-item">
           <span className="trust-icon">{strip.icon}</span>
-          <span className="trust-label">{lang === 'ar' ? strip.label_ar : strip.label_en}</span>
-          <p className="trust-desc">{lang === 'ar' ? strip.description_ar : strip.description_en}</p>
+          <span className="trust-label">{strip.label_ar}</span>
+          <p className="trust-desc">{strip.description_ar}</p>
         </div>
       ));
     }
@@ -218,12 +209,12 @@ export default function HomePage() {
         {testimonials.map((r, idx) => (
           <div key={r.id ?? idx} className="test-card">
             <div className="test-stars">{starString(r.rating)}</div>
-            <p className="test-text">"{lang === 'ar' ? r.body_ar : (r.body_en || r.body_ar)}"</p>
+            <p className="test-text">"{r.body_ar}"</p>
             <div className="test-author">
-              {lang === 'ar' ? r.client_name_ar : (r.client_name_en || r.client_name_ar)}
+              {r.client_name_ar}
             </div>
             <div className="test-place">
-              {lang === 'ar' ? r.location_ar : (r.location_en || r.location_ar)}
+              {r.location_ar}
             </div>
           </div>
         ))}
@@ -308,55 +299,7 @@ export default function HomePage() {
         </Link>
       </section>
 
-      {/* FOOTER */}
-      <footer id="contact">
-        <div className="footer-grid">
-          <div>
-            <div className="footer-brand">{t('footer.brand')}<span>{t('footer.since')}</span></div>
-            <p className="footer-desc">{t('footer.desc')}</p>
-            <div className="footer-socials">
-              <a href={footerContactInfo?.facebook_url || '#'}>f</a>
-              <a href={footerContactInfo?.linkedin_url || '#'}>in</a>
-              <a href={footerContactInfo?.whatsapp_url || '#'}>wa</a>
-              <a href={footerContactInfo?.instagram_url || '#'}>ig</a>
-            </div>
-          </div>
-          <div>
-            <div className="footer-col-title">{t('footer.collections')}</div>
-            <ul className="footer-links">
-              {dbCategories && dbCategories.length > 0
-                ? dbCategories.map((cat) => (
-                    <li key={cat.id}><Link to={`/shop?category=${cat.slug}#products`}>{lang === 'ar' ? (cat.name_ar || cat.name) : cat.name}</Link></li>
-                  ))
-                : null}
-              <li><Link to="/shop?sort=new">{t('footer.links.newArrivals')}</Link></li>
-            </ul>
-          </div>
-          <div>
-            <div className="footer-col-title">{t('footer.information')}</div>
-            <ul className="footer-links">
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.ourStory')}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.ourArtisans')}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.authenticity')}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.shipping')}</Link></li>
-              {/* <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.returns')}</Link></li> */}
-              {/* <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.sizeGuide')}</Link></li> */}
-            </ul>
-          </div>
-          <div>
-            <div className="footer-col-title">{t('footer.contact')}</div>
-            <ul className="footer-links">
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.whatsapp')}</Link></li>
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.email')}</Link></li>
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t('footer.links.showroom')}</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <span>{t('footer.bottom.left')}</span>
-          <span>{t('footer.bottom.right')}</span>
-        </div>
-      </footer>
+      <Footer />
 
       <div style={{
         position: 'fixed', top: '100px', right: '30px',
@@ -367,7 +310,7 @@ export default function HomePage() {
         opacity: showAdded ? 1 : 0, transform: showAdded ? 'translateY(0)' : 'translateY(-20px)',
         transition: 'all 0.4s ease',
       }}>
-        {addedProduct} — {lang === 'ar' ? 'تمت الإضافة! جاري التوجيه…' : 'Added! Redirecting…'}
+        {addedProduct} — {'تمت الإضافة! جاري التوجيه…'}
       </div>
     </div>
   );

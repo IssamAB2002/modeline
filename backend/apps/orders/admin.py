@@ -8,7 +8,7 @@ class OrderItemInline(admin.TabularInline):
     extra = 0
     readonly_fields = (
         "product", "quantity", "unit_price_da_snapshot",
-        "sku_snapshot", "product_name_snapshot_ar", "product_name_snapshot_en",
+        "sku_snapshot", "product_name_snapshot_ar",
     )
     can_delete = False
 
@@ -44,5 +44,5 @@ class OrderItemAdmin(admin.ModelAdmin):
     search_fields = ("order__order_number", "sku_snapshot", "product_name_snapshot_ar")
     readonly_fields = (
         "order", "product", "quantity", "unit_price_da_snapshot",
-        "sku_snapshot", "product_name_snapshot_ar", "product_name_snapshot_en",
+        "sku_snapshot", "product_name_snapshot_ar",
     )

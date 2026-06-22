@@ -9,7 +9,7 @@ class CartItemInline(admin.TabularInline):
     readonly_fields = (
         "product", "quantity", "selected_size", "selected_color",
         "unit_price_da_snapshot", "sku_snapshot",
-        "product_name_snapshot_ar", "product_name_snapshot_en",
+        "product_name_snapshot_ar",
     )
     can_delete = False
 
@@ -33,8 +33,8 @@ class CartItemAdmin(admin.ModelAdmin):
         "quantity", "unit_price_da_snapshot", "selected_size", "selected_color",
     )
     list_filter = ("cart__status",)
-    search_fields = ("sku_snapshot", "product_name_snapshot_ar", "product__name")
+    search_fields = ("sku_snapshot", "product_name_snapshot_ar", "product__name_ar")
     readonly_fields = (
         "unit_price_da_snapshot", "sku_snapshot",
-        "product_name_snapshot_ar", "product_name_snapshot_en",
+        "product_name_snapshot_ar",
     )

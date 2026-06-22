@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Category, Product, ProductImage, ProductReview, Wilaya
+from .models import Category, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -8,7 +8,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ("id", "name_ar", "name", "slug", "image_url", "is_featured")
+        fields = ("id", "name_ar", "slug", "image_url", "is_featured")
 
     def get_image_url(self, obj):
         request = self.context.get("request")
@@ -35,6 +35,18 @@ class ProductImageSerializer(serializers.ModelSerializer):
         return None
 
 
+class ProductSizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductSize
+        fields = ("name", "order")
+
+
+class ProductColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductColor
+        fields = ("name_ar", "hex", "order")
+
+
 class ProductListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for shop listing cards."""
 
@@ -46,12 +58,10 @@ class ProductListSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name_ar",
-            "name",
             "slug",
             "sku",
             "origin",
             "short_description_ar",
-            "short_description",
             "price",
             "old_price",
             "image_url",
@@ -82,6 +92,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     in_stock = serializers.BooleanField(read_only=True)
     category = CategorySerializer(read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
+    sizes = ProductSizeSerializer(many=True, read_only=True)
+    colors = ProductColorSerializer(many=True, read_only=True)
     image_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -89,21 +101,17 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name_ar",
-            "name",
             "slug",
             "sku",
             "category",
             "origin",
             "material",
-            "color",
             "care_instructions",
             "details",
-            "available_sizes",
-            "available_colors",
+            "sizes",
+            "colors",
             "short_description_ar",
-            "short_description",
             "description_ar",
-            "description",
             "price",
             "old_price",
             "image_url",

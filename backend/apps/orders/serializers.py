@@ -18,7 +18,6 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "unit_price_da_snapshot",
             "sku_snapshot",
             "product_name_snapshot_ar",
-            "product_name_snapshot_en",
             "line_total",
         )
 

@@ -7,12 +7,12 @@ from .models import ContactInfo, FrontSettings, TrustStrip
 
 @admin.register(TrustStrip)
 class TrustStripAdmin(admin.ModelAdmin):
-    list_display = ("label_ar", "label_en", "icon", "sort_order", "is_active")
+    list_display = ("label_ar", "icon", "sort_order", "is_active")
     list_editable = ("sort_order", "is_active")
     list_filter = ("is_active",)
-    search_fields = ("label_ar", "label_en", "description_ar", "description_en")
+    search_fields = ("label_ar", "description_ar")
     fieldsets = (
-        (None, {"fields": ("icon", ("label_ar", "label_en"), ("description_ar", "description_en"))}),
+        (None, {"fields": ("icon", "label_ar", "description_ar")}),
         ("Display", {"fields": ("sort_order", "is_active")}),
     )
 
@@ -20,53 +20,53 @@ class TrustStripAdmin(admin.ModelAdmin):
 @admin.register(FrontSettings)
 class FrontSettingsAdmin(admin.ModelAdmin):
     fieldsets = (
-        ("Home — Top Bar & Nav", {"fields": (
-            ("home_topbar_ar", "home_topbar_en"),
-            ("home_nav_logo_tagline_ar", "home_nav_logo_tagline_en"))}),
-        ("Home — Hero", {"fields": (
-            ("home_hero_eyebrow_ar", "home_hero_eyebrow_en"),
-            ("home_hero_title_line1_ar", "home_hero_title_line1_en"),
-            ("home_hero_title_emphasis_ar", "home_hero_title_emphasis_en"),
-            ("home_hero_title_line3_ar", "home_hero_title_line3_en"),
-            ("home_hero_subtitle_ar", "home_hero_subtitle_en"))}),
-        ("About — Hero", {"fields": (
-            ("about_hero_title_main_ar", "about_hero_title_main_en"),
-            ("about_hero_title_emphasis_ar", "about_hero_title_emphasis_en"),
-            ("about_hero_subtitle_ar", "about_hero_subtitle_en"))}),
-        ("About — Intro Statement", {"fields": (
-            ("about_intro_eyebrow_ar", "about_intro_eyebrow_en"),
-            ("about_intro_title_ar", "about_intro_title_en"),
-            ("about_intro_text_ar", "about_intro_text_en"))}),
-        ("About — Story Section", {"fields": (
-            ("about_story_title_main_ar", "about_story_title_main_en"),
-            ("about_story_title_emphasis_ar", "about_story_title_emphasis_en"),
-            ("about_story_paragraph_1_ar", "about_story_paragraph_1_en"),
-            ("about_story_paragraph_2_ar", "about_story_paragraph_2_en"),
-            ("about_story_paragraph_3_ar", "about_story_paragraph_3_en"),
+        ("الصفحة الرئيسية — الشريط العلوي والتنقل", {"fields": (
+            "home_topbar_ar",
+            "home_nav_logo_tagline_ar")}),
+        ("الصفحة الرئيسية — البانر الرئيسي", {"fields": (
+            "home_hero_eyebrow_ar",
+            "home_hero_title_line1_ar",
+            "home_hero_title_emphasis_ar",
+            "home_hero_title_line3_ar",
+            "home_hero_subtitle_ar")}),
+        ("صفحة من نحن — البانر", {"fields": (
+            "about_hero_title_main_ar",
+            "about_hero_title_emphasis_ar",
+            "about_hero_subtitle_ar")}),
+        ("صفحة من نحن — البيان التعريفي", {"fields": (
+            "about_intro_eyebrow_ar",
+            "about_intro_title_ar",
+            "about_intro_text_ar")}),
+        ("صفحة من نحن — قسم القصة", {"fields": (
+            "about_story_title_main_ar",
+            "about_story_title_emphasis_ar",
+            "about_story_paragraph_1_ar",
+            "about_story_paragraph_2_ar",
+            "about_story_paragraph_3_ar",
             "about_story_image",
             "about_story_image_url",
-            ("about_story_image_label_ar", "about_story_image_label_en"),
+            "about_story_image_label_ar",
         )}),
-        ("About — Stats Row", {"fields": (
-            ("about_stat_1_value", "about_stat_1_label_ar", "about_stat_1_label_en"),
-            ("about_stat_2_value", "about_stat_2_label_ar", "about_stat_2_label_en"),
-            ("about_stat_3_value", "about_stat_3_label_ar", "about_stat_3_label_en"),
-            ("about_stat_4_value", "about_stat_4_label_ar", "about_stat_4_label_en"),
+        ("صفحة من نحن — الإحصائيات", {"fields": (
+            ("about_stat_1_value", "about_stat_1_label_ar"),
+            ("about_stat_2_value", "about_stat_2_label_ar"),
+            ("about_stat_3_value", "about_stat_3_label_ar"),
+            ("about_stat_4_value", "about_stat_4_label_ar"),
         )}),
-        ("Product Page — Shipping Tab", {"fields": (
-            ("product_shipping_intro_ar", "product_shipping_intro_en"),
-            ("product_shipping_algeria_ar", "product_shipping_algeria_en"),
-            ("product_shipping_france_ar", "product_shipping_france_en"),
-            ("product_shipping_tracking_ar", "product_shipping_tracking_en"),
+        ("صفحة المنتج — تبويب الشحن", {"fields": (
+            "product_shipping_intro_ar",
+            "product_shipping_algeria_ar",
+            "product_shipping_france_ar",
+            "product_shipping_tracking_ar",
         )}),
-        ("Contact — Hero", {"fields": (
-            ("contact_hero_title_main_ar", "contact_hero_title_main_en"),
-            ("contact_hero_title_emphasis_ar", "contact_hero_title_emphasis_en"),
-            ("contact_hero_subtitle_ar", "contact_hero_subtitle_en"))}),
-        ("Contact — Intro Statement", {"fields": (
-            ("contact_intro_title_main_ar", "contact_intro_title_main_en"),
-            ("contact_intro_title_emphasis_ar", "contact_intro_title_emphasis_en"),
-            ("contact_intro_text_ar", "contact_intro_text_en"))}),
+        ("صفحة التواصل — البانر", {"fields": (
+            "contact_hero_title_main_ar",
+            "contact_hero_title_emphasis_ar",
+            "contact_hero_subtitle_ar")}),
+        ("صفحة التواصل — البيان التعريفي", {"fields": (
+            "contact_intro_title_main_ar",
+            "contact_intro_title_emphasis_ar",
+            "contact_intro_text_ar")}),
     )
 
     def has_add_permission(self, request):
@@ -83,13 +83,13 @@ class FrontSettingsAdmin(admin.ModelAdmin):
 @admin.register(ContactInfo)
 class ContactInfoAdmin(admin.ModelAdmin):
     fieldsets = (
-        ("Store Details", {"fields": (
+        ("بيانات المتجر", {"fields": (
             "store_email",
             "store_phone",
             "store_whatsapp",
-            ("store_hours_ar", "store_hours_en"),
+            "store_hours_ar",
         )}),
-        ("Social Links", {"fields": (
+        ("روابط التواصل الاجتماعي", {"fields": (
             "facebook_url",
             "instagram_url",
             "linkedin_url",

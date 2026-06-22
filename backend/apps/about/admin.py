@@ -5,11 +5,11 @@ from .models import Principle, Review
 
 @admin.register(Principle)
 class PrincipleAdmin(admin.ModelAdmin):
-    list_display = ("title_ar", "title_en", "sort_order", "is_active")
+    list_display = ("title_ar", "sort_order", "is_active")
     list_editable = ("sort_order", "is_active")
-    search_fields = ("title_ar", "title_en")
+    search_fields = ("title_ar",)
     fieldsets = (
-        (None, {"fields": (("title_ar", "title_en"), ("body_ar", "body_en"))}),
+        (None, {"fields": ("title_ar", "body_ar")}),
         ("Display", {"fields": ("sort_order", "is_active")}),
     )
 
@@ -22,11 +22,11 @@ class ReviewAdmin(admin.ModelAdmin):
     )
     list_editable = ("approved", "verified", "sort_order")
     list_filter = ("approved", "verified", "rating")
-    search_fields = ("client_name_ar", "client_name_en", "body_ar", "body_en")
+    search_fields = ("client_name_ar", "body_ar")
     readonly_fields = ("created_at",)
     fieldsets = (
-        ("Client", {"fields": (("client_name_ar", "client_name_en"), ("location_ar", "location_en"))}),
-        ("Review", {"fields": ("rating", ("body_ar", "body_en"))}),
-        ("Moderation", {"fields": ("approved", "verified", "sort_order")}),
-        ("Meta", {"classes": ("collapse",), "fields": ("created_at",)}),
+        ("العميل", {"fields": ("client_name_ar", "location_ar")}),
+        ("التقييم", {"fields": ("rating", "body_ar")}),
+        ("الإشراف", {"fields": ("approved", "verified", "sort_order")}),
+        ("بيانات", {"classes": ("collapse",), "fields": ("created_at",)}),
     )

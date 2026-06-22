@@ -2,40 +2,34 @@ from django.db import models
 
 
 class Showroom(models.Model):
-    city_ar = models.CharField(max_length=100)
-    city_en = models.CharField(max_length=100, blank=True)
-    address_ar = models.CharField(max_length=255)
-    address_en = models.CharField(max_length=255, blank=True)
-    hours_ar = models.CharField(max_length=200)
-    hours_en = models.CharField(max_length=200, blank=True)
-    phone = models.CharField(max_length=30)
-    email = models.EmailField(blank=True)
-    note_ar = models.CharField(max_length=255, blank=True)
-    note_en = models.CharField(max_length=255, blank=True)
-    sort_order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
+    city_ar = models.CharField(max_length=100, verbose_name='المدينة')
+    address_ar = models.CharField(max_length=255, verbose_name='العنوان')
+    hours_ar = models.CharField(max_length=200, verbose_name='ساعات العمل')
+    phone = models.CharField(max_length=30, verbose_name='الهاتف')
+    email = models.EmailField(blank=True, verbose_name='البريد الإلكتروني')
+    note_ar = models.CharField(max_length=255, blank=True, verbose_name='ملاحظة')
+    sort_order = models.PositiveIntegerField(default=0, verbose_name='الترتيب')
+    is_active = models.BooleanField(default=True, verbose_name='نشط')
 
     class Meta:
         ordering = ("sort_order",)
-        verbose_name = "Showroom"
-        verbose_name_plural = "Showrooms"
+        verbose_name = "معرض"
+        verbose_name_plural = "المعارض"
 
     def __str__(self):
         return self.city_ar
 
 
 class Faq(models.Model):
-    question_ar = models.CharField(max_length=500)
-    question_en = models.CharField(max_length=500, blank=True)
-    answer_ar = models.TextField()
-    answer_en = models.TextField(blank=True)
-    sort_order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
+    question_ar = models.CharField(max_length=500, verbose_name='السؤال')
+    answer_ar = models.TextField(verbose_name='الإجابة')
+    sort_order = models.PositiveIntegerField(default=0, verbose_name='الترتيب')
+    is_active = models.BooleanField(default=True, verbose_name='نشط')
 
     class Meta:
         ordering = ("sort_order",)
-        verbose_name = "FAQ"
-        verbose_name_plural = "FAQs"
+        verbose_name = "سؤال شائع"
+        verbose_name_plural = "الأسئلة الشائعة"
 
     def __str__(self):
         return self.question_ar[:80]
@@ -54,20 +48,21 @@ class ContactMessage(models.Model):
         max_length=20,
         choices=InquiryType.choices,
         default=InquiryType.GENERAL,
+        verbose_name='نوع الاستفسار',
     )
-    name = models.CharField(max_length=200)
-    email = models.EmailField()
-    phone = models.CharField(max_length=30, blank=True)
-    subject = models.CharField(max_length=300)
-    message = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False)
-    status = models.CharField(max_length=30, blank=True)
+    name = models.CharField(max_length=200, verbose_name='الاسم')
+    email = models.EmailField(verbose_name='البريد الإلكتروني')
+    phone = models.CharField(max_length=30, blank=True, verbose_name='الهاتف')
+    subject = models.CharField(max_length=300, verbose_name='الموضوع')
+    message = models.TextField(verbose_name='الرسالة')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإرسال')
+    is_read = models.BooleanField(default=False, verbose_name='مقروءة')
+    status = models.CharField(max_length=30, blank=True, verbose_name='الحالة')
 
     class Meta:
         ordering = ("-created_at",)
-        verbose_name = "Contact Message"
-        verbose_name_plural = "Contact Messages"
+        verbose_name = "رسالة تواصل"
+        verbose_name_plural = "رسائل التواصل"
 
     def __str__(self):
         return f"{self.name} — {self.subject[:60]}"

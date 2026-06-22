@@ -19,33 +19,28 @@ services:
 
   web:
     build: .
-    command: gunicorn --bind 0.0.0.0:8000 backend.wsgi:application
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 3"
     volumes:
       - .:/app
     ports:
       - "8000:8000"
-    environment:
-      - DEBUG=1
-      - DJANGO_SETTINGS_MODULE=backend.settings
-      - DATABASE_URL=postgres://modeline_user:modeline_password@db:5432/modeline_db
-      - REDIS_URL=redis://redis:6379/0
+    env_file: .env.local
     depends_on:
       - db
       - redis
 
-  celery:
-    build: .
-    command: celery -A backend worker -l info
-    volumes:
-      - .:/app
-    environment:
-      - DEBUG=1
-      - DJANGO_SETTINGS_MODULE=backend.settings
-      - DATABASE_URL=postgres://modeline_user:modeline_password@db:5432/modeline_db
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      - db
-      - redis
+  # celery:
+  #   build: .
+  #   command: celery -A backend worker -l info
+  #   volumes:
+  #     - .:/app
+  #   env_file: .env.local
+  #   depends_on:
+  #     - db
+  #     - redis
 
 volumes:
   postgres_data:

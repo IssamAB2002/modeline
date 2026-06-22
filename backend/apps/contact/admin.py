@@ -5,14 +5,14 @@ from .models import ContactMessage, Faq, Showroom
 
 @admin.register(Showroom)
 class ShowroomAdmin(admin.ModelAdmin):
-    list_display = ("city_ar", "city_en", "phone", "email", "sort_order", "is_active")
+    list_display = ("city_ar", "phone", "email", "sort_order", "is_active")
     list_editable = ("sort_order", "is_active")
-    search_fields = ("city_ar", "city_en", "address_ar", "phone", "email")
+    search_fields = ("city_ar", "address_ar", "phone", "email")
     fieldsets = (
-        ("Location", {"fields": (("city_ar", "city_en"), ("address_ar", "address_en"))}),
-        ("Contact", {"fields": ("phone", "email")}),
-        ("Hours & Note", {"fields": (("hours_ar", "hours_en"), ("note_ar", "note_en"))}),
-        ("Display", {"fields": ("sort_order", "is_active")}),
+        ("الموقع", {"fields": ("city_ar", "address_ar")}),
+        ("التواصل", {"fields": ("phone", "email")}),
+        ("الأوقات والملاحظة", {"fields": ("hours_ar", "note_ar")}),
+        ("العرض", {"fields": ("sort_order", "is_active")}),
     )
 
 
@@ -20,10 +20,10 @@ class ShowroomAdmin(admin.ModelAdmin):
 class FaqAdmin(admin.ModelAdmin):
     list_display = ("question_ar", "sort_order", "is_active")
     list_editable = ("sort_order", "is_active")
-    search_fields = ("question_ar", "question_en", "answer_ar", "answer_en")
+    search_fields = ("question_ar", "answer_ar")
     fieldsets = (
-        (None, {"fields": (("question_ar", "question_en"), ("answer_ar", "answer_en"))}),
-        ("Display", {"fields": ("sort_order", "is_active")}),
+        (None, {"fields": ("question_ar", "answer_ar")}),
+        ("العرض", {"fields": ("sort_order", "is_active")}),
     )
 
 
@@ -35,8 +35,8 @@ class ContactMessageAdmin(admin.ModelAdmin):
     search_fields = ("name", "email", "subject", "message")
     readonly_fields = ("created_at",)
     fieldsets = (
-        ("Sender", {"fields": ("name", "email", "phone")}),
-        ("Message", {"fields": ("inquiry_type", "subject", "message")}),
-        ("Admin", {"fields": ("is_read", "status")}),
-        ("Meta", {"classes": ("collapse",), "fields": ("created_at",)}),
+        ("المرسل", {"fields": ("name", "email", "phone")}),
+        ("الرسالة", {"fields": ("inquiry_type", "subject", "message")}),
+        ("الإدارة", {"fields": ("is_read", "status")}),
+        ("بيانات", {"classes": ("collapse",), "fields": ("created_at",)}),
     )

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Nav from '../components/Nav';
+import Footer from '../components/Footer';
 import { useFrontSettings } from '../context/FrontSettingsContext';
 import { useLang } from '../hooks/useLang';
 import '../pageStyles/contact.css';
@@ -23,8 +24,7 @@ const API = import.meta.env.VITE_API_URL;
    ═══════════════════════════════════════════════════════════════ */
 
 const ContactPage = () => {
-  const { t, currentLang } = useLang();
-  const lang = currentLang.split('-')[0] === 'ar' ? 'ar' : 'en';
+  const { t } = useLang();
   const location = useLocation();
   const settings = useFrontSettings();
 
@@ -46,8 +46,6 @@ const ContactPage = () => {
   const [dbShowrooms, setDbShowrooms] = useState(null); // null = loading
   const [dbFaqs, setDbFaqs] = useState(null);           // null = loading
   const [dbContactInfo, setDbContactInfo] = useState(null);
-  const [footerCategories, setFooterCategories] = useState([]);
-  const [footerContactInfo, setFooterContactInfo] = useState(null);
 
   useEffect(() => {
     fetch(`${API}/contact/showrooms/`)
@@ -66,15 +64,8 @@ const ContactPage = () => {
   useEffect(() => {
     fetch(`${API}/home/contact-info/`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { setDbContactInfo(data); setFooterContactInfo(data); })
-      .catch(() => { setDbContactInfo(null); setFooterContactInfo(null); });
-  }, []);
-
-  useEffect(() => {
-    fetch(`${API}/shop/categories/`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setFooterCategories(Array.isArray(data) ? data : []))
-      .catch(() => setFooterCategories([]));
+      .then((data) => setDbContactInfo(data))
+      .catch(() => setDbContactInfo(null));
   }, []);
 
   const handleChange = (e) => {
@@ -90,7 +81,8 @@ const ContactPage = () => {
     try {
       const res = await fetch(`${API}/contact/messages/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', "X-CSRFToken": getCookie("csrftoken"),},
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
         body: JSON.stringify({
           inquiry_type: formData.inquiryType,
           name: formData.name,
@@ -129,19 +121,19 @@ const ContactPage = () => {
   // Resolve showrooms and faqs to render
   const showrooms = dbShowrooms !== null && dbShowrooms.length > 0
     ? dbShowrooms.map((r) => ({
-        city: lang === 'ar' ? r.city_ar : (r.city_en || r.city_ar),
-        address: lang === 'ar' ? r.address_ar : (r.address_en || r.address_ar),
-        hours: lang === 'ar' ? r.hours_ar : (r.hours_en || r.hours_ar),
+        city: r.city_ar,
+        address: r.address_ar,
+        hours: r.hours_ar,
         phone: r.phone || '',
         email: r.email || '',
-        note: lang === 'ar' ? r.note_ar : (r.note_en || r.note_ar),
+        note: r.note_ar,
       }))
     : null; // null = loading or empty (handled in render)
 
   const faqs = (dbFaqs !== null && dbFaqs.length > 0)
     ? dbFaqs.map((f) => ({
-        q: lang === 'ar' ? f.question_ar : (f.question_en || f.question_ar),
-        a: lang === 'ar' ? f.answer_ar : (f.answer_en || f.answer_ar),
+        q: f.question_ar,
+        a: f.answer_ar,
       }))
     : i18nFaqs; // fall back to i18n if DB empty or loading
 
@@ -916,10 +908,10 @@ const ContactPage = () => {
           <Link
             to="/"
             style={{ color: "rgba(253,248,238,0.55)", textDecoration: "none" }}>
-            Home
+            الرئيسية
           </Link>
           <span>·</span>
-          <span style={{ color: "var(--gold-pale)" }}>Contact Us</span>
+          <span style={{ color: "var(--gold-pale)" }}>تواصل معنا</span>
         </div>
         <h1 className="page-title">
           {settings.contact_hero_title_main}{" "}
@@ -932,14 +924,14 @@ const ContactPage = () => {
           GOLD DIVIDER
          ════════════════════════════════════════ */}
       <div className="gold-rule">
-        <span className="gold-rule-icon">✦ Est. 1994 ✦</span>
+        <span className="gold-rule-icon">✦ منذ سنين ✦</span>
       </div>
 
       {/* ════════════════════════════════════════
           INTRO STATEMENT
          ════════════════════════════════════════ */}
       <div className="intro-statement">
-        <span className="eyebrow">Heritage Store · Algiers</span>
+        <span className="eyebrow">متجر تراثي . غرداية</span>
         <h2>
           {settings.contact_intro_title_main}{" "}
           <em>{settings.contact_intro_title_emphasis}</em>
@@ -1046,11 +1038,23 @@ const ContactPage = () => {
               </div>
 
               {contactError && (
-                <p style={{ color: '#a00', fontSize: '0.9rem', marginTop: '0.75rem' }}>{contactError}</p>
+                <p
+                  style={{
+                    color: "#a00",
+                    fontSize: "0.9rem",
+                    marginTop: "0.75rem",
+                  }}>
+                  {contactError}
+                </p>
               )}
 
-              <button type="submit" className="btn-submit" disabled={submittingContact}>
-                {submittingContact ? t('contact:form.submitting') : t('contact:form.submit')}
+              <button
+                type="submit"
+                className="btn-submit"
+                disabled={submittingContact}>
+                {submittingContact
+                  ? t("contact:form.submitting")
+                  : t("contact:form.submit")}
               </button>
             </form>
           )}
@@ -1066,8 +1070,12 @@ const ContactPage = () => {
             <div className="contact-detail">
               <span className="icon">✉</span>
               <div>
-                <span className="label">{t("contact:contactInfo.emailLabel")}</span>
-                <a href={`mailto:${dbContactInfo?.store_email || t("contact:contactInfo.email")}`} className="value">
+                <span className="label">
+                  {t("contact:contactInfo.emailLabel")}
+                </span>
+                <a
+                  href={`mailto:${dbContactInfo?.store_email || t("contact:contactInfo.email")}`}
+                  className="value">
                   {dbContactInfo?.store_email || t("contact:contactInfo.email")}
                 </a>
               </div>
@@ -1075,8 +1083,12 @@ const ContactPage = () => {
             <div className="contact-detail">
               <span className="icon">☎</span>
               <div>
-                <span className="label">{t("contact:contactInfo.phoneLabel")}</span>
-                <a href={`tel:${(dbContactInfo?.store_phone || t("contact:contactInfo.phone")).replace(/\s/g, "")}`} className="value">
+                <span className="label">
+                  {t("contact:contactInfo.phoneLabel")}
+                </span>
+                <a
+                  href={`tel:${(dbContactInfo?.store_phone || t("contact:contactInfo.phone")).replace(/\s/g, "")}`}
+                  className="value">
                   {dbContactInfo?.store_phone || t("contact:contactInfo.phone")}
                 </a>
               </div>
@@ -1084,18 +1096,29 @@ const ContactPage = () => {
             <div className="contact-detail">
               <span className="icon">✆</span>
               <div>
-                <span className="label">{t("contact:contactInfo.whatsappLabel")}</span>
-                <a href={dbContactInfo?.whatsapp_url || `https://wa.me/${t("contact:contactInfo.whatsapp").replace(/\s/g, "")}`} className="value">
-                  {dbContactInfo?.store_whatsapp || t("contact:contactInfo.whatsapp")}
+                <span className="label">
+                  {t("contact:contactInfo.whatsappLabel")}
+                </span>
+                <a
+                  href={
+                    dbContactInfo?.whatsapp_url ||
+                    `https://wa.me/${t("contact:contactInfo.whatsapp").replace(/\s/g, "")}`
+                  }
+                  className="value">
+                  {dbContactInfo?.store_whatsapp ||
+                    t("contact:contactInfo.whatsapp")}
                 </a>
               </div>
             </div>
             <div className="contact-detail">
               <span className="icon">◈</span>
               <div>
-                <span className="label">{t("contact:contactInfo.hoursLabel")}</span>
+                <span className="label">
+                  {t("contact:contactInfo.hoursLabel")}
+                </span>
                 <span className="value">
-                  {(lang === 'ar' ? dbContactInfo?.store_hours_ar : dbContactInfo?.store_hours_en) || t("contact:contactInfo.hoursValue")}
+                  {dbContactInfo?.store_hours_ar ||
+                    t("contact:contactInfo.hoursValue")}
                 </span>
               </div>
             </div>
@@ -1120,7 +1143,7 @@ const ContactPage = () => {
               {(() => {
                 const text = t("contact:partnerships.text");
                 const email =
-                  dbContactInfo?.store_email || t("contact:partnerships.email"); ;
+                  dbContactInfo?.store_email || t("contact:partnerships.email");
                 const token = "{{email}}";
 
                 if (!text || !text.includes(token)) return text;
@@ -1158,25 +1181,37 @@ const ContactPage = () => {
           <p>{t("contact:showrooms.subtitle")}</p>
         </div>
         {showrooms === null ? (
-          <p style={{ textAlign: 'center', color: 'var(--warm-gray)', padding: '2rem 0', fontStyle: 'italic' }}>
-            {t('contact:showrooms.empty')}
+          <p
+            style={{
+              textAlign: "center",
+              color: "var(--warm-gray)",
+              padding: "2rem 0",
+              fontStyle: "italic",
+            }}>
+            {t("contact:showrooms.empty")}
           </p>
         ) : (
           <div className="showrooms-grid">
             {showrooms.map((room, idx) => (
               <div key={idx} className="showroom-card">
-                <div className="city">{room.city} <em>✦</em></div>
+                <div className="city">
+                  {room.city} <em>✦</em>
+                </div>
                 <div className="showroom-detail">
                   <span className="icon">◎</span>
                   <div>
-                    <span className="label">{t('contact:showrooms.labels.address')}</span>
+                    <span className="label">
+                      {t("contact:showrooms.labels.address")}
+                    </span>
                     <span className="value">{room.address}</span>
                   </div>
                 </div>
                 <div className="showroom-detail">
                   <span className="icon">◈</span>
                   <div>
-                    <span className="label">{t('contact:showrooms.labels.hours')}</span>
+                    <span className="label">
+                      {t("contact:showrooms.labels.hours")}
+                    </span>
                     <span className="value">{room.hours}</span>
                   </div>
                 </div>
@@ -1184,8 +1219,14 @@ const ContactPage = () => {
                   <div className="showroom-detail">
                     <span className="icon">☎</span>
                     <div>
-                      <span className="label">{t('contact:showrooms.labels.phone')}</span>
-                      <a href={`tel:${room.phone.replace(/\s/g, '')}`} className="value">{room.phone}</a>
+                      <span className="label">
+                        {t("contact:showrooms.labels.phone")}
+                      </span>
+                      <a
+                        href={`tel:${room.phone.replace(/\s/g, "")}`}
+                        className="value">
+                        {room.phone}
+                      </a>
                     </div>
                   </div>
                 ) : null}
@@ -1193,12 +1234,18 @@ const ContactPage = () => {
                   <div className="showroom-detail">
                     <span className="icon">✉</span>
                     <div>
-                      <span className="label">{t('contact:showrooms.labels.email')}</span>
-                      <a href={`mailto:${room.email}`} className="value">{room.email}</a>
+                      <span className="label">
+                        {t("contact:showrooms.labels.email")}
+                      </span>
+                      <a href={`mailto:${room.email}`} className="value">
+                        {room.email}
+                      </a>
                     </div>
                   </div>
                 ) : null}
-                {room.note ? <div className="showroom-note">{room.note}</div> : null}
+                {room.note ? (
+                  <div className="showroom-note">{room.note}</div>
+                ) : null}
               </div>
             ))}
           </div>
@@ -1233,63 +1280,7 @@ const ContactPage = () => {
         </div>
       </section>
 
-      {/* ════════════════════════════════════════
-          FOOTER
-         ════════════════════════════════════════ */}
-      <footer id="contact">
-        <div className="footer-grid">
-          <div>
-            <div className="footer-brand">
-              {t("footer.brand")}
-              <span>{t("footer.since")}</span>
-            </div>
-            <p className="footer-desc">{t("footer.desc")}</p>
-            <div className="footer-socials">
-              <a href={footerContactInfo?.facebook_url || '#'}>f</a>
-              <a href={footerContactInfo?.linkedin_url || '#'}>in</a>
-              <a href={footerContactInfo?.whatsapp_url || '#'}>wa</a>
-              <a href={footerContactInfo?.instagram_url || '#'}>ig</a>
-            </div>
-          </div>
-
-          <div>
-            <div className="footer-col-title">{t("footer.collections")}</div>
-            <ul className="footer-links">
-              {footerCategories.length > 0
-                ? footerCategories.map((cat) => (
-                    <li key={cat.id}><Link to={`/shop?category=${cat.slug}#products`}>{lang === 'ar' ? (cat.name_ar || cat.name) : cat.name}</Link></li>
-                  ))
-                : null}
-              <li><Link to="/shop?sort=new#products">{t("footer.links.newArrivals")}</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <div className="footer-col-title">{t("footer.information")}</div>
-            <ul className="footer-links">
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.ourStory")}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.ourArtisans")}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.authenticity")}</Link></li>
-              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.shipping")}</Link></li>
-              {/* <li><Link to="/about">{t("footer.links.returns")}</Link></li> */}
-              {/* <li><Link to="/about">{t("footer.links.sizeGuide")}</Link></li> */}
-            </ul>
-          </div>
-
-          <div>
-            <div className="footer-col-title">{t("footer.contact")}</div>
-            <ul className="footer-links">
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.whatsapp")}</Link></li>
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.email")}</Link></li>
-              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)}>{t("footer.links.showroom")}</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <span>{t('footer.bottom.left')}</span>
-          <span>{t('footer.bottom.right')}</span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

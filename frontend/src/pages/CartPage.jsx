@@ -16,8 +16,7 @@ function renderEmphasis(text) {
 const CartPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { t, currentLang } = useLang();
-  const lang = currentLang.split('-')[0] === 'ar' ? 'ar' : 'en';
+  const { t } = useLang();
   const { cartItems, cartCount, cartId, updateQty, removeItem, clearCart } = useCart();
   const settings = useFrontSettings();
 
@@ -258,13 +257,13 @@ const CartPage = () => {
                   onChange={(e) => {
                     const w = wilayas.find((w) => w.id === parseInt(e.target.value, 10)) || null;
                     setSelectedWilaya(w);
-                    setDeliveryAddress((p) => ({ ...p, city: w ? (lang === 'ar' ? w.name_ar : w.name_fr) : '' }));
+                    setDeliveryAddress((p) => ({ ...p, city: w ? w.name_ar : '' }));
                   }}
                 >
-                  <option value="">{lang === 'ar' ? 'اختر الولاية' : 'Select Wilaya'}</option>
+                  <option value="">{'اختر الولاية'}</option>
                   {wilayas.map((w) => (
                     <option key={w.id} value={w.id}>
-                      {w.code} — {lang === 'ar' ? w.name_ar : w.name_fr}
+                      {w.code} — {w.name_ar}
                     </option>
                   ))}
                 </select>
@@ -313,9 +312,7 @@ const CartPage = () => {
                 </p>
                 {countdown !== null && countdown > 0 && (
                   <p style={{ fontSize: "0.8rem", color: "var(--warm-gray)", fontStyle: "italic", marginBottom: "0.5rem" }}>
-                    {lang === 'ar'
-                      ? `ستنتقل إلى المتجر خلال ${countdown} ثوانٍ…`
-                      : `Redirecting to shop in ${countdown}s…`}
+                    {`ستنتقل إلى المتجر خلال ${countdown} ثوانٍ…`}
                   </p>
                 )}
                 <div className="cart-summary-row" style={{ marginTop: "1.25rem" }}>
