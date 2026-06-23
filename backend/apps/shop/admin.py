@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Category, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
+from .models import Baladia, Category, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
 
 
 # ── Color picker widget ─────────────────────────────────────────────────────
@@ -361,6 +361,18 @@ class WilayaAdmin(admin.ModelAdmin):
     list_filter = ("is_active",)
     search_fields = ("name_ar", "name_fr")
     ordering = ("code",)
+
+
+# ── Baladia Admin ─────────────────────────────────────────────────────────────
+
+@admin.register(Baladia)
+class BaladiaAdmin(admin.ModelAdmin):
+    list_display = ("name_fr", "name_ar", "wilaya", "is_active")
+    list_editable = ("is_active",)
+    list_filter = ("is_active", "wilaya")
+    search_fields = ("name_ar", "name_fr")
+    autocomplete_fields = ("wilaya",)
+    ordering = ("wilaya__code", "name_fr")
 
 
 # ── ProductReview Admin ──────────────────────────────────────────────────────

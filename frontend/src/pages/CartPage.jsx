@@ -22,12 +22,15 @@ const CartPage = () => {
 
   const [wilayas, setWilayas] = useState([]);
   const [selectedWilaya, setSelectedWilaya] = useState(null);
+  const [baladias, setBaladias] = useState([]);
+  const [selectedBaladia, setSelectedBaladia] = useState(null);
   const [shippingType, setShippingType] = useState("home");
 
   const [deliveryAddress, setDeliveryAddress] = useState({
     fullName: "",
     phone: "",
     city: "",
+    baladia: "",
     addressLine: "",
     notes: "",
   });
@@ -38,6 +41,23 @@ const CartPage = () => {
       .then((data) => setWilayas(Array.isArray(data) ? data : []))
       .catch(() => setWilayas([]));
   }, []);
+
+  useEffect(() => {
+    if (!selectedWilaya) {
+      setBaladias([]);
+      setSelectedBaladia(null);
+      setDeliveryAddress((p) => ({ ...p, baladia: "" }));
+      return;
+    }
+    fetch(`${API}/shop/baladias/?wilaya_id=${selectedWilaya.id}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        setBaladias(Array.isArray(data) ? data : []);
+        setSelectedBaladia(null);
+        setDeliveryAddress((p) => ({ ...p, baladia: "" }));
+      })
+      .catch(() => setBaladias([]));
+  }, [selectedWilaya]);
 
   const [submitting, setSubmitting] = useState(false);
   const [showAdded, setShowAdded] = useState(false);
@@ -72,13 +92,13 @@ const CartPage = () => {
   };
 
   const handlePlaceOrder = async () => {
-    const { fullName, phone, city, addressLine, notes } = deliveryAddress;
+    const { fullName, phone, addressLine, notes } = deliveryAddress;
     const needsAddress = shippingType === "home";
     if (!fullName.trim() || fullName.trim().length < 2 || !phone.trim()) {
       showToast(t("cart:summary.validationError"), 3000);
       return;
     }
-    if (needsAddress && (!selectedWilaya || !addressLine.trim())) {
+    if (needsAddress && (!selectedWilaya || !selectedBaladia || !addressLine.trim())) {
       showToast(t("cart:summary.validationError"), 3000);
       return;
     }
@@ -103,7 +123,8 @@ const CartPage = () => {
           shipping_type: shippingType,
           full_name: fullName.trim(),
           phone: phone.trim(),
-          city: shippingType === "home" ? city.trim() : "",
+          city: shippingType === "home" ? (selectedWilaya?.name_ar ?? "") : "",
+          baladia: shippingType === "home" ? (selectedBaladia?.name_ar ?? "") : "",
           address_line: shippingType === "home" ? addressLine.trim() : "",
           notes: notes.trim(),
         }),
@@ -240,7 +261,7 @@ const CartPage = () => {
               <button
                 type="button"
                 className={`shipping-type-btn${shippingType === "home" ? " active" : ""}`}
-                onClick={() => setShippingType("home")}
+                onClick={() => { setShippingType("home"); }}
               >
                 <span className="shipping-type-icon">🏠</span>
                 <span className="shipping-type-label">توصيل للبيت</span>
@@ -249,7 +270,11 @@ const CartPage = () => {
               <button
                 type="button"
                 className={`shipping-type-btn${shippingType === "desk" ? " active" : ""}`}
-                onClick={() => setShippingType("desk")}
+                onClick={() => {
+                  setShippingType("desk");
+                  setSelectedBaladia(null);
+                  setDeliveryAddress((p) => ({ ...p, baladia: "" }));
+                }}
               >
                 <span className="shipping-type-icon">📦</span>
                 <span className="shipping-type-label">مكتب التوصيل</span>
@@ -290,7 +315,7 @@ const CartPage = () => {
                   onChange={(e) => {
                     const w = wilayas.find((w) => w.id === parseInt(e.target.value, 10)) || null;
                     setSelectedWilaya(w);
-                    setDeliveryAddress((p) => ({ ...p, city: w ? w.name_ar : '' }));
+                    setDeliveryAddress((p) => ({ ...p, city: w ? w.name_ar : '', baladia: '' }));
                   }}
                 >
                   <option value="">{'اختر الولاية'}</option>
@@ -301,6 +326,31 @@ const CartPage = () => {
                   ))}
                 </select>
               </div>
+
+              {shippingType === "home" && selectedWilaya && (
+                <div className="form-group full">
+                  <label className="cart-field-label">
+                    {'البلدية'}
+                    <span style={{ color: "var(--gold)", marginRight: "4px" }}>*</span>
+                  </label>
+                  <select
+                    className="cart-input"
+                    value={selectedBaladia?.id || ''}
+                    onChange={(e) => {
+                      const b = baladias.find((b) => b.id === parseInt(e.target.value, 10)) || null;
+                      setSelectedBaladia(b);
+                      setDeliveryAddress((p) => ({ ...p, baladia: b ? b.name_ar : '' }));
+                    }}
+                  >
+                    <option value="">{'اختر البلدية'}</option>
+                    {baladias.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name_ar}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="form-group full">
                 <label className="cart-field-label">

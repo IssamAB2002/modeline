@@ -52,6 +52,7 @@ class Order(models.Model):
     full_name = models.CharField(max_length=200, verbose_name='الاسم الكامل')
     phone = models.CharField(max_length=30, verbose_name='الهاتف')
     city = models.CharField(max_length=100, blank=True, default='', verbose_name='الولاية')
+    baladia = models.CharField(max_length=100, blank=True, default='', verbose_name='البلدية')
     address_line = models.CharField(max_length=400, blank=True, default='', verbose_name='العنوان')
     notes = models.TextField(blank=True, verbose_name='ملاحظات')
 

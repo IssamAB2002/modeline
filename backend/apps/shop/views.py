@@ -3,8 +3,9 @@ from rest_framework import generics
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
 
-from .models import Category, Product, ProductReview, Wilaya
+from .models import Baladia, Category, Product, ProductReview, Wilaya
 from .serializers import (
+    BaladiaSerializer,
     CategorySerializer,
     ProductDetailSerializer,
     ProductListSerializer,
@@ -63,6 +64,19 @@ class WilayaListView(ListAPIView):
 
     serializer_class = WilayaSerializer
     queryset = Wilaya.objects.filter(is_active=True)
+
+
+class BaladiaListView(ListAPIView):
+    """GET /api/shop/baladias/?wilaya_id=<id> — list baladias, optionally filtered by wilaya."""
+
+    serializer_class = BaladiaSerializer
+
+    def get_queryset(self):
+        qs = Baladia.objects.filter(is_active=True)
+        wilaya_id = self.request.query_params.get("wilaya_id")
+        if wilaya_id:
+            qs = qs.filter(wilaya_id=wilaya_id)
+        return qs
 
 
 class ProductReviewListCreateView(generics.ListCreateAPIView):

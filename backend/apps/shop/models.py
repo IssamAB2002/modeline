@@ -370,6 +370,28 @@ class Wilaya(models.Model):
         return f"{self.code} – {self.name_fr}"
 
 
+class Baladia(models.Model):
+    """Algerian municipality (بلدية) — child of a Wilaya."""
+
+    wilaya = models.ForeignKey(
+        Wilaya,
+        on_delete=models.CASCADE,
+        related_name="baladias",
+        verbose_name='الولاية',
+    )
+    name_ar = models.CharField(max_length=100, verbose_name='الاسم بالعربية')
+    name_fr = models.CharField(max_length=100, verbose_name='الاسم بالفرنسية')
+    is_active = models.BooleanField(default=True, verbose_name='نشط')
+
+    class Meta:
+        ordering = ("name_ar",)
+        verbose_name = "بلدية"
+        verbose_name_plural = "البلديات"
+
+    def __str__(self):
+        return f"{self.name_fr} ({self.wilaya.name_fr})"
+
+
 class ProductImage(TimeStampedModel):
     """Additional gallery images for a product."""
 

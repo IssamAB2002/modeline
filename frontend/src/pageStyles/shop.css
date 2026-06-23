@@ -540,3 +540,14 @@ input[type="range"] {
   .shop-footer { padding: 50px 20px 24px; }
   .footer-grid { gap: 28px; }
 }
+
+/* Ensure SHOP grid never drops below 2 columns on small mobile widths */
+@media (max-width: 390px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* Keep list view unchanged (1 column) */
+  .product-grid.list-view {
+    grid-template-columns: 1fr;
+  }
+}

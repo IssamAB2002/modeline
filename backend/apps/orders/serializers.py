@@ -54,6 +54,7 @@ class OrderCreateSerializer(serializers.Serializer):
     full_name = serializers.CharField(max_length=200)
     phone = serializers.CharField(max_length=30)
     city = serializers.CharField(max_length=100, allow_blank=True, required=False, default="")
+    baladia = serializers.CharField(max_length=100, allow_blank=True, required=False, default="")
     address_line = serializers.CharField(max_length=400, allow_blank=True, required=False, default="")
     notes = serializers.CharField(allow_blank=True, required=False, default="")
 
@@ -61,6 +62,8 @@ class OrderCreateSerializer(serializers.Serializer):
         if data.get("shipping_type") == Order.ShippingType.HOME:
             if not data.get("city", "").strip():
                 raise serializers.ValidationError({"city": "الولاية مطلوبة لتوصيل البيت."})
+            if not data.get("baladia", "").strip():
+                raise serializers.ValidationError({"baladia": "البلدية مطلوبة لتوصيل البيت."})
             if not data.get("address_line", "").strip():
                 raise serializers.ValidationError({"address_line": "العنوان مطلوب لتوصيل البيت."})
         return data

@@ -51,6 +51,7 @@ class OrderCreateView(APIView):
             full_name=data["full_name"],
             phone=data["phone"],
             city=data.get("city", ""),
+            baladia=data.get("baladia", ""),
             address_line=data.get("address_line", ""),
             notes=data.get("notes", ""),
         )

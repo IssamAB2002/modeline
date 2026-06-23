@@ -26,7 +26,7 @@ class OrderAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "shipping_type")
     list_editable = ("status",)
-    search_fields = ("order_number", "full_name", "phone", "city")
+    search_fields = ("order_number", "full_name", "phone", "city", "baladia")
     readonly_fields = (
         "order_number", "subtotal_da", "grand_total_da",
         "cart", "created_at", "updated_at",
@@ -35,7 +35,7 @@ class OrderAdmin(admin.ModelAdmin):
     fieldsets = (
         ("الطلب", {"fields": ("order_number", "status", "cart")}),
         ("طريقة التوصيل", {"fields": ("shipping_type",)}),
-        ("بيانات العميل", {"fields": ("full_name", "phone", "city", "address_line", "notes")}),
+        ("بيانات العميل", {"fields": ("full_name", "phone", "city", "baladia", "address_line", "notes")}),
         ("الإجماليات", {"fields": ("subtotal_da", "shipping_da", "grand_total_da")}),
         ("معلومات إضافية", {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
     )

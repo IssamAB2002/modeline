@@ -17,3 +17,4 @@ client design imgs/
 caddy/
 backend/.env.local
 frontend/.env.local
+frontend/Meta_Pixel_Integrations.md
