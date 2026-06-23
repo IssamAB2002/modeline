@@ -87,11 +87,11 @@ class Product(TimeStampedModel):
         PRE_ORDER = "pre_order", "Pre-order"
 
     class BadgeType(models.TextChoices):
-        NONE = "", "None"
-        NEW = "new", "New"
-        SALE = "sale", "Sale"
-        LIMITED = "limited", "Limited"
-        BESTSELLER = "bestseller", "Bestseller"
+        NONE = "", "لا يوجد"
+        NEW = "new", "جديد"
+        SALE = "sale", "تخفيض"
+        LIMITED = "limited", "محدود"
+        BESTSELLER = "bestseller", "الأكثر مبيعًا"
 
     # Identity
     name_ar = models.CharField(

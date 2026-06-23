@@ -1,10 +1,11 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Nav from "../components/Nav";
 import "../pageStyles/cart.css";
 import { useLang } from "../hooks/useLang";
 import { useCart, getCookie, ensureCsrf } from "../context/CartContext";
 import { useFrontSettings } from "../context/FrontSettingsContext";
+import { trackInitiateCheckout, trackPurchase } from "../utils/pixel.js";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -64,6 +65,14 @@ const CartPage = () => {
   const [addedToastText, setAddedToastText] = useState("");
   const [confirmedOrder, setConfirmedOrder] = useState(null);
   const [countdown, setCountdown] = useState(null);
+
+  const checkoutTrackedRef = useRef(false);
+  useEffect(() => {
+    if (cartItems.length > 0 && !checkoutTrackedRef.current) {
+      checkoutTrackedRef.current = true;
+      trackInitiateCheckout({ items: cartItems, total: cartItems.reduce((s, i) => s + i.unitPriceDA * i.qty, 0) });
+    }
+  }, [cartItems]);
 
   useEffect(() => {
     if (countdown === null) return;
@@ -134,6 +143,7 @@ const CartPage = () => {
         throw new Error(err.detail || t("cart:summary.serverError"));
       }
       const order = await res.json();
+      trackPurchase({ orderId: order.order_number, items: cartItems, total: parseFloat(order.grand_total_da) });
       clearCart();
       setConfirmedOrder(order);
       setCountdown(6);

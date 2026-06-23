@@ -7,6 +7,7 @@ import "../pageStyles/shop.css";
 import { useLang } from "../hooks/useLang";
 import { useCart } from "../context/CartContext";
 import { useFrontSettings } from "../context/FrontSettingsContext";
+import { trackAddToCart } from "../utils/pixel.js";
 
 const API = import.meta.env.VITE_API_URL;
 const PAGE_SIZE = 12;
@@ -126,6 +127,7 @@ const ShopPage = () => {
     e.stopPropagation();
     try {
       await addToCart(product.id, 1, null, null);
+      trackAddToCart({ id: product.id, name: product.name, price: product.price, qty: 1 });
     } catch {
       // CartContext surfaces the error
     }

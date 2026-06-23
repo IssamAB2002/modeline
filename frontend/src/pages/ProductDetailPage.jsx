@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import { useCart, ensureCsrf, getCookie } from '../context/CartContext';
 import { useLang } from '../hooks/useLang';
 import { useFrontSettings } from '../context/FrontSettingsContext';
+import { trackViewContent, trackAddToCart } from '../utils/pixel.js';
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -77,6 +78,12 @@ const ProductDetailPage = () => {
         if (data) {
           setApiProduct(data);
           setProductLoaded(true);
+          trackViewContent({
+            id: data.id,
+            name: data.name_ar || data.name,
+            category: data.category?.name_ar || data.category?.name || '',
+            price: parseFloat(data.price),
+          });
           const sizes = Array.isArray(data.sizes) ? data.sizes : [];
           if (data.availability === 'out_of_stock' || data.availability === 'discontinued') {
             setSelectedSize(null);
@@ -263,6 +270,7 @@ const ProductDetailPage = () => {
     setAddingToCart(true);
     try {
       await addToCart(product.id || parseInt(productId, 10), qty, selectedSize, selectedColor);
+      trackAddToCart({ id: product.id || parseInt(productId, 10), name: product.name_ar || product.name, price: product.price, qty });
     } catch {
       // ignore — CartContext surfaces the error
     }
