@@ -141,7 +141,15 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 class WilayaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wilaya
-        fields = ("id", "code", "name_ar", "name_fr", "shipping_price_da")
+        fields = (
+            "id",
+            "code",
+            "name_ar",
+            "name_fr",
+            "shipping_price_da",        # legacy fallback
+            "shipping_price_home_da",   # live ZR home-delivery price
+            "shipping_price_desk_da",   # live ZR desk/pickup-point price
+        )
 
 
 class BaladiaSerializer(serializers.ModelSerializer):

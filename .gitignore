@@ -18,3 +18,8 @@ caddy/
 backend/.env.local
 frontend/.env.local
 frontend/Meta_Pixel_Integrations.md
+ZR Express.json
+ZR_Express_rates.md
+ZR_Express_Territories.md
+ZR_Express_System_Plan.md
+ZR_Express_orders.md

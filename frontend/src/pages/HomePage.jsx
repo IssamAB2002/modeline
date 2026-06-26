@@ -45,17 +45,9 @@ export default function HomePage() {
 
   const [showAdded, setShowAdded] = useState(false);
   const [addedProduct, setAddedProduct] = useState('');
-  const [dbCategories, setDbCategories] = useState(null);
   const [dbProducts, setDbProducts] = useState(null);
   const [trustStrips, setTrustStrips] = useState(null);
   const [testimonials, setTestimonials] = useState(null);
-
-  useEffect(() => {
-    fetch(`${API}/shop/categories/`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setDbCategories(Array.isArray(data) ? data : []))
-      .catch(() => setDbCategories([]));
-  }, []);
 
   useEffect(() => {
     fetch(`${API}/shop/products/?featured=true`)
@@ -87,33 +79,6 @@ export default function HomePage() {
     eyebrow: settings.home_hero_eyebrow,
     title: [settings.home_hero_title_line1, settings.home_hero_title_emphasis, settings.home_hero_title_line3],
     subtitle: settings.home_hero_subtitle,
-  };
-
-  const renderCategories = () => {
-    if (dbCategories === null) return null;
-    if (dbCategories.length === 0) {
-      return <p className="section-empty-msg">{t('home:categories.empty')}</p>;
-    }
-    return (
-      <div className="cat-grid">
-        {dbCategories.map((cat) => (
-          <Link key={cat.id} to={`/shop?category=${cat.slug}#products`} className="cat-card">
-            {cat.image_url ? (
-              <img src={cat.image_url} alt={cat.name_ar || cat.name} />
-            ) : (
-              <div className="cat-card-placeholder" style={{ height: 220, background: '#e8dfc8' }} />
-            )}
-            <div className="cat-card-overlay">
-              <div className="cat-card-label">{cat.is_featured ? t('home:categories.featuredLabel') : ''}</div>
-              <div className={`cat-card-title${cat.is_featured ? ' cat-card-title--featured' : ''}`}>
-                {cat.name_ar || cat.name}
-              </div>
-              <span className="cat-card-arrow">{t('home:categories.cta')} </span>
-            </div>
-          </Link>
-        ))}
-      </div>
-    );
   };
 
   const normalizeHomeProduct = (p) => {
@@ -245,17 +210,6 @@ export default function HomePage() {
           </div>
         </div>
         <div className="scroll-hint">{t('home:scrollHint')}</div>
-      </section>
-
-      {/* CATEGORIES */}
-      <SectionDivider />
-      <div className="section-header">
-        <div className="section-eyebrow">{t('home:categories.sectionEyebrow')}</div>
-        <h2 className="section-title">{renderEmphasis(t('home:categories.sectionTitle'))}</h2>
-        <div className="section-rule" />
-      </div>
-      <section className="categories" id="collections">
-        {renderCategories()}
       </section>
 
       {/* FEATURED PRODUCTS */}

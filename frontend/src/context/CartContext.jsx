@@ -34,7 +34,7 @@ function normalizeItem(raw) {
   return {
     id: raw.id,
     productId: raw.product,
-    productName: raw.product_name_snapshot_en,
+    productName: raw.product_name_snapshot_ar,
     unitPriceDA: parseFloat(raw.unit_price_da_snapshot),
     qty: raw.quantity,
     selectedSize: raw.selected_size || null,

@@ -1,5 +1,8 @@
+import io
+
 from django import forms
 from django.contrib import admin
+from django.core.management import call_command
 from django.utils.html import format_html
 
 from .models import Baladia, Category, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
@@ -354,13 +357,31 @@ class ProductImageAdmin(admin.ModelAdmin):
 
 # ── Wilaya Admin ─────────────────────────────────────────────────────────────
 
+@admin.action(description="🔄 مزامنة المناطق والأسعار من ZR Express")
+def sync_zr_territories_action(modeladmin, request, queryset):
+    out = io.StringIO()
+    try:
+        call_command("sync_zr_territories", stdout=out, stderr=out)
+        territories_output = out.getvalue()
+        out.truncate(0); out.seek(0)
+        call_command("sync_zr_rates", stdout=out, stderr=out)
+        rates_output = out.getvalue()
+        modeladmin.message_user(
+            request,
+            f"✅ اكتملت مزامنة المناطق والأسعار.\n\n[المناطق]\n{territories_output}\n\n[الأسعار]\n{rates_output}",
+        )
+    except Exception as exc:
+        modeladmin.message_user(request, f"❌ خطأ أثناء المزامنة: {exc}", level="error")
+
+
 @admin.register(Wilaya)
 class WilayaAdmin(admin.ModelAdmin):
-    list_display = ("code", "name_ar", "name_fr", "shipping_price_da", "is_active")
+    list_display = ("code", "name_ar", "name_fr", "shipping_price_da", "shipping_price_home_da", "shipping_price_desk_da", "is_active")
     list_editable = ("shipping_price_da", "is_active")
     list_filter = ("is_active",)
     search_fields = ("name_ar", "name_fr")
     ordering = ("code",)
+    actions = [sync_zr_territories_action]
 
 
 # ── Baladia Admin ─────────────────────────────────────────────────────────────

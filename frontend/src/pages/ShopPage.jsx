@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
@@ -15,7 +15,6 @@ const PAGE_SIZE = 12;
 const ShopPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { t } = useLang();
   const { addToCart, cartCount } = useCart();
   const settings = useFrontSettings();
@@ -29,32 +28,19 @@ const ShopPage = () => {
   const [sortOption, setSortOption] = useState("featured");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [textFilter, setTextFilter] = useState("");
-  const [filterOpen, setFilterOpen] = useState({ category: true, price: true });
+  const [filterOpen, setFilterOpen] = useState({ price: true });
 
   const toggleFilter = (key) => setFilterOpen((prev) => ({ ...prev, [key]: !prev[key] }));
 
   // Data state
-  const [dbCategories, setDbCategories] = useState([]);
-  const [activeCategory, setActiveCategory] = useState(
-    () => searchParams.get("category") || null
-  );
   const [apiProducts, setApiProducts] = useState(null); // null = loading
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
 
-  // Fetch categories once
-  useEffect(() => {
-    fetch(`${API}/shop/categories/`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setDbCategories(Array.isArray(data) ? data : []))
-      .catch(() => setDbCategories([]));
-  }, []);
-
-  // Fetch products — re-runs when page or activeCategory changes
+  // Fetch products — re-runs when page changes
   useEffect(() => {
     setApiProducts(null);
-    let url = `${API}/shop/products/?page=${page}&page_size=${PAGE_SIZE}`;
-    if (activeCategory) url += `&category=${activeCategory}`;
+    const url = `${API}/shop/products/?page=${page}&page_size=${PAGE_SIZE}`;
     fetch(url)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -71,12 +57,7 @@ const ShopPage = () => {
         }
       })
       .catch(() => { setApiProducts([]); setTotalCount(0); });
-  }, [page, activeCategory]);
-
-  const handleCategoryChange = (slug) => {
-    setActiveCategory(slug);
-    setPage(1);
-  };
+  }, [page]);
 
   const normalizeProduct = (p) => {
     const badgeRaw = p.badge && p.badge !== "none" && p.badge !== "" ? p.badge : null;
@@ -138,18 +119,6 @@ const ShopPage = () => {
 
   const formatPrice = (price) =>
     `${price.toLocaleString('ar-DZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ${t("currency")}`;
-
-  // Scroll to products section when navigating from category links with #products hash
-  const initialHashRef = useRef(location.hash);
-  useEffect(() => {
-    if (initialHashRef.current !== '#products') return;
-    if (apiProducts === null) return;
-    const el = document.getElementById('products');
-    if (el) {
-      setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 80);
-      initialHashRef.current = '';
-    }
-  }, [apiProducts]);
 
   // Pagination helpers
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
@@ -239,73 +208,15 @@ const ShopPage = () => {
         <p className="page-subtitle">{t("shop:hero.subtitle")}</p>
       </div>
 
-      {/* CATEGORY PILLS */}
-      <div className="cat-pills-wrap">
-        {dbCategories.length > 0 && (
-          <ul className="cat-pills">
-            <li>
-              <button
-                className={activeCategory === null ? "active" : ""}
-                onClick={() => handleCategoryChange(null)}>
-                {t("shop:categories.all")}
-              </button>
-            </li>
-            {dbCategories.map((cat) => (
-              <li key={cat.id}>
-                <button
-                  className={activeCategory === cat.slug ? "active" : ""}
-                  onClick={() => handleCategoryChange(cat.slug)}>
-                  {cat.name_ar || cat.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
       {/* SHOP LAYOUT */}
       <div id="products" className="shop-layout">
         <button
-          className="mobile-filter-toggle"
+          className="mobile-filter-toggle" style={{marginTop: "1rem"}}
           onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}>
           {mobileSidebarOpen ? t("shop:filters.mobileToggleHide") : t("shop:filters.mobileToggleShow")}
         </button>
 
         <aside className={`sidebar${mobileSidebarOpen ? " open" : ""}`}>
-          {/* Filter: Category */}
-          <div className="filter-section">
-            <div className="filter-title" onClick={() => toggleFilter("category")}>
-              {t("shop:filters.category")}
-              <span className="filter-toggle">{filterOpen.category ? "−" : "+"}</span>
-            </div>
-            {filterOpen.category && dbCategories.length > 0 && (
-              <ul className="filter-options">
-                <li>
-                  <input
-                    type="radio"
-                    id="cat-all"
-                    name="sidebar-cat"
-                    checked={activeCategory === null}
-                    onChange={() => handleCategoryChange(null)}
-                  />
-                  <label htmlFor="cat-all">{t("shop:categories.all")}</label>
-                </li>
-                {dbCategories.map((cat) => (
-                  <li key={cat.id}>
-                    <input
-                      type="radio"
-                      id={`cat-${cat.id}`}
-                      name="sidebar-cat"
-                      checked={activeCategory === cat.slug}
-                      onChange={() => handleCategoryChange(cat.slug)}
-                    />
-                    <label htmlFor={`cat-${cat.id}`}>{cat.name_ar || cat.name}</label>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
           {/* Filter: Price */}
           <div className="filter-section">
             <div className="filter-title" onClick={() => toggleFilter("price")}>

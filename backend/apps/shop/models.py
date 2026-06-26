@@ -112,6 +112,8 @@ class Product(TimeStampedModel):
         on_delete=models.PROTECT,
         related_name="products",
         verbose_name='الفئة',
+        null=True,
+        blank=True,
     )
 
     # Descriptions
@@ -359,6 +361,9 @@ class Wilaya(models.Model):
     name_ar = models.CharField(max_length=100, verbose_name='الاسم بالعربية')
     name_fr = models.CharField(max_length=100, verbose_name='الاسم بالفرنسية')
     shipping_price_da = models.DecimalField(max_digits=8, decimal_places=2, default=700, verbose_name='سعر الشحن (دج)')
+    zr_territory_id = models.UUIDField(null=True, blank=True, unique=True, verbose_name='معرّف ZR للولاية')
+    shipping_price_home_da = models.DecimalField(max_digits=8, decimal_places=2, default=700, verbose_name='سعر الشحن للبيت (دج)')
+    shipping_price_desk_da = models.DecimalField(max_digits=8, decimal_places=2, default=450, verbose_name='سعر الشحن للمكتب (دج)')
     is_active = models.BooleanField(default=True, verbose_name='نشط')
 
     class Meta:
@@ -381,6 +386,7 @@ class Baladia(models.Model):
     )
     name_ar = models.CharField(max_length=100, verbose_name='الاسم بالعربية')
     name_fr = models.CharField(max_length=100, verbose_name='الاسم بالفرنسية')
+    zr_territory_id = models.UUIDField(null=True, blank=True, unique=True, verbose_name='معرّف ZR للبلدية')
     is_active = models.BooleanField(default=True, verbose_name='نشط')
 
     class Meta:

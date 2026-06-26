@@ -33,8 +33,8 @@ const ProductDetailPage = () => {
   /* ── State ── */
   const [currentImg, setCurrentImg] = useState(0);
   const [qty, setQty] = useState(1);
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [selectedColor, setSelectedColor] = useState('Ivory');
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showAdded, setShowAdded] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -268,8 +268,10 @@ const ProductDetailPage = () => {
   const handleAddToCart = async () => {
     if (addingToCart) return;
     setAddingToCart(true);
+    const effectiveSize = selectedSize ?? (product.sizes?.[0] ?? null);
+    const effectiveColor = selectedColor ?? (product.colors?.[0]?.name ?? null);
     try {
-      await addToCart(product.id || parseInt(productId, 10), qty, selectedSize, selectedColor);
+      await addToCart(product.id || parseInt(productId, 10), qty, effectiveSize, effectiveColor);
       trackAddToCart({ id: product.id || parseInt(productId, 10), name: product.name_ar || product.name, price: product.price, qty });
     } catch {
       // ignore — CartContext surfaces the error
@@ -1169,6 +1171,46 @@ const ProductDetailPage = () => {
         navTagline={settings.home_nav_logo_tagline}
       />
 
+      {/* ══ LOADING ══ */}
+      {!productLoaded && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '60vh',
+            background: 'var(--cream)',
+            gap: '28px',
+          }}>
+          <style>{`
+            @keyframes pdp-spin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              border: '3px solid var(--border)',
+              borderTopColor: 'var(--gold)',
+              borderRadius: '50%',
+              animation: 'pdp-spin 0.9s linear infinite',
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "'Cinzel', serif",
+              fontSize: '10px',
+              letterSpacing: '0.28em',
+              color: 'var(--gold)',
+              textTransform: 'uppercase',
+            }}>
+            جارٍ التحميل…
+          </span>
+        </div>
+      )}
+
       {/* ══ NOT FOUND ══ */}
       {productLoaded && productNotFound && (
         <div
@@ -1224,8 +1266,8 @@ const ProductDetailPage = () => {
         </div>
       )}
 
-      {/* ══ PAGE CONTENT (hidden when not found) ══ */}
-      {!productNotFound && (
+      {/* ══ PAGE CONTENT (only after load, only when found) ══ */}
+      {productLoaded && !productNotFound && (
         <>
           {/* ══ PAGE HERO ══ */}
           <div style={styles.pageHero} className="page-hero">
@@ -1682,7 +1724,7 @@ const ProductDetailPage = () => {
                               color: "var(--bark)",
                               fontStyle: "italic",
                             }}>
-                            {`شحن إلى ${selectedWilaya.name_ar}: ${Number(selectedWilaya.shipping_price_da).toLocaleString("fr-DZ")} DA`}
+                            {`📦 سعر الاستلام من المكتب — ${selectedWilaya.name_ar}: ${Number(selectedWilaya.shipping_price_desk_da).toLocaleString("fr-DZ")} DA`}
                           </p>
                         )}
                       </div>

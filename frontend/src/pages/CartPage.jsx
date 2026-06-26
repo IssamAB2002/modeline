@@ -88,8 +88,9 @@ const CartPage = () => {
 
   const shippingDA = useMemo(() => {
     if (cartItems.length === 0) return 0;
-    if (shippingType === "desk") return 0;
-    return selectedWilaya ? Number(selectedWilaya.shipping_price_da) : 700;
+    if (shippingType === "desk")
+      return selectedWilaya ? Number(selectedWilaya.shipping_price_desk_da) : 0;
+    return selectedWilaya ? Number(selectedWilaya.shipping_price_home_da) : 700;
   }, [cartItems.length, shippingType, selectedWilaya]);
 
   const totalDA = useMemo(() => subtotalDA + shippingDA, [subtotalDA, shippingDA]);
@@ -216,13 +217,11 @@ const CartPage = () => {
                     <div className="cart-item-info">
                       <div className="cart-item-name">{item.productName}</div>
                       <div className="cart-item-meta">
-                        {item.productOrigin}
                         <div className="cart-item-variant-line">
                           {item.selectedSize ? t("cart:item.size", { size: item.selectedSize }) : "—"}
                           {" · "}
                           {item.selectedColor ? t("cart:item.color", { color: item.selectedColor }) : "—"}
                         </div>
-                        <div className="cart-item-variant-line">{t("cart:item.sku", { sku: item.sku })}</div>
                       </div>
                     </div>
 
