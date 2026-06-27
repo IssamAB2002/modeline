@@ -1,3 +1,6 @@
+import re
+from pathlib import Path
+
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -6,6 +9,11 @@ from django.views import View
 from rest_framework import generics
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
+
+_BOT_RE = re.compile(
+    r"facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|ia_archiver",
+    re.IGNORECASE,
+)
 
 from .models import Baladia, Category, Product, ProductReview, Wilaya
 from .serializers import (
@@ -102,7 +110,15 @@ class ProductReviewListCreateView(generics.ListCreateAPIView):
 
 
 class OGProductView(View):
-    """GET /api/shop/og/<pk>/ — returns OG meta-tag HTML for social-media crawlers."""
+    """
+    Serves /product/<pk>/ for both bots and humans.
+
+    Bots (Facebook, WhatsApp, etc.) receive a minimal HTML page with full
+    OG/Twitter meta tags so crawlers pick up the product image and title.
+
+    Human browsers receive the React SPA shell (frontend/dist/index.html)
+    so client-side routing takes over normally — no redirect loop, no flash.
+    """
 
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk, is_active=True)
@@ -117,9 +133,24 @@ class OGProductView(View):
         else:
             og_image = ""
 
-        html = render_to_string("shop/og_product.html", {
-            "product": product,
-            "og_image": og_image,
-            "og_url": canonical_url,
-        }, request=request)
-        return HttpResponse(html, content_type="text/html; charset=utf-8")
+        ua = request.META.get("HTTP_USER_AGENT", "")
+        if _BOT_RE.search(ua):
+            html = render_to_string("shop/og_product.html", {
+                "product": product,
+                "og_image": og_image,
+                "og_url": canonical_url,
+            })
+            return HttpResponse(html, content_type="text/html; charset=utf-8")
+
+        # Human visitor — serve the built React shell so SPA routing works.
+        spa_path = getattr(settings, "FRONTEND_INDEX_PATH", "")
+        if spa_path:
+            try:
+                html = Path(spa_path).read_text(encoding="utf-8")
+                return HttpResponse(html, content_type="text/html; charset=utf-8")
+            except OSError:
+                pass
+
+        # Fallback (dev / misconfigured prod): send them to the homepage.
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect(f"{frontend_url}/")

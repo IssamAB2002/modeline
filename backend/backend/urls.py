@@ -5,11 +5,17 @@ from django.urls import include, path
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
 
+from apps.shop.views import OGProductView
+
+
 def get_csrf_token(request):
     return JsonResponse({"detail": get_token(request)})
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # Product pages — Django serves OG HTML to bots, React SPA shell to humans
+    path("product/<int:pk>/", OGProductView.as_view(), name="product_og"),
     # Home: front-settings + trust-strips
     path("api/home/", include("apps.home.urls")),
     # About: principles + reviews

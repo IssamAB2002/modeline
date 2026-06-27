@@ -169,4 +169,7 @@ ZR_TENANT_ID = env('ZR_TENANT_ID', default='')
 # ── OG / Social sharing ──
 # Public-facing frontend origin — used to build canonical product URLs in OG pages
 FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:5173')
+# Absolute path to the built React index.html inside the backend container.
+# Mount ./frontend/dist as /app/frontend_dist in docker-compose to enable this.
+FRONTEND_INDEX_PATH = env('FRONTEND_INDEX_PATH', default='')
 
