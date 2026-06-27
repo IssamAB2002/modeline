@@ -79,11 +79,13 @@
         {% endif %}
       </div>
       <div>
-        <span class="ssr-eyebrow">{% if product.origin %}Modeline · {{ product.origin }}{% else %}Modeline{% endif %}</span>
+        <span class="ssr-eyebrow">{% if product.origin and product.origin != '__' %}Modeline · {{ product.origin }}{% else %}Modeline{% endif %}</span>
         <h1 class="ssr-name">{{ product.name_ar }}</h1>
-        {% if product.origin or product.material %}
-        <p class="ssr-sub">{{ product.origin }}{% if product.origin and product.material %} · {% endif %}{{ product.material }}</p>
+        {% with o=product.origin m=product.material %}
+        {% if o and o != '__' or m and m != '__' %}
+        <p class="ssr-sub">{% if o and o != '__' %}{{ o }}{% endif %}{% if o and o != '__' and m and m != '__' %} · {% endif %}{% if m and m != '__' %}{{ m }}{% endif %}</p>
         {% endif %}
+        {% endwith %}
         <div class="ssr-price">{{ product.price|floatformat:0 }} DA</div>
         {% if product.short_description_ar %}
         <p class="ssr-desc">{{ product.short_description_ar }}</p>
@@ -94,6 +96,14 @@
       </div>
     </div>
   </div>
+
+  <!-- Facebook Pixel — must be initialised before React fires trackViewContent -->
+  <script>
+    !(function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)})(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1948360885861491');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1948360885861491&ev=PageView&noscript=1"/></noscript>
 
   <!-- React bundle (hashed filename from Vite manifest) -->
   {% if js_file %}<script type="module" src="/{{ js_file }}"></script>{% endif %}

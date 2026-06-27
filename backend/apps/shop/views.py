@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 from django.conf import settings
@@ -14,11 +15,18 @@ _vite_assets_cache = None
 
 
 def _get_vite_assets():
-    """Return hashed JS/CSS entry filenames from the Vite build manifest."""
+    """Return hashed JS/CSS entry filenames from the Vite build manifest.
+
+    Falls back to parsing dist/index.html when the manifest doesn't exist
+    (e.g. built without manifest:true or deployed before that option was added).
+    """
     global _vite_assets_cache
     if _vite_assets_cache is not None and not settings.DEBUG:
         return _vite_assets_cache
+
     manifest_path = getattr(settings, 'VITE_MANIFEST_PATH', '')
+    result = {'js': '', 'css': ''}
+
     try:
         manifest = json.loads(Path(manifest_path).read_text(encoding='utf-8'))
         entry = manifest.get('src/main.jsx', {})
@@ -26,7 +34,23 @@ def _get_vite_assets():
         css_files = entry.get('css', [])
         result = {'js': js_file, 'css': css_files[0] if css_files else ''}
     except (OSError, json.JSONDecodeError, KeyError, TypeError, IndexError):
-        result = {'js': '', 'css': ''}
+        pass
+
+    # Fallback: parse dist/index.html for the hashed asset URLs.
+    # The manifest lives at dist/.vite/manifest.json, so dist root is two levels up.
+    if not result['js']:
+        try:
+            dist_root = Path(manifest_path).parent.parent
+            html = (dist_root / 'index.html').read_text(encoding='utf-8')
+            js_match = re.search(r'<script[^>]+src="(/assets/[^"]+\.js)"', html)
+            css_match = re.search(r'<link[^>]+href="(/assets/[^"]+\.css)"', html)
+            result = {
+                'js': js_match.group(1).lstrip('/') if js_match else '',
+                'css': css_match.group(1).lstrip('/') if css_match else '',
+            }
+        except (OSError, AttributeError):
+            pass
+
     if not settings.DEBUG:
         _vite_assets_cache = result
     return result
