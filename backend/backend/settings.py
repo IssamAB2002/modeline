@@ -172,4 +172,7 @@ FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:5173')
 # Absolute path to the built React index.html inside the backend container.
 # Mount ./frontend/dist as /app/frontend_dist in docker-compose to enable this.
 FRONTEND_INDEX_PATH = env('FRONTEND_INDEX_PATH', default='')
+# Absolute path to the Vite build manifest inside the backend container.
+# Used by OGProductView to resolve hashed JS/CSS filenames for SSR product pages.
+VITE_MANIFEST_PATH = env('VITE_MANIFEST_PATH', default='/app/frontend_dist/.vite/manifest.json')
 

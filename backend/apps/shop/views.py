@@ -1,4 +1,4 @@
-import re
+import json
 from pathlib import Path
 
 from django.conf import settings
@@ -10,10 +10,26 @@ from rest_framework import generics
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
 
-_BOT_RE = re.compile(
-    r"facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot|ia_archiver",
-    re.IGNORECASE,
-)
+_vite_assets_cache = None
+
+
+def _get_vite_assets():
+    """Return hashed JS/CSS entry filenames from the Vite build manifest."""
+    global _vite_assets_cache
+    if _vite_assets_cache is not None and not settings.DEBUG:
+        return _vite_assets_cache
+    manifest_path = getattr(settings, 'VITE_MANIFEST_PATH', '')
+    try:
+        manifest = json.loads(Path(manifest_path).read_text(encoding='utf-8'))
+        entry = manifest.get('src/main.jsx', {})
+        js_file = entry.get('file', '')
+        css_files = entry.get('css', [])
+        result = {'js': js_file, 'css': css_files[0] if css_files else ''}
+    except (OSError, json.JSONDecodeError, KeyError, TypeError, IndexError):
+        result = {'js': '', 'css': ''}
+    if not settings.DEBUG:
+        _vite_assets_cache = result
+    return result
 
 from .models import Baladia, Category, Product, ProductReview, Wilaya
 from .serializers import (
@@ -110,14 +126,11 @@ class ProductReviewListCreateView(generics.ListCreateAPIView):
 
 
 class OGProductView(View):
-    """
-    Serves /product/<pk>/ for both bots and humans.
+    """Serves /product/<pk>/ with full SSR HTML for every visitor — bots and humans alike.
 
-    Bots (Facebook, WhatsApp, etc.) receive a minimal HTML page with full
-    OG/Twitter meta tags so crawlers pick up the product image and title.
-
-    Human browsers receive the React SPA shell (frontend/dist/index.html)
-    so client-side routing takes over normally — no redirect loop, no flash.
+    Every response includes correct OG/Twitter meta tags and server-rendered product
+    content, plus the React bundle which mounts and takes over for interactive use.
+    No bot detection needed.
     """
 
     def get(self, request, pk):
@@ -127,30 +140,21 @@ class OGProductView(View):
         canonical_url = f"{frontend_url}/product/{product.pk}"
 
         if product.image:
-            og_image = f"{frontend_url}{product.image.url}"
+            og_image = request.build_absolute_uri(product.image.url)
         elif product.image_url:
             og_image = product.image_url
         else:
             og_image = ""
 
-        ua = request.META.get("HTTP_USER_AGENT", "")
-        if _BOT_RE.search(ua):
-            html = render_to_string("shop/og_product.html", {
-                "product": product,
-                "og_image": og_image,
-                "og_url": canonical_url,
-            })
-            return HttpResponse(html, content_type="text/html; charset=utf-8")
+        serializer = ProductDetailSerializer(product, context={"request": request})
+        assets = _get_vite_assets()
 
-        # Human visitor — serve the built React shell so SPA routing works.
-        spa_path = getattr(settings, "FRONTEND_INDEX_PATH", "")
-        if spa_path:
-            try:
-                html = Path(spa_path).read_text(encoding="utf-8")
-                return HttpResponse(html, content_type="text/html; charset=utf-8")
-            except OSError:
-                pass
-
-        # Fallback (dev / misconfigured prod): send them to the homepage.
-        from django.http import HttpResponseRedirect
-        return HttpResponseRedirect(f"{frontend_url}/")
+        html = render_to_string("shop/og_product.html", {
+            "product": product,
+            "og_image": og_image,
+            "og_url": canonical_url,
+            "product_data": serializer.data,
+            "js_file": assets["js"],
+            "css_file": assets["css"],
+        })
+        return HttpResponse(html, content_type="text/html; charset=utf-8")

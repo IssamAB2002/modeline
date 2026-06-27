@@ -18,7 +18,7 @@
   <meta property="og:image:height" content="630" />
   {% endif %}
 
-  <!-- Commerce meta (Facebook Catalog / Instagram) -->
+  <!-- Commerce meta (Facebook Catalog / Instagram Shopping) -->
   <meta property="product:price:amount"   content="{{ product.price }}" />
   <meta property="product:price:currency" content="DZD" />
   {% if product.availability == "in_stock" or product.availability == "low_stock" %}
@@ -38,58 +38,64 @@
   <!-- Canonical -->
   <link rel="canonical" href="{{ og_url }}" />
 
-  <!-- Redirect any human browser that lands here directly to the React SPA -->
-  <meta http-equiv="refresh" content="0; url={{ og_url }}" />
+  <!-- Fonts (same as React app) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cinzel:wght@400;600&display=swap" rel="stylesheet" />
 
+  <!-- React CSS bundle (hashed filename from Vite manifest) -->
+  {% if css_file %}<link rel="stylesheet" href="/{{ css_file }}" />{% endif %}
+
+  <!-- Minimal SSR styles — visible before React mounts, matches the React design -->
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #faf8f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      color: #1a1a1a;
+    body { font-family: 'EB Garamond', Georgia, serif; background: #FAF6EE; color: #1A1208; }
+    .ssr { max-width: 1200px; margin: 0 auto; padding: 60px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+    .ssr-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; object-position: center; display: block; filter: saturate(0.88); }
+    .ssr-img-ph { width: 100%; aspect-ratio: 3/4; background: #F0E8D5; }
+    .ssr-eyebrow { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.28em; color: #B8860B; text-transform: uppercase; display: block; margin-bottom: 14px; }
+    .ssr-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 44px); font-weight: 600; color: #2C1A08; line-height: 1.1; margin-bottom: 12px; }
+    .ssr-sub { font-size: 15px; color: #7A6F63; font-style: italic; margin-bottom: 24px; }
+    .ssr-price { font-family: 'Cinzel', serif; font-size: 26px; color: #8B6914; font-weight: 600; letter-spacing: 0.04em; padding-bottom: 24px; border-bottom: 1px solid #D9C99A; margin-bottom: 24px; }
+    .ssr-desc { font-size: 16px; color: #7A6F63; line-height: 1.8; font-style: italic; }
+    .ssr-avail { display: inline-block; margin-top: 16px; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #2d5a27; }
+    @media (max-width: 768px) {
+      .ssr { grid-template-columns: 1fr; gap: 28px; padding: 28px 20px; }
     }
-    .card {
-      text-align: center;
-      padding: 2rem;
-      max-width: 400px;
-    }
-    .brand {
-      font-size: 0.75rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: #888;
-      margin-bottom: 1.5rem;
-    }
-    .spinner {
-      width: 32px;
-      height: 32px;
-      border: 2px solid #e0d9d0;
-      border-top-color: #1a1a1a;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 1.5rem;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    h1 {
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: #1a1a1a;
-      margin-bottom: 0.5rem;
-    }
-    p { font-size: 0.85rem; color: #666; }
-    a { color: #1a1a1a; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <p class="brand">Modeline</p>
-    <div class="spinner"></div>
-    <h1>{{ product.name_ar }}</h1>
-    <p>جاري التوجيه… <a href="{{ og_url }}">اضغط هنا إن لم يتم التوجيه</a></p>
+  <!-- Product data embedded for React — read on mount, eliminates the initial API round-trip -->
+  {{ product_data|json_script:"__pdp_data__" }}
+
+  <div id="root">
+    <!-- Server-rendered product content (crawlers index this; React replaces it on mount) -->
+    <div class="ssr">
+      <div>
+        {% if og_image %}
+        <img class="ssr-img" src="{{ og_image }}" alt="{{ product.name_ar }}" />
+        {% else %}
+        <div class="ssr-img-ph"></div>
+        {% endif %}
+      </div>
+      <div>
+        <span class="ssr-eyebrow">{% if product.origin %}Modeline · {{ product.origin }}{% else %}Modeline{% endif %}</span>
+        <h1 class="ssr-name">{{ product.name_ar }}</h1>
+        {% if product.origin or product.material %}
+        <p class="ssr-sub">{{ product.origin }}{% if product.origin and product.material %} · {% endif %}{{ product.material }}</p>
+        {% endif %}
+        <div class="ssr-price">{{ product.price|floatformat:0 }} DA</div>
+        {% if product.short_description_ar %}
+        <p class="ssr-desc">{{ product.short_description_ar }}</p>
+        {% endif %}
+        {% if product.availability == "in_stock" or product.availability == "low_stock" %}
+        <span class="ssr-avail">متوفر</span>
+        {% endif %}
+      </div>
+    </div>
   </div>
+
+  <!-- React bundle (hashed filename from Vite manifest) -->
+  {% if js_file %}<script type="module" src="/{{ js_file }}"></script>{% endif %}
 </body>
 </html>

@@ -62,11 +62,76 @@ const ProductDetailPage = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
 
   /* ── API product override ── */
-  const [apiProduct, setApiProduct] = useState(null);
-  const [productLoaded, setProductLoaded] = useState(false);
+  // On a direct page load from Django SSR, __pdp_data__ holds the product JSON —
+  // use it immediately so there is no loading flash or extra API round-trip.
+  const [apiProduct, setApiProduct] = useState(() => {
+    try {
+      const el = document.getElementById('__pdp_data__');
+      if (!el) return null;
+      const data = JSON.parse(el.textContent);
+      return data?.id === parseInt(productId, 10) ? data : null;
+    } catch { return null; }
+  });
+  const [productLoaded, setProductLoaded] = useState(() => {
+    try {
+      const el = document.getElementById('__pdp_data__');
+      if (!el) return false;
+      const data = JSON.parse(el.textContent);
+      return data?.id === parseInt(productId, 10);
+    } catch { return false; }
+  });
   const [productNotFound, setProductNotFound] = useState(false);
+
   useEffect(() => {
     if (!productId) return;
+
+    // Shared post-load logic (tracking, selections, related products)
+    const afterData = (data) => {
+      trackViewContent({
+        id: data.id,
+        name: data.name_ar || data.name,
+        category: data.category?.name_ar || data.category?.name || '',
+        price: parseFloat(data.price),
+      });
+      const sizes = Array.isArray(data.sizes) ? data.sizes : [];
+      if (data.availability === 'out_of_stock' || data.availability === 'discontinued') {
+        setSelectedSize(null);
+      } else {
+        setSelectedSize(sizes.length > 0 ? sizes[0].name : null);
+      }
+      const colors = Array.isArray(data.colors) ? data.colors : [];
+      setSelectedColor(colors.length > 0 ? colors[0].name_ar : null);
+      setCurrentImg(0);
+      // Fetch related: same category + newest, deduplicated
+      const catSlug = data.category?.slug;
+      const catFetch = catSlug
+        ? fetch(`${API}/shop/products/?category=${catSlug}&page_size=2`).then((r) => r.ok ? r.json() : null)
+        : Promise.resolve(null);
+      const newFetch = fetch(`${API}/shop/products/?is_new=true&page_size=2`).then((r) => r.ok ? r.json() : null);
+      Promise.all([catFetch, newFetch]).then(([catData, newData]) => {
+        const catList = Array.isArray(catData?.results) ? catData.results : (Array.isArray(catData) ? catData : []);
+        const newList = Array.isArray(newData?.results) ? newData.results : (Array.isArray(newData) ? newData : []);
+        const seen = new Set();
+        const merged = [];
+        for (const p of [...catList, ...newList]) {
+          if (p.id !== parseInt(productId, 10) && !seen.has(p.id)) {
+            seen.add(p.id);
+            merged.push(p);
+            if (merged.length === 4) break;
+          }
+        }
+        setRelatedProducts(merged);
+      });
+    };
+
+    // SSR path: data already in state from __pdp_data__, just clean up + run side effects
+    if (apiProduct?.id === parseInt(productId, 10)) {
+      document.getElementById('__pdp_data__')?.remove();
+      afterData(apiProduct);
+      return;
+    }
+
+    // Fetch path: SPA navigation or no SSR data available
     setProductLoaded(false);
     setProductNotFound(false);
     fetch(`${API}/shop/products/${productId}/`)
@@ -78,41 +143,7 @@ const ProductDetailPage = () => {
         if (data) {
           setApiProduct(data);
           setProductLoaded(true);
-          trackViewContent({
-            id: data.id,
-            name: data.name_ar || data.name,
-            category: data.category?.name_ar || data.category?.name || '',
-            price: parseFloat(data.price),
-          });
-          const sizes = Array.isArray(data.sizes) ? data.sizes : [];
-          if (data.availability === 'out_of_stock' || data.availability === 'discontinued') {
-            setSelectedSize(null);
-          } else {
-            setSelectedSize(sizes.length > 0 ? sizes[0].name : null);
-          }
-          const colors = Array.isArray(data.colors) ? data.colors : [];
-          setSelectedColor(colors.length > 0 ? colors[0].name_ar : null);
-          setCurrentImg(0);
-          // Fetch related: same category + newest, deduplicated
-          const catSlug = data.category?.slug;
-          const catFetch = catSlug
-            ? fetch(`${API}/shop/products/?category=${catSlug}&page_size=2`).then((r) => r.ok ? r.json() : null)
-            : Promise.resolve(null);
-          const newFetch = fetch(`${API}/shop/products/?is_new=true&page_size=2`).then((r) => r.ok ? r.json() : null);
-          Promise.all([catFetch, newFetch]).then(([catData, newData]) => {
-            const catList = Array.isArray(catData?.results) ? catData.results : (Array.isArray(catData) ? catData : []);
-            const newList = Array.isArray(newData?.results) ? newData.results : (Array.isArray(newData) ? newData : []);
-            const seen = new Set();
-            const merged = [];
-            for (const p of [...catList, ...newList]) {
-              if (p.id !== parseInt(productId, 10) && !seen.has(p.id)) {
-                seen.add(p.id);
-                merged.push(p);
-                if (merged.length === 4) break;
-              }
-            }
-            setRelatedProducts(merged);
-          });
+          afterData(data);
         } else if (!productNotFound) {
           setProductNotFound(true);
           setProductLoaded(true);
