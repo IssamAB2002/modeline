@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ product.name_ar }} – Modeline</title>
+
+  <!-- ═══ Open Graph (Facebook / WhatsApp / Telegram) ═══ -->
+  <meta property="og:type"        content="product" />
+  <meta property="og:site_name"   content="Modeline" />
+  <meta property="og:title"       content="{{ product.name_ar }}" />
+  <meta property="og:description" content="{{ product.short_description_ar|default:product.name_ar }}" />
+  <meta property="og:url"         content="{{ og_url }}" />
+  {% if og_image %}
+  <meta property="og:image"       content="{{ og_image }}" />
+  <meta property="og:image:alt"   content="{{ product.name_ar }}" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+  {% endif %}
+
+  <!-- Commerce meta (Facebook Catalog / Instagram) -->
+  <meta property="product:price:amount"   content="{{ product.price }}" />
+  <meta property="product:price:currency" content="DZD" />
+  {% if product.availability == "in_stock" or product.availability == "low_stock" %}
+  <meta property="product:availability" content="in stock" />
+  {% else %}
+  <meta property="product:availability" content="out of stock" />
+  {% endif %}
+
+  <!-- ═══ Twitter / X Card ═══ -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="{{ product.name_ar }}" />
+  <meta name="twitter:description" content="{{ product.short_description_ar|default:product.name_ar }}" />
+  {% if og_image %}
+  <meta name="twitter:image"       content="{{ og_image }}" />
+  {% endif %}
+
+  <!-- Canonical -->
+  <link rel="canonical" href="{{ og_url }}" />
+
+  <!-- Redirect any human browser that lands here directly to the React SPA -->
+  <meta http-equiv="refresh" content="0; url={{ og_url }}" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #faf8f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #1a1a1a;
+    }
+    .card {
+      text-align: center;
+      padding: 2rem;
+      max-width: 400px;
+    }
+    .brand {
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 1.5rem;
+    }
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #e0d9d0;
+      border-top-color: #1a1a1a;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    h1 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+    p { font-size: 0.85rem; color: #666; }
+    a { color: #1a1a1a; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <p class="brand">Modeline</p>
+    <div class="spinner"></div>
+    <h1>{{ product.name_ar }}</h1>
+    <p>جاري التوجيه… <a href="{{ og_url }}">اضغط هنا إن لم يتم التوجيه</a></p>
+  </div>
+</body>
+</html>

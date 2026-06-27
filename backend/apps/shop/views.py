@@ -1,4 +1,8 @@
+from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from django.views import View
 from rest_framework import generics
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -95,3 +99,25 @@ class ProductReviewListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         product = get_object_or_404(Product, pk=self.kwargs["product_pk"])
         serializer.save(product=product, is_approved=False)
+
+
+class OGProductView(View):
+    """GET /api/shop/og/<pk>/ — returns OG meta-tag HTML for social-media crawlers."""
+
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk, is_active=True)
+
+        if product.image:
+            og_image = request.build_absolute_uri(product.image.url)
+        else:
+            og_image = product.image_url or ""
+
+        frontend_url = getattr(settings, "FRONTEND_URL", "").rstrip("/")
+        canonical_url = f"{frontend_url}/product/{product.pk}"
+
+        html = render_to_string("shop/og_product.html", {
+            "product": product,
+            "og_image": og_image,
+            "og_url": canonical_url,
+        }, request=request)
+        return HttpResponse(html)

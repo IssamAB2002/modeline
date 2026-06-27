@@ -32,6 +32,16 @@
         file_server
     }
 
+    # Social-media crawlers hitting /product/<id> → Django OG endpoint
+    @social_bot {
+        header_regexp User-Agent `(?i)(facebookexternalhit|Facebot|WhatsApp|TelegramBot|Twitterbot|LinkedInBot|Slackbot)`
+        path_regexp product `^/product/(\d+)`
+    }
+    handle @social_bot {
+        rewrite * /api/shop/og/{re.product.1}/
+        reverse_proxy backend:8000
+    }
+
     handle {
         root * /srv/frontend
         try_files {path} /index.html

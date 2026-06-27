@@ -166,3 +166,7 @@ CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:
 ZR_SECRET_KEY = env('ZR_SECRET_KEY', default='')
 ZR_TENANT_ID = env('ZR_TENANT_ID', default='')
 
+# ── OG / Social sharing ──
+# Public-facing frontend origin — used to build canonical product URLs in OG pages
+FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:5173')
+
