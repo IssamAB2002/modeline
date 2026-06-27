@@ -107,17 +107,19 @@ class OGProductView(View):
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk, is_active=True)
 
-        if product.image:
-            og_image = request.build_absolute_uri(product.image.url)
-        else:
-            og_image = product.image_url or ""
-
         frontend_url = getattr(settings, "FRONTEND_URL", "").rstrip("/")
         canonical_url = f"{frontend_url}/product/{product.pk}"
+
+        if product.image:
+            og_image = f"{frontend_url}{product.image.url}"
+        elif product.image_url:
+            og_image = product.image_url
+        else:
+            og_image = ""
 
         html = render_to_string("shop/og_product.html", {
             "product": product,
             "og_image": og_image,
             "og_url": canonical_url,
         }, request=request)
-        return HttpResponse(html)
+        return HttpResponse(html, content_type="text/html; charset=utf-8")
