@@ -32,9 +32,9 @@
         file_server
     }
 
-    # Product pages → Django handles bot vs human detection internally
-    @product_og path_regexp "^/product/[0-9]"
-    handle @product_og {
+    # Product pages → Django SSR (always, no bot detection)
+    @product path /product/*
+    handle @product {
         reverse_proxy backend:8000 {
             header_up X-Forwarded-Proto https
             header_up X-Real-IP {remote_host}
