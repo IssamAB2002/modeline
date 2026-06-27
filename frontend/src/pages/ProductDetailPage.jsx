@@ -480,18 +480,25 @@ const ProductDetailPage = () => {
     sliderWrap: {
       position: 'relative',
       background: 'var(--parchment)',
-      border: '1px solid var(--border)'
+      border: '1px solid var(--border)',
+      overflow: 'hidden'
     },
     mainImageWrap: {
       position: 'relative',
       overflow: 'hidden',
       aspectRatio: '3/4',
+      width: '100%',
+      maxHeight: '600px',
       cursor: isZoomed ? 'zoom-out' : 'zoom-in'
     },
     mainImage: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
       width: '100%',
       height: '100%',
       objectFit: 'cover',
+      objectPosition: 'center',
       filter: 'saturate(0.88)',
       display: 'block',
       transition: 'transform 0.4s ease',
@@ -933,12 +940,17 @@ const ProductDetailPage = () => {
       position: 'relative',
       overflow: 'hidden',
       aspectRatio: '3/4',
+      width: '100%',
       background: 'var(--parchment)'
     },
     relatedImg: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
       width: '100%',
       height: '100%',
       objectFit: 'cover',
+      objectPosition: 'center',
       filter: 'saturate(0.88)',
       display: 'block',
       transition: 'transform 0.6s ease'
@@ -1129,6 +1141,7 @@ const ProductDetailPage = () => {
         .product-layout { grid-template-columns: 1fr !important; gap: 40px !important; }
         .related-grid { grid-template-columns: repeat(2, 1fr) !important; }
         .footer-grid { grid-template-columns: 1fr 1fr !important; }
+        .slider-wrap { max-width: 450px !important; margin-left: auto !important; margin-right: auto !important; }
       }
       @media (max-width: 768px) {
         nav { padding: 0 20px !important; }
@@ -1308,7 +1321,7 @@ const ProductDetailPage = () => {
           {/* ══ PRODUCT LAYOUT ══ */}
           <div style={styles.productLayout} className="product-layout">
             {/* ── LEFT: Image Slider ── */}
-            <div style={styles.sliderWrap}>
+            <div style={styles.sliderWrap} className="slider-wrap">
               <div
                 style={styles.mainImageWrap}
                 onClick={() => hasImages && setIsZoomed(!isZoomed)}
