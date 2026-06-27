@@ -1164,6 +1164,20 @@ const ProductDetailPage = () => {
         .tab-list button { flex: 1 !important; min-width: 0 !important; padding: 12px 6px !important; font-size: 10px !important; letter-spacing: 0.1em !important; }
         .size-btn { min-width: 40px !important; height: 38px !important; font-size: 11px !important; }
       }
+      @media (max-width: 390px) {
+        .product-layout { padding: 14px 8px !important; }
+        .main-image-wrap { max-height: 320px !important; }
+        .slider-wrap > button { width: 34px !important; height: 34px !important; font-size: 14px !important; }
+        .zoom-hint { display: none !important; }
+        .img-counter { bottom: 60px !important; font-size: 8px !important; padding: 4px 8px !important; right: 10px !important; }
+        .thumb-strip { padding: 8px 10px !important; gap: 5px !important; }
+        .thumb-strip img { width: 52px !important; height: 52px !important; }
+        .product-name { font-size: 24px !important; line-height: 1.2 !important; }
+        .price-row { flex-wrap: wrap !important; row-gap: 4px !important; }
+        .add-to-cart-btn { font-size: 9px !important; letter-spacing: 0.1em !important; }
+        .tab-list button { padding: 10px 4px !important; font-size: 9px !important; letter-spacing: 0.06em !important; }
+        .related-grid { grid-template-columns: 1fr !important; }
+      }
     `
   };
 
@@ -1323,6 +1337,7 @@ const ProductDetailPage = () => {
             {/* ── LEFT: Image Slider ── */}
             <div style={styles.sliderWrap} className="slider-wrap">
               <div
+                className="main-image-wrap"
                 style={styles.mainImageWrap}
                 onClick={() => hasImages && setIsZoomed(!isZoomed)}
                 onMouseMove={handleZoomMove}
@@ -1366,10 +1381,10 @@ const ProductDetailPage = () => {
                 )}
                 {hasImages && (
                   <>
-                    <div style={styles.imgCounter}>
+                    <div className="img-counter" style={styles.imgCounter}>
                       {currentImg + 1} / {product.images.length}
                     </div>
-                    <div style={styles.zoomHint}>
+                    <div className="zoom-hint" style={styles.zoomHint}>
                       {isZoomed ? "Click to zoom out" : "Click to zoom in"}
                     </div>
                   </>
@@ -1406,7 +1421,7 @@ const ProductDetailPage = () => {
 
               {/* Thumbnails — only when more than one image */}
               {hasImages && product.images.length > 1 && (
-                <div style={styles.thumbStrip} ref={sliderRef}>
+                <div className="thumb-strip" style={styles.thumbStrip} ref={sliderRef}>
                   {product.images.map((img, idx) => (
                     <img
                       key={idx}
@@ -1430,7 +1445,7 @@ const ProductDetailPage = () => {
               <span style={styles.productEyebrow}>
                 {product.origin} · {product.material}
               </span>
-              <h1 style={styles.productName}>
+              <h1 className="product-name" style={styles.productName}>
                 {product.name_ar || product.name}
               </h1>
               <p style={styles.productSubtitle}>{product.subtitle}</p>
@@ -1461,7 +1476,7 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Price */}
-              <div style={styles.priceRow}>
+              <div className="price-row" style={styles.priceRow}>
                 <span style={styles.price}>
                   {product.price.toLocaleString("fr-DZ")} DA
                 </span>
