@@ -56,6 +56,20 @@ class Order(models.Model):
     address_line = models.CharField(max_length=400, blank=True, default='', verbose_name='العنوان')
     notes = models.TextField(blank=True, verbose_name='ملاحظات')
 
+    # ZR Express linkage — FK refs carry the UUIDs needed for parcel posting
+    wilaya_ref = models.ForeignKey(
+        'shop.Wilaya', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='orders', verbose_name='الولاية (مرجع)',
+    )
+    baladia_ref = models.ForeignKey(
+        'shop.Baladia', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='orders', verbose_name='البلدية (مرجع)',
+    )
+    zr_submitted = models.BooleanField(default=False, verbose_name='مرسَل لـ ZR')
+    zr_parcel_id = models.UUIDField(null=True, blank=True, verbose_name='معرّف ZR للطرد')
+    zr_tracking_number = models.CharField(max_length=50, blank=True, default='', verbose_name='رقم التتبع ZR')
+    zr_posted_at = models.DateTimeField(null=True, blank=True, verbose_name='تاريخ الإرسال لـ ZR')
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الطلب')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='آخر تعديل')
 
