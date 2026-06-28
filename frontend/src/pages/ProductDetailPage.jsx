@@ -304,10 +304,10 @@ const ProductDetailPage = () => {
     try {
       await addToCart(product.id || parseInt(productId, 10), qty, effectiveSize, effectiveColor);
       trackAddToCart({ id: product.id || parseInt(productId, 10), name: product.name_ar || product.name, price: product.price, qty });
+      navigate('/cart');
     } catch {
-      // ignore — CartContext surfaces the error
+      setAddingToCart(false);
     }
-    setTimeout(() => navigate('/cart'), 3000);
   };
 
   const handleReviewSubmit = async (e) => {
@@ -1621,8 +1621,8 @@ const ProductDetailPage = () => {
                     e.currentTarget.style.background = "var(--espresso)";
                   }}>
                   {addingToCart
-                    ? "تمت الإضافة! جاري التوجيه…"
-                    : `${t("product:labels.addToBasket")} — ${(product.price * qty).toLocaleString("fr-DZ")} DA`}
+                    ? "جاري التوجيه…"
+                    : `أطلب الآن ــــ ${(product.price * qty).toLocaleString("fr-DZ")} DA`}
                 </button>
                 <button
                   style={styles.wishlistBtn}
