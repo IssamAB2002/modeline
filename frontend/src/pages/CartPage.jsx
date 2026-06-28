@@ -65,6 +65,14 @@ const CartPage = () => {
   const [addedToastText, setAddedToastText] = useState("");
   const [confirmedOrder, setConfirmedOrder] = useState(null);
   const [countdown, setCountdown] = useState(null);
+  const [thanksMessage, setThanksMessage] = useState("");
+
+  useEffect(() => {
+    fetch(`${API}/orders/thanks-message/`)
+      .then((r) => (r.ok ? r.json() : { body: "" }))
+      .then((data) => setThanksMessage(data.body || ""))
+      .catch(() => {});
+  }, []);
 
   const checkoutTrackedRef = useRef(false);
   useEffect(() => {
@@ -389,99 +397,108 @@ const CartPage = () => {
           </div>
         </section>
 
-        {/* Right: summary / confirmation */}
+        {/* Right: order summary */}
         <aside className="cart-sidebar">
           <div className="cart-panel sticky">
-            {confirmedOrder ? (
-              /* ── Order Confirmation ── */
-              <div className="cart-summary-body">
-                <div className="section-header compact">
-                  <div className="section-eyebrow">{t("cart:confirmation.eyebrow")}</div>
-                  <h2 className="section-title">
-                    {renderEmphasis(t("cart:confirmation.title"))}
-                  </h2>
-                  <div className="section-rule" />
-                </div>
-                <p style={{ marginBottom: "0.25rem", color: "var(--warm-gray)", fontSize: "0.95rem" }}>
-                  {t("cart:confirmation.subtitle")}
-                </p>
-                {countdown !== null && countdown > 0 && (
-                  <p style={{ fontSize: "0.8rem", color: "var(--warm-gray)", fontStyle: "italic", marginBottom: "0.5rem" }}>
-                    {`ستنتقل إلى المتجر خلال ${countdown} ثوانٍ…`}
-                  </p>
-                )}
-                <div className="cart-summary-row" style={{ marginTop: "1.25rem" }}>
-                  <span style={{ fontWeight: 600 }}>{t("cart:confirmation.orderNumber")}</span>
-                  <span style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.08em", color: "var(--gold)" }}>
-                    {confirmedOrder.order_number}
-                  </span>
-                </div>
-                <div className="cart-summary-row">
-                  <span>{t("cart:confirmation.clientName")}</span>
-                  <span>{confirmedOrder.full_name}</span>
-                </div>
-                <div className="cart-summary-row">
-                  <span>طريقة التوصيل</span>
-                  <span style={{ fontWeight: 600 }}>
-                    {confirmedOrder.shipping_type === "desk" ? "📦 مكتب التوصيل" : "🏠 توصيل للبيت"}
-                  </span>
-                </div>
-                <div className="cart-summary-total">
-                  <div className="cart-total-label">{t("cart:summary.total")}</div>
-                  <div className="cart-total-value">
-                    {parseFloat(confirmedOrder.grand_total_da).toLocaleString("fr-DZ")} DA
-                  </div>
-                </div>
-                <Link to="/shop" className="cart-continue-btn" style={{ marginTop: "1.25rem" }}>
-                  {t("cart:confirmation.continue")}
-                </Link>
+            <div className="section-header compact">
+              <div className="section-eyebrow">{t("cart:sections.order.eyebrow")}</div>
+              <h2 className="section-title">
+                {renderEmphasis(t("cart:sections.order.title"))}
+              </h2>
+              <div className="section-rule" />
+            </div>
+
+            <div className="cart-summary-body">
+              <div className="cart-summary-row">
+                <span>{t("cart:summary.subtotal")}</span>
+                <span>{subtotalDA.toLocaleString("fr-DZ")} DA</span>
               </div>
-            ) : (
-              /* ── Order Summary ── */
-              <>
-                <div className="section-header compact">
-                  <div className="section-eyebrow">{t("cart:sections.order.eyebrow")}</div>
-                  <h2 className="section-title">
-                    {renderEmphasis(t("cart:sections.order.title"))}
-                  </h2>
-                  <div className="section-rule" />
+              <div className="cart-summary-row">
+                <span>{t("cart:summary.shipping")}</span>
+                <span>{shippingDA.toLocaleString("fr-DZ")} DA</span>
+              </div>
+
+              <div className="cart-summary-total">
+                <div className="cart-total-label">{t("cart:summary.total")}</div>
+                <div className="cart-total-value">
+                  {totalDA.toLocaleString("fr-DZ")} DA
                 </div>
+              </div>
 
-                <div className="cart-summary-body">
-                  <div className="cart-summary-row">
-                    <span>{t("cart:summary.subtotal")}</span>
-                    <span>{subtotalDA.toLocaleString("fr-DZ")} DA</span>
-                  </div>
-                  <div className="cart-summary-row">
-                    <span>{t("cart:summary.shipping")}</span>
-                    <span>{shippingDA.toLocaleString("fr-DZ")} DA</span>
-                  </div>
+              <button
+                className="cart-faux-checkout-btn"
+                onClick={handlePlaceOrder}
+                disabled={submitting || cartItems.length === 0}>
+                {submitting ? t("cart:summary.submitting") : t("cart:summary.checkout")}
+              </button>
 
-                  <div className="cart-summary-total">
-                    <div className="cart-total-label">{t("cart:summary.total")}</div>
-                    <div className="cart-total-value">
-                      {totalDA.toLocaleString("fr-DZ")} DA
-                    </div>
-                  </div>
+              <p className="cart-safe-note">{t("cart:summary.safeNote")}</p>
 
-                  <button
-                    className="cart-faux-checkout-btn"
-                    onClick={handlePlaceOrder}
-                    disabled={submitting || cartItems.length === 0}>
-                    {submitting ? t("cart:summary.submitting") : t("cart:summary.checkout")}
-                  </button>
-
-                  <p className="cart-safe-note">{t("cart:summary.safeNote")}</p>
-
-                  <Link to="/shop" className="cart-continue-btn">
-                    {t("cart:summary.continue")}
-                  </Link>
-                </div>
-              </>
-            )}
+              <Link to="/shop" className="cart-continue-btn">
+                {t("cart:summary.continue")}
+              </Link>
+            </div>
           </div>
         </aside>
       </div>
+
+      {/* ── Order Confirmed Popup ── */}
+      {confirmedOrder && (
+        <div className="thanks-overlay">
+          <div className="thanks-popup">
+            <button className="thanks-close" onClick={() => navigate("/shop")}>✕</button>
+
+            <div className="section-eyebrow" style={{ marginBottom: "12px" }}>
+              {t("cart:confirmation.eyebrow")}
+            </div>
+            <h2 className="thanks-title">
+              {renderEmphasis(t("cart:confirmation.title"))}
+            </h2>
+            <div className="thanks-rule" />
+
+            {thanksMessage && (
+              <p className="thanks-body-text">{thanksMessage}</p>
+            )}
+
+            <p className="thanks-subtitle">{t("cart:confirmation.subtitle")}</p>
+
+            <div className="thanks-details">
+              <div className="cart-summary-row">
+                <span style={{ fontWeight: 600 }}>{t("cart:confirmation.orderNumber")}</span>
+                <span style={{ fontFamily: "'Cinzel', serif", letterSpacing: "0.08em", color: "var(--gold)" }}>
+                  {confirmedOrder.order_number}
+                </span>
+              </div>
+              <div className="cart-summary-row">
+                <span>{t("cart:confirmation.clientName")}</span>
+                <span>{confirmedOrder.full_name}</span>
+              </div>
+              <div className="cart-summary-row">
+                <span>طريقة التوصيل</span>
+                <span style={{ fontWeight: 600 }}>
+                  {confirmedOrder.shipping_type === "desk" ? "📦 مكتب التوصيل" : "🏠 توصيل للبيت"}
+                </span>
+              </div>
+              <div className="cart-summary-total">
+                <div className="cart-total-label">{t("cart:summary.total")}</div>
+                <div className="cart-total-value">
+                  {parseFloat(confirmedOrder.grand_total_da).toLocaleString("fr-DZ")} DA
+                </div>
+              </div>
+            </div>
+
+            {countdown !== null && countdown > 0 && (
+              <p className="thanks-countdown">
+                {`ستنتقل إلى المتجر خلال ${countdown} ثوانٍ…`}
+              </p>
+            )}
+
+            <Link to="/shop" className="cart-continue-btn" style={{ marginTop: "4px" }}>
+              {t("cart:confirmation.continue")}
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className={`cart-added-toast${showAdded ? " is-visible" : ""}`}>
         {addedToastText}

@@ -103,12 +103,22 @@ class ProductListView(ListAPIView):
             qs = qs.filter(is_new=True)
         return qs
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        response['Cache-Control'] = 'public, max-age=300'
+        return response
+
 
 class ProductDetailView(RetrieveAPIView):
     """GET /api/shop/products/<id>/ — single product with full detail."""
 
     serializer_class = ProductDetailSerializer
     queryset = Product.objects.filter(is_active=True).select_related("category").prefetch_related("images")
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        response['Cache-Control'] = 'public, max-age=300'
+        return response
 
 
 class WilayaListView(ListAPIView):
@@ -181,4 +191,6 @@ class OGProductView(View):
             "js_file": assets["js"],
             "css_file": assets["css"],
         })
-        return HttpResponse(html, content_type="text/html; charset=utf-8")
+        response = HttpResponse(html, content_type="text/html; charset=utf-8")
+        response['Cache-Control'] = 'public, max-age=300'
+        return response

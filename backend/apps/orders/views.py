@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from apps.cart.models import Cart
 
-from .models import Order, OrderItem
+from .models import Order, OrderItem, ThanksMessage
 from .serializers import OrderCreateSerializer, OrderSerializer
 
 
@@ -82,3 +82,11 @@ class OrderDetailView(RetrieveAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.prefetch_related("items__product")
     lookup_field = "order_number"
+
+
+class ThanksMessageView(APIView):
+    """GET /api/orders/thanks-message/ → return the active thanks message body."""
+
+    def get(self, request):
+        msg = ThanksMessage.objects.filter(is_active=True).first()
+        return Response({"body": msg.body if msg else ""})

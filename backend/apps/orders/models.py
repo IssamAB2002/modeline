@@ -114,3 +114,17 @@ class OrderItem(models.Model):
     @property
     def line_total(self) -> Decimal:
         return self.unit_price_da_snapshot * self.quantity
+
+
+class ThanksMessage(models.Model):
+    body = models.TextField(verbose_name='نص الرسالة')
+    is_active = models.BooleanField(default=True, verbose_name='نشطة')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='آخر تعديل')
+
+    class Meta:
+        verbose_name = "رسالة الشكر"
+        verbose_name_plural = "رسائل الشكر"
+
+    def __str__(self):
+        return self.body[:60]

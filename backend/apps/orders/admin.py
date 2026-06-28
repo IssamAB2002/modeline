@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Order, OrderItem
+from .models import Order, OrderItem, ThanksMessage
 from .zr_service import post_parcel, ZRServiceError
 
 
@@ -87,6 +87,17 @@ class OrderAdmin(admin.ModelAdmin):
             tracking = obj.zr_tracking_number or str(obj.zr_parcel_id)[:8]
             return format_html('<span style="color:#1a7a1a;font-weight:600">✓ {}</span>', tracking)
         return format_html('<span style="color:#999">—</span>')
+
+
+@admin.register(ThanksMessage)
+class ThanksMessageAdmin(admin.ModelAdmin):
+    list_display = ("short_body", "is_active", "updated_at")
+    list_editable = ("is_active",)
+    fields = ("body", "is_active")
+
+    @admin.display(description="الرسالة")
+    def short_body(self, obj):
+        return obj.body[:80] + "..." if len(obj.body) > 80 else obj.body
 
 
 @admin.register(OrderItem)

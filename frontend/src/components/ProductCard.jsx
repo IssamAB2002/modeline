@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-
-const API = import.meta.env.VITE_API_URL;
 
 function starString(rating) {
   const r = Math.min(5, Math.max(0, Math.round(parseFloat(rating) || 0)));
@@ -50,32 +48,8 @@ const ProductCard = ({
   const isList = viewMode === 'list';
   const bc = product.badgeType ? badgeClass(product.badgeType) : '';
 
-  const [reviews, setReviews] = useState([]);
-  const [reviewsLoaded, setReviewsLoaded] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`${API}/shop/products/${product.id}/reviews/`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (!cancelled) {
-          setReviews(Array.isArray(data) ? data : []);
-          setReviewsLoaded(true);
-        }
-      })
-      .catch(() => { if (!cancelled) setReviewsLoaded(true); });
-    return () => { cancelled = true; };
-  }, [product.id]);
-
-  const computedReviewCount = reviewsLoaded ? reviews.length : null;
-  const computedRating = reviewsLoaded && reviews.length > 0
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
-    : reviewsLoaded ? '0.0' : null;
-
-  const displayRating = computedRating !== null
-    ? parseFloat(computedRating)
-    : parseFloat(product.rating) || 0;
-  const displayCount = computedReviewCount !== null ? computedReviewCount : (product.reviewCount || 0);
+  const displayRating = parseFloat(product.rating) || 0;
+  const displayCount = product.reviewCount || 0;
 
   return (
     <Link
@@ -119,7 +93,7 @@ const ProductCard = ({
           <div className="product-rating">
             <span className="stars">{starString(displayRating)}</span>
             <span className="review-count">
-              {computedRating !== null ? computedRating : (product.rating || '0.0')}
+              {displayRating.toFixed(1)}
               {' · '}
               {displayCount}
               {' '}{t('product:labels.reviews')}
