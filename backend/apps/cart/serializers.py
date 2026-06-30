@@ -11,7 +11,12 @@ class CartItemSerializer(serializers.ModelSerializer):
     product_origin = serializers.CharField(source="product.origin", read_only=True)
 
     def get_product_image_url(self, obj):
-        return obj.product.image_url if obj.product else ""
+        if not obj.product:
+            return ""
+        if obj.product.image:
+            request = self.context.get("request")
+            return request.build_absolute_uri(obj.product.image.url) if request else obj.product.image.url
+        return obj.product.image_url or ""
 
     class Meta:
         model = CartItem

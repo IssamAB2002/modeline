@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>من نحن — Modeline</title>
+  <meta name="description" content="قصة Modeline — ثلاثة عقود من التفاني في الأزياء التقليدية الجزائرية.">
+
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="من نحن — Modeline">
+  <meta property="og:description" content="ثلاثة عقود من التفاني في الأزياء التقليدية الجزائرية.">
+  <meta property="og:image"       content="/assets/image.png">
+  <meta property="og:locale"      content="ar_DZ">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/about.css">
+</head>
+<body>
+<div class="page-shell">
+
+  <div id="topbar"></div>
+  <div id="nav-container"></div>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="breadcrumb">
+      <a href="/">الرئيسية</a>
+      <span>·</span>
+      <span>من نحن</span>
+    </div>
+    <h1 class="page-title">
+      <span id="about-hero-title-main">قصتنا</span>
+      <span id="about-hero-title-em"></span>
+    </h1>
+    <p class="page-subtitle" id="about-hero-subtitle">ثلاثة عقود من التفاني في تقديم الملابس التقليدية الجزائرية.</p>
+  </div>
+
+  <!-- INTRO STATEMENT -->
+  <div class="intro-statement">
+    <span class="eyebrow" id="about-intro-eyebrow">التزامنا</span>
+    <h2 id="about-intro-title">قرون من التقاليد، متاحة اليوم</h2>
+    <p id="about-intro-text">كل قطعة في مجموعتنا مصدرها مباشرة من عائلات الحرفيين الجزائريين.</p>
+  </div>
+
+  <!-- GOLD RULE -->
+  <div class="gold-rule">
+    <span class="gold-rule-icon">✦ قصتنا ✦</span>
+  </div>
+
+  <!-- STORY SECTION -->
+  <div class="story-section" id="story">
+    <div class="story-img">
+      <div class="story-img-frame">
+        <img id="story-img" src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&q=80" alt="قصة Modeline">
+        <div class="story-img-label" id="story-img-label">تلمسان — مجموعة 2024</div>
+      </div>
+    </div>
+    <div class="story-text" id="story-text">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-item">
+      <div class="stat-value" id="stat-1-value">30+</div>
+      <div class="stat-label" id="stat-1-label">سنة من الخبرة</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="stat-2-value">6</div>
+      <div class="stat-label" id="stat-2-label">ولايات حرفية</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="stat-3-value">48</div>
+      <div class="stat-label" id="stat-3-label">عائلة حرفية</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="stat-4-value">4k+</div>
+      <div class="stat-label" id="stat-4-label">عميل سعيد</div>
+    </div>
+  </div>
+
+  <!-- PILLARS SECTION -->
+  <div class="ornament-divider" aria-hidden="true"><span class="ornament-sym">*</span></div>
+  <div class="section-header">
+    <span class="section-eyebrow">قيمنا</span>
+    <h2 class="section-title">مبادئنا <span>الأساسية</span></h2>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="pillars-section">
+    <div class="pillars-grid" id="pillars-grid">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- REVIEWS SECTION -->
+  <div class="ornament-divider" aria-hidden="true"><span class="ornament-sym">*</span></div>
+  <section class="reviews-section" id="reviews">
+    <div class="reviews-intro">
+      <!-- Left: Rating summary -->
+      <div class="reviews-left" id="reviews-left">
+        <span class="section-eyebrow">أصوات العملاء</span>
+        <h2>كلمات من <span>يتسوقون معنا</span></h2>
+        <p>كل مراجعة صادرة عن عميل موثّق. نشاركها كما وردت — الثناء والاقتراحات على السواء — لأن الثقة لم تُبنَ إلا في النور.</p>
+        <div id="rating-summary-box">
+          <div class="spinner"></div>
+        </div>
+      </div>
+      <!-- Right: Submit form -->
+      <div class="reviews-right" id="review-form-container">
+        <div class="review-form-panel" id="review-form-panel">
+          <div class="review-form-title">أضف تقييمك</div>
+          <div class="star-picker" id="star-picker" aria-label="اختر التقييم">
+            <span data-v="1">★</span>
+            <span data-v="2">★</span>
+            <span data-v="3">★</span>
+            <span data-v="4">★</span>
+            <span data-v="5">★</span>
+          </div>
+          <input id="review-name"     class="review-input" type="text" placeholder="اسمك *">
+          <input id="review-location" class="review-input" type="text" placeholder="مدينتك (اختياري)">
+          <textarea id="review-body"  class="review-input" rows="4" placeholder="شاركنا تجربتك… *"></textarea>
+          <div id="review-error" class="review-error" style="display:none"></div>
+          <button id="btn-review-submit" class="review-submit-btn">إرسال التقييم</button>
+        </div>
+        <div id="review-success" class="review-success" style="display:none">
+          <p>شكراً لمشاركتك!</p>
+          <span>سيتم نشر تقييمك بعد المراجعة</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews grid -->
+    <div class="reviews-grid" id="reviews-grid">
+      <div class="spinner"></div>
+    </div>
+  </section>
+
+  <div id="footer-container"></div>
+
+</div><!-- .page-shell -->
+
+<div id="toast" class="toast"></div>
+
+<script type="module" src="js/about.js"></script>
+</body>
+</html>

@@ -11,7 +11,8 @@ from rest_framework import generics
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
 
-_vite_assets_cache = None
+# (cached_mtime, cached_result) — invalidated when the manifest file changes on disk
+_vite_assets_cache = (None, None)
 
 
 def _get_vite_assets():
@@ -19,13 +20,18 @@ def _get_vite_assets():
 
     Falls back to parsing dist/index.html when the manifest doesn't exist
     (e.g. built without manifest:true or deployed before that option was added).
+    Re-reads the manifest automatically after each frontend rebuild (mtime check).
     """
     global _vite_assets_cache
-    if _vite_assets_cache is not None and not settings.DEBUG:
-        return _vite_assets_cache
-
     manifest_path = getattr(settings, 'VITE_MANIFEST_PATH', '')
     result = {'js': '', 'css': ''}
+
+    try:
+        mtime = Path(manifest_path).stat().st_mtime
+        if not settings.DEBUG and _vite_assets_cache[0] == mtime:
+            return _vite_assets_cache[1]
+    except OSError:
+        mtime = None
 
     try:
         manifest = json.loads(Path(manifest_path).read_text(encoding='utf-8'))
@@ -52,7 +58,7 @@ def _get_vite_assets():
             pass
 
     if not settings.DEBUG:
-        _vite_assets_cache = result
+        _vite_assets_cache = (mtime, result)
     return result
 
 from .models import Baladia, Category, Product, ProductReview, Wilaya
@@ -160,11 +166,10 @@ class ProductReviewListCreateView(generics.ListCreateAPIView):
 
 
 class OGProductView(View):
-    """Serves /product/<pk>/ with full SSR HTML for every visitor — bots and humans alike.
+    """Serves /shop/og/<pk>/ — React SSR shell (kept for backward compatibility).
 
     Every response includes correct OG/Twitter meta tags and server-rendered product
     content, plus the React bundle which mounts and takes over for interactive use.
-    No bot detection needed.
     """
 
     def get(self, request, pk):
@@ -193,4 +198,39 @@ class OGProductView(View):
         })
         response = HttpResponse(html, content_type="text/html; charset=utf-8")
         response['Cache-Control'] = 'public, max-age=300'
+        return response
+
+
+class ProductSSRView(View):
+    """Serves /product/<pk>/ for the static frontend.
+
+    Renders product_ssr.html with full OG meta tags and embedded JSON data
+    (__pdp_data__) so product.js can hydrate without an extra API call.
+    CSS/JS are served by Caddy from static-frontend/; in local dev Django
+    can serve them if static-frontend/ is added to STATICFILES_DIRS.
+    """
+
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk, is_active=True)
+
+        frontend_url = getattr(settings, "FRONTEND_URL", "").rstrip("/")
+        canonical_url = f"{frontend_url}/product/{product.pk}"
+
+        if product.image:
+            og_image = request.build_absolute_uri(product.image.url)
+        elif product.image_url:
+            og_image = product.image_url
+        else:
+            og_image = ""
+
+        serializer = ProductDetailSerializer(product, context={"request": request})
+
+        html = render_to_string("shop/product_ssr.html", {
+            "product": product,
+            "og_image": og_image,
+            "og_url": canonical_url,
+            "product_data": serializer.data,
+        })
+        response = HttpResponse(html, content_type="text/html; charset=utf-8")
+        response['Cache-Control'] = 'public, max-age=60'
         return response

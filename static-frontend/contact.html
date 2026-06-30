@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تواصل معنا — Modeline</title>
+  <meta name="description" content="تواصل مع Modeline — طلبات مخصصة، صالات عرض، وأسئلة عامة.">
+
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="تواصل معنا — Modeline">
+  <meta property="og:description" content="سواء كنت تسعى لطلب مخصص أو لديك سؤال — نحن هنا.">
+  <meta property="og:image"       content="/assets/image.png">
+  <meta property="og:locale"      content="ar_DZ">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/contact.css">
+</head>
+<body>
+<div class="page-shell">
+
+  <div id="topbar"></div>
+  <div id="nav-container"></div>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="breadcrumb">
+      <a href="/">الرئيسية</a>
+      <span>·</span>
+      <span>تواصل معنا</span>
+    </div>
+    <h1 class="page-title">
+      <span id="contact-hero-title-main">تواصل</span>
+      <span id="contact-hero-title-em"> مع Modeline</span>
+    </h1>
+    <p class="page-subtitle" id="contact-hero-subtitle">سواء كنت تسعى لطلب مخصص أو لديك سؤال — نحن هنا.</p>
+  </div>
+
+  <!-- GOLD RULE -->
+  <div class="gold-rule">
+    <span class="gold-rule-icon">✦ راسلنا ✦</span>
+  </div>
+
+  <!-- INTRO STATEMENT -->
+  <div class="intro-statement">
+    <h2 id="contact-intro-title">كل استفسار يستحق <span>عناية ردّ</span></h2>
+    <p id="contact-intro-text">نؤمن بأن العلاقة بين المتجر وعملائه يجب أن تكون باقية كالألبسة التي نوفرها.</p>
+  </div>
+
+  <!-- CONTACT LAYOUT -->
+  <div class="contact-layout">
+
+    <!-- LEFT: Contact Form -->
+    <div class="contact-form-wrap" id="contact-form-wrap">
+      <div class="contact-panel-title">أرسل رسالتك</div>
+      <form id="contact-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="field-inquiry">نوع الاستفسار</label>
+          <select name="inquiryType" id="field-inquiry" class="contact-input contact-select">
+            <option value="general">استفسار عام</option>
+            <option value="order">طلبية</option>
+            <option value="custom">طلب مخصص</option>
+            <option value="wholesale">جملة</option>
+            <option value="returns">إرجاع</option>
+            <option value="artisan">حرفي</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="field-name">الاسم الكامل *</label>
+            <input name="name" id="field-name" class="contact-input" type="text" placeholder="أدخل اسمك" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-email">البريد الإلكتروني *</label>
+            <input name="email" id="field-email" class="contact-input" type="email" placeholder="example@email.com" autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="field-phone">رقم الهاتف</label>
+            <input name="phone" id="field-phone" class="contact-input" type="tel" placeholder="0555 123 456" autocomplete="tel">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="field-subject">الموضوع *</label>
+            <input name="subject" id="field-subject" class="contact-input" type="text" placeholder="موضوع رسالتك">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="field-message">الرسالة *</label>
+          <textarea name="message" id="field-message" class="contact-input" rows="6" placeholder="اكتب رسالتك هنا…"></textarea>
+        </div>
+
+        <div id="contact-error" class="contact-error" style="display:none"></div>
+
+        <button type="submit" id="btn-contact-submit" class="contact-submit-btn">إرسال الرسالة</button>
+      </form>
+
+      <div id="form-success" class="contact-success" style="display:none">
+        <div class="contact-success-icon">✓</div>
+        <h3>تم إرسال رسالتك!</h3>
+        <p>سنتواصل معك في أقرب وقت ممكن. شكراً لتواصلك مع Modeline.</p>
+        <a href="/" class="btn-primary">العودة للرئيسية</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: Contact Info -->
+    <div class="contact-info" id="contact-info">
+      <div class="spinner"></div>
+    </div>
+
+  </div><!-- .contact-layout -->
+
+  <!-- SHOWROOMS SECTION -->
+  <div class="ornament-divider" aria-hidden="true"><span class="ornament-sym">*</span></div>
+  <div class="section-header">
+    <span class="section-eyebrow">حضور فعلي</span>
+    <h2 class="section-title">صالات <span>العرض</span></h2>
+    <div class="section-rule"></div>
+  </div>
+
+  <section class="showrooms-section">
+    <div class="showrooms-grid" id="showrooms-grid">
+      <div class="spinner"></div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <div class="ornament-divider" aria-hidden="true"><span class="ornament-sym">*</span></div>
+  <div class="section-header">
+    <span class="section-eyebrow">أسئلة شائعة</span>
+    <h2 class="section-title">الأسئلة <span>المتكررة</span></h2>
+    <div class="section-rule"></div>
+  </div>
+
+  <section class="faq-section">
+    <div class="faq-list" id="faq-list">
+      <div class="spinner"></div>
+    </div>
+  </section>
+
+  <div id="footer-container"></div>
+
+</div><!-- .page-shell -->
+
+<div id="toast" class="toast"></div>
+
+<script type="module" src="js/contact.js"></script>
+</body>
+</html>

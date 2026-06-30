@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modeline — الأزياء التراثية الجزائرية</title>
+  <meta name="description" content="ملابس تقليدية راقية وملابس أطفال وإكسسوارات — أجمل ما في التراث الجزائري، يصل إلى بابك.">
+
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="Modeline — الأزياء التراثية الجزائرية">
+  <meta property="og:description" content="ملابس تقليدية راقية وملابس أطفال وإكسسوارات — أجمل ما في التراث الجزائري، يصل إلى بابك.">
+  <meta property="og:image"       content="/assets/image.png">
+  <meta property="og:locale"      content="ar_DZ">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+<div class="page-shell">
+
+  <div id="topbar"></div>
+  <div id="nav-container"></div>
+
+  <!-- ── HERO ──────────────────────────────────────────── -->
+  <section class="hero" id="home">
+    <div class="hero-inner">
+      <img src="./assets/image.png" alt="Modeline" class="hero-mark">
+      <div class="hero-eyebrow" id="hero-eyebrow">أصيل · تراثي · راقي</div>
+      <h1>
+        <span id="hero-title-line1">ارتدِ</span> <span id="hero-title-em">لغة</span>
+        <br>
+        <span id="hero-title-line3">أجدادك</span>
+      </h1>
+      <p class="hero-sub" id="hero-subtitle">ملابس تقليدية راقية وملابس أطفال وإكسسوارات — أجمل ما في التراث الجزائري، يصل إلى بابك.</p>
+      <div class="hero-ctas">
+        <a href="#collections" class="btn-primary">منتجاتنا المميزة</a>
+        <a href="/about.html" class="btn-ghost">قصتنا</a>
+      </div>
+    </div>
+    <div class="scroll-hint">مرر للأسفل للاستكشاف</div>
+  </section>
+
+  <!-- ── FEATURED PRODUCTS ─────────────────────────────── -->
+  <div class="ornament-divider" aria-hidden="true">
+    <span class="ornament-sym">*</span>
+  </div>
+  <div class="section-header">
+    <span class="section-eyebrow">وصل حديثاً</span>
+    <h2 class="section-title">قطع <span>مختارة</span> هذا الموسم</h2>
+    <div class="section-rule"></div>
+  </div>
+  <section class="products-section" id="collections">
+    <div class="product-grid" id="products-grid"></div>
+  </section>
+
+  <!-- ── TRUST STRIP ───────────────────────────────────── -->
+  <section class="trust-strip" id="trust-strip"></section>
+
+  <!-- ── TESTIMONIALS ──────────────────────────────────── -->
+  <div class="ornament-divider" aria-hidden="true">
+    <span class="ornament-sym">*</span>
+  </div>
+  <div class="section-header">
+    <span class="section-eyebrow">آراء</span>
+    <h2 class="section-title">كلمات من <span>عملائنا</span></h2>
+    <div class="section-rule"></div>
+  </div>
+  <section class="testimonials">
+    <div class="test-grid" id="testimonials-grid"></div>
+  </section>
+
+  <!-- ── NEWSLETTER / CONTACT CTA ──────────────────────── -->
+  <section class="newsletter" id="newsletter">
+    <img src="/assets/image.png" alt="Modeline" class="newsletter-mark">
+    <h2 class="newsletter-title">
+      استلم <span>قطع نادرة</span>
+      <br>
+      قبل الجميع
+    </h2>
+    <p class="newsletter-sub">انضم إلى نادينا — وصل حديثاً، مجلات موسمية، وعروض حصرية تصل إلى بريدك.</p>
+    <a href="/contact.html" class="newsletter-contact-btn">اتصل بنا</a>
+  </section>
+
+  <div id="footer-container"></div>
+
+</div><!-- .page-shell -->
+
+<div id="toast" class="toast"></div>
+
+<script type="module" src="js/home.js"></script>
+</body>
+</html>

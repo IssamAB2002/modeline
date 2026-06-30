@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المتجر — Modeline</title>
+  <meta name="description" content="تشكيلة الأزياء التراثية الجزائرية — قفطان، برنوس، حايك — مصنوع بيدوياً.">
+
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="المتجر — Modeline">
+  <meta property="og:description" content="تشكيلة الأزياء التراثية الجزائرية — قفطان، برنوس، حايك — مصنوع بيدوياً في الجزائر.">
+  <meta property="og:image"       content="/assets/image.png">
+  <meta property="og:locale"      content="ar_DZ">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+<div class="page-shell">
+
+  <div id="topbar"></div>
+  <div id="nav-container"></div>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="breadcrumb">
+      <a href="/">الرئيسية</a>
+      <span>·</span>
+      <span>المتجر</span>
+    </div>
+    <h1 class="page-title">تشكيلة <span>Modeline</span></h1>
+    <p class="page-subtitle">أزياء تراثية جزائرية أصيلة، مختارة بعناية من حرفيين موثوقين.</p>
+  </div>
+
+  <!-- SHOP LAYOUT: sidebar + main -->
+  <div class="shop-layout">
+
+    <!-- Mobile filter toggle (hidden desktop) -->
+    <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-label="فتح التصفية">
+      <span>⊟</span> تصفية
+    </button>
+
+    <!-- Sidebar overlay backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="shop-sidebar" id="shop-sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">تصفية النتائج</span>
+        <button class="sidebar-close" id="sidebar-close" aria-label="إغلاق">✕</button>
+      </div>
+
+      <!-- Price range -->
+      <div class="filter-section">
+        <div class="filter-label">السعر الأقصى</div>
+        <input type="range" id="price-range" class="price-range" min="0" max="50000" value="50000" step="500">
+        <div class="price-range-labels">
+          <span>0 DA</span>
+          <span id="price-max-label">50,000 DA</span>
+        </div>
+      </div>
+
+      <!-- Reset button -->
+      <button class="filter-reset-btn" id="filter-reset">إعادة تعيين الفلاتر</button>
+    </aside>
+
+    <!-- Main product area -->
+    <main class="shop-main">
+
+      <!-- Toolbar -->
+      <div class="shop-toolbar">
+        <p class="result-count" id="result-count">جاري التحميل…</p>
+        <div class="toolbar-controls">
+          <div class="view-toggle">
+            <button class="view-btn active" id="view-grid" aria-label="عرض شبكي">⊞</button>
+            <button class="view-btn" id="view-list" aria-label="عرض قائمة">☰</button>
+          </div>
+          <select class="sort-select" id="sort-select" aria-label="ترتيب حسب">
+            <option value="featured">المميزة أولاً</option>
+            <option value="bestseller">الأكثر مبيعاً</option>
+            <option value="new">الأحدث</option>
+            <option value="price_asc">السعر: من الأقل</option>
+            <option value="price_desc">السعر: من الأعلى</option>
+            <option value="rating">الأعلى تقييماً</option>
+          </select>
+        </div>
+        <div class="toolbar-search">
+          <input type="text" id="text-filter" class="text-filter" placeholder="ابحث عن قطعة…" autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Product grid -->
+      <div id="product-grid" class="product-grid">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" class="pagination"></div>
+    </main>
+
+  </div><!-- .shop-layout -->
+
+  <div id="footer-container"></div>
+</div><!-- .page-shell -->
+
+<div id="toast" class="toast"></div>
+
+<script type="module" src="js/shop.js"></script>
+</body>
+</html>

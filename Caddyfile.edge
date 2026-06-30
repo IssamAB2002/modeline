@@ -1,6 +1,7 @@
 :80 {
     encode gzip
 
+    # Django API
     @api path /api/*
     handle @api {
         reverse_proxy backend:8000
@@ -11,29 +12,7 @@
         reverse_proxy backend:8000
     }
 
-    @static path /static/*
-    handle @static {
-        root * /srv/static
-        uri strip_prefix /static
-        file_server
-    }
-
-    @media path /media/*
-    handle @media {
-        root * /srv/media
-        uri strip_prefix /media
-        header Cache-Control "public, max-age=31536000, immutable"
-        file_server
-    }
-
-    @locales path /locales/*
-    handle @locales {
-        root * /srv/frontend
-        header Cache-Control "public, max-age=300"
-        file_server
-    }
-
-    # Product pages → Django SSR (always, no bot detection)
+    # Product pages → Django SSR (OG meta tags + embedded JSON hydration)
     @product path /product/*
     handle @product {
         reverse_proxy backend:8000 {
@@ -42,9 +21,27 @@
         }
     }
 
+    # Django-collected static files (admin, DRF)
+    @static path /static/*
+    handle @static {
+        root * /srv/static
+        uri strip_prefix /static
+        file_server
+    }
+
+    # Uploaded media files
+    @media path /media/*
+    handle @media {
+        root * /srv/media
+        uri strip_prefix /media
+        header Cache-Control "public, max-age=31536000, immutable"
+        file_server
+    }
+
+    # Static frontend — all remaining routes served as an MPA
     handle {
-        root * /srv/frontend
-        try_files {path} /index.html
+        root * /srv/static-frontend
+        try_files {path} {path}.html /index.html
         file_server
     }
 }

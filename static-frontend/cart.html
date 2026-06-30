@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سلة التسوق — Modeline</title>
+  <meta name="description" content="سلة التسوق وإتمام الطلب — Modeline للأزياء التراثية الجزائرية.">
+
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="سلة التسوق — Modeline">
+  <meta property="og:description" content="سلة التسوق وإتمام الطلب — Modeline للأزياء التراثية الجزائرية.">
+  <meta property="og:image"       content="/assets/image.png">
+  <meta property="og:locale"      content="ar_DZ">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/cart.css">
+</head>
+<body>
+<div class="page-shell">
+
+  <div id="topbar"></div>
+  <div id="nav-container"></div>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="breadcrumb">
+      <a href="/">الرئيسية</a>
+      <span>·</span>
+      <a href="/shop.html">المتجر</a>
+      <span>·</span>
+      <span>السلة</span>
+    </div>
+    <h1 class="page-title">سلة <span>التسوق</span></h1>
+    <p class="page-subtitle">راجع طلبك وأكمل بيانات التوصيل.</p>
+  </div>
+
+  <div class="ornament-divider" aria-hidden="true"><span class="ornament-sym">*</span></div>
+
+  <!-- CART LAYOUT -->
+  <div class="cart-layout" id="cart-layout">
+
+    <!-- LEFT: Items + Delivery form -->
+    <section class="cart-main">
+
+      <!-- Items panel -->
+      <div class="cart-panel">
+        <div class="cart-panel-title">المنتجات في السلة</div>
+        <div id="cart-items-list">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- Delivery form panel -->
+      <div class="cart-panel" id="delivery-panel">
+        <div class="cart-panel-title">معلومات التوصيل</div>
+
+        <!-- Shipping type toggle -->
+        <div class="shipping-type-group">
+          <button class="shipping-type-btn active" id="btn-home-delivery" data-type="home">
+            🏠 توصيل للبيت
+          </button>
+          <button class="shipping-type-btn" id="btn-desk-delivery" data-type="desk">
+            📦 مكتب التوصيل
+          </button>
+        </div>
+
+        <!-- Form fields -->
+        <div class="cart-form-grid">
+          <div class="form-group full">
+            <label class="form-label" for="field-name">الاسم الكامل *</label>
+            <input id="field-name" class="cart-input" type="text" placeholder="أدخل اسمك الكامل" autocomplete="name">
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label" for="field-phone">رقم الهاتف *</label>
+            <input id="field-phone" class="cart-input" type="tel" placeholder="0555 123 456" autocomplete="tel">
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label" for="field-wilaya">الولاية *</label>
+            <select id="field-wilaya" class="cart-input cart-select">
+              <option value="">— اختر الولاية —</option>
+            </select>
+          </div>
+
+          <div class="form-group full home-only">
+            <label class="form-label" for="field-baladia">البلدية *</label>
+            <select id="field-baladia" class="cart-input cart-select">
+              <option value="">— اختر البلدية —</option>
+            </select>
+          </div>
+
+          <div class="form-group full home-only">
+            <label class="form-label" for="field-address">العنوان التفصيلي *</label>
+            <input id="field-address" class="cart-input" type="text" placeholder="الحي، الشارع، رقم البناء…" autocomplete="street-address">
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label" for="field-notes">ملاحظات (اختياري)</label>
+            <textarea id="field-notes" class="cart-input" rows="3" placeholder="أي تعليمات خاصة للتوصيل…"></textarea>
+          </div>
+        </div>
+
+        <!-- Validation error message -->
+        <div id="form-error" class="form-error" style="display:none"></div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT: Order summary -->
+    <aside class="cart-sidebar">
+      <div class="cart-panel cart-summary-panel">
+        <div class="cart-panel-title">ملخص الطلب</div>
+
+        <div class="summary-rows">
+          <div class="summary-row" id="subtotal-row">
+            <span>المجموع الجزئي</span>
+            <span id="subtotal-val">—</span>
+          </div>
+          <div class="summary-row" id="shipping-row">
+            <span>رسوم التوصيل</span>
+            <span id="shipping-val">—</span>
+          </div>
+          <div class="summary-row summary-total" id="total-row">
+            <span>الإجمالي</span>
+            <span id="total-val">—</span>
+          </div>
+        </div>
+
+        <button class="cart-place-order-btn" id="btn-place-order">
+          تأكيد الطلب
+        </button>
+
+        <a href="/shop.html" class="cart-continue-btn">
+          ← متابعة التسوق
+        </a>
+      </div>
+    </aside>
+
+  </div><!-- .cart-layout -->
+
+  <!-- Empty cart state (hidden by default) -->
+  <div class="cart-empty" id="cart-empty" style="display:none">
+    <div class="cart-empty-icon">◇</div>
+    <h2 class="cart-empty-title">سلتك فارغة</h2>
+    <p class="cart-empty-sub">لم تضف أي منتجات بعد. تصفّح مجموعتنا وأضف ما يعجبك.</p>
+    <a href="/shop.html" class="btn-primary">تصفح المتجر</a>
+  </div>
+
+  <div id="footer-container"></div>
+
+</div><!-- .page-shell -->
+
+<!-- Order Confirmed Overlay -->
+<div id="thanks-overlay" class="thanks-overlay" aria-hidden="true" style="display:none">
+  <div class="thanks-popup">
+    <div class="thanks-icon">✓</div>
+    <div class="thanks-eyebrow">تم استلام طلبك</div>
+    <h2 class="thanks-title">شكراً لثقتك بنا</h2>
+    <div class="thanks-order-num" id="thanks-order-num"></div>
+    <p class="thanks-msg" id="thanks-msg"></p>
+    <div class="thanks-total" id="thanks-total"></div>
+    <div class="thanks-countdown-wrap">
+      <div class="thanks-countdown-bar" id="thanks-countdown-bar"></div>
+    </div>
+    <p class="thanks-redirect-note">سيتم تحويلك تلقائياً إلى المتجر خلال لحظات…</p>
+    <a href="/shop.html" class="thanks-shop-btn">العودة للمتجر الآن</a>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script type="module" src="js/cart-page.js"></script>
+</body>
+</html>

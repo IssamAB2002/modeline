@@ -28,7 +28,10 @@ DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+])
 
 
 # Application definition
@@ -65,8 +68,10 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'backend.urls'
 
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
-    "http://localhost:5173",
+    "http://localhost:5173",    # React dev (Vite)
     "http://127.0.0.1:5173",
+    "http://localhost:8080",    # Static frontend dev (python -m http.server)
+    "http://127.0.0.1:8080",
 ])
 # Required so the browser sends/receives cookies (csrftoken) on cross-origin
 # requests in development.  In production both apps share one domain so CORS
@@ -102,6 +107,10 @@ DATABASES = {
         'PASSWORD': env('POSTGRES_PASSWORD', default=''),
         'HOST': env('POSTGRES_HOST', default='localhost'),
         'PORT': env('POSTGRES_PORT', default='5432'),
+        # psycopg3 server-side cursors can raise InvalidCursorName when the
+        # admin renders FK select widgets; disabling them uses client-side
+        # cursors instead, which avoids the issue.
+        'DISABLE_SERVER_SIDE_CURSORS': True,
     }
 }
 

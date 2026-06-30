@@ -58,6 +58,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ("status", "shipping_type", "zr_submitted")
     list_editable = ("status",)
     search_fields = ("order_number", "full_name", "phone", "city", "baladia")
+    autocomplete_fields = ("wilaya_ref", "baladia_ref")
     readonly_fields = (
         "order_number", "subtotal_da", "grand_total_da",
         "cart", "created_at", "updated_at",

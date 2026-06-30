@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ product.name_ar }} — Modeline</title>
+  <meta name="description" content="{{ product.short_description_ar|default:product.name_ar }}">
+
+  <!-- ═══ Open Graph (Facebook / WhatsApp / Telegram) ═══ -->
+  <meta property="og:type"        content="product">
+  <meta property="og:site_name"   content="Modeline">
+  <meta property="og:title"       content="{{ product.name_ar }}">
+  <meta property="og:description" content="{{ product.short_description_ar|default:product.name_ar }}">
+  <meta property="og:url"         content="{{ og_url }}">
+  <meta property="og:locale"      content="ar_DZ">
+  {% if og_image %}
+  <meta property="og:image"       content="{{ og_image }}">
+  <meta property="og:image:alt"   content="{{ product.name_ar }}">
+  <meta property="og:image:width"  content="1200">
+  <meta property="og:image:height" content="630">
+  <link rel="preload" as="image" href="{{ og_image }}">
+  {% endif %}
+
+  <!-- Commerce meta -->
+  <meta property="product:price:amount"   content="{{ product.price }}">
+  <meta property="product:price:currency" content="DZD">
+  {% if product.availability == "in_stock" or product.availability == "low_stock" %}
+  <meta property="product:availability" content="in stock">
+  {% else %}
+  <meta property="product:availability" content="out of stock">
+  {% endif %}
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="{{ product.name_ar }}">
+  <meta name="twitter:description" content="{{ product.short_description_ar|default:product.name_ar }}">
+  {% if og_image %}
+  <meta name="twitter:image" content="{{ og_image }}">
+  {% endif %}
+
+  <link rel="canonical" href="{{ og_url }}">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Static frontend CSS -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/product.css">
+  <link rel="stylesheet" href="/css/cart.css"><!-- reused for quick-order form fields + thanks overlay -->
+
+  <!-- Facebook Pixel -->
+  <script>
+    !(function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)})(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1948360885861491');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1948360885861491&ev=PageView&noscript=1"/></noscript>
+</head>
+<body>
+
+  <!-- Embedded product data — product.js reads this on load (no extra API call) -->
+  {{ product_data|json_script:"__pdp_data__" }}
+
+  <div class="page-shell">
+
+    <div id="topbar"></div>
+    <div id="nav-container"></div>
+
+    <!-- PAGE HERO -->
+    <div class="page-hero pdp-hero">
+      <div class="breadcrumb">
+        <a href="/">الرئيسية</a>
+        <span>·</span>
+        <a href="/shop.html">المتجر</a>
+        <span>·</span>
+        <span>{{ product.name_ar }}</span>
+      </div>
+      <h1 class="page-title pdp-hero-title">{{ product.name_ar }}</h1>
+      {% if product.origin %}
+      <p class="page-subtitle">{{ product.origin }}</p>
+      {% endif %}
+    </div>
+
+    <div class="gold-rule">
+      <span class="gold-rule-icon">Modeline</span>
+    </div>
+
+    <!-- PRODUCT LAYOUT -->
+    <div class="product-layout" id="product-layout">
+
+      <!-- Image Slider -->
+      <div class="slider-wrap" id="slider-wrap">
+        <div class="main-image-wrap" id="main-image-wrap">
+          {% if og_image %}
+          <img id="main-img" src="{{ og_image }}" alt="{{ product.name_ar }}" fetchpriority="high">
+          {% else %}
+          <div id="main-img" class="img-placeholder"></div>
+          {% endif %}
+          {% if product.badge %}
+          <span class="main-badge badge-{{ product.badge }}">
+            {% if product.badge == 'sale' %}تخفيض
+            {% elif product.badge == 'new' %}جديد
+            {% elif product.badge == 'limited' %}كمية محدودة
+            {% elif product.badge == 'bestseller' %}الأكثر مبيعاً
+            {% else %}{{ product.badge }}{% endif %}
+          </span>
+          {% endif %}
+          <div class="img-counter" id="img-counter"></div>
+          <div class="zoom-hint" id="zoom-hint">انقر للتكبير</div>
+          <div class="drag-hint" id="drag-hint">اسحب لتغيير الصورة</div>
+          <button class="slider-arrow arrow-prev" id="arrow-prev" aria-label="الصورة السابقة">‹</button>
+          <button class="slider-arrow arrow-next" id="arrow-next" aria-label="الصورة التالية">›</button>
+        </div>
+        <div class="thumb-strip" id="thumb-strip"></div>
+      </div>
+
+      <!-- Product Info (filled by product.js) -->
+      <div class="product-info-col" id="product-info">
+        <!-- SSR fallback visible before JS loads -->
+        <div class="ssr-fallback">
+          <h1 class="pi-name">{{ product.name_ar }}</h1>
+          {% if product.short_description_ar %}
+          <p class="pi-short-desc">{{ product.short_description_ar }}</p>
+          {% endif %}
+          <div class="pi-price">
+            <span class="pi-price-current">{{ product.price|floatformat:0 }} DA</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- .product-layout -->
+
+    <!-- RELATED PRODUCTS -->
+    <section class="related-section" id="related-section" style="display:none">
+      <div class="ornament-divider" aria-hidden="true"><span class="ornament-sym">*</span></div>
+      <div class="section-header">
+        <span class="section-eyebrow">قد يعجبك أيضاً</span>
+        <h2 class="section-title">قطع <em>مشابهة</em></h2>
+        <div class="section-rule"></div>
+      </div>
+      <div class="related-grid" id="related-grid"></div>
+    </section>
+
+    <div id="footer-container"></div>
+
+  </div><!-- .page-shell -->
+
+  <!-- Sticky mobile order bar — appears once the main order button scrolls out of view -->
+  <div class="pi-sticky-bar" id="pi-sticky-bar">
+    <span class="pi-sticky-price" id="pi-sticky-price"></span>
+    <button class="pi-atc-btn" id="pi-sticky-btn">أطلب الآن</button>
+  </div>
+
+  <!-- Quick Order — mobile bottom sheet / desktop centered modal -->
+  <div class="quick-order-backdrop" id="qo-backdrop"></div>
+  <div class="quick-order" id="quick-order" role="dialog" aria-modal="true" aria-labelledby="qo-title">
+    <div class="quick-order-handle" aria-hidden="true"></div>
+    <button class="quick-order-close" id="qo-close" aria-label="إغلاق">×</button>
+    <div class="quick-order-title" id="qo-title">إتمام الطلب</div>
+
+    <div class="shipping-type-group">
+      <button class="shipping-type-btn active" id="qo-btn-home" data-type="home">🏠 توصيل للبيت</button>
+      <button class="shipping-type-btn" id="qo-btn-desk" data-type="desk">📦 مكتب التوصيل</button>
+    </div>
+
+    <div class="cart-form-grid" id="qo-form-grid">
+      <div class="form-group full">
+        <label class="form-label" for="qo-field-name">الاسم الكامل *</label>
+        <input id="qo-field-name" class="cart-input" type="text" placeholder="أدخل اسمك الكامل" autocomplete="name">
+      </div>
+      <div class="form-group full">
+        <label class="form-label" for="qo-field-phone">رقم الهاتف *</label>
+        <input id="qo-field-phone" class="cart-input" type="tel" placeholder="0555 123 456" autocomplete="tel">
+      </div>
+      <div class="form-group full">
+        <label class="form-label" for="qo-field-wilaya">الولاية *</label>
+        <select id="qo-field-wilaya" class="cart-input cart-select">
+          <option value="">— اختر الولاية —</option>
+        </select>
+      </div>
+      <div class="form-group full home-only">
+        <label class="form-label" for="qo-field-baladia">البلدية *</label>
+        <select id="qo-field-baladia" class="cart-input cart-select">
+          <option value="">— اختر البلدية —</option>
+        </select>
+      </div>
+      <div class="form-group full home-only">
+        <label class="form-label" for="qo-field-address">العنوان التفصيلي *</label>
+        <input id="qo-field-address" class="cart-input" type="text" placeholder="الحي، الشارع، رقم البناء…" autocomplete="street-address">
+      </div>
+      <div class="form-group full">
+        <label class="form-label" for="qo-field-notes">ملاحظات (اختياري)</label>
+        <textarea id="qo-field-notes" class="cart-input" rows="2" placeholder="أي تعليمات خاصة للتوصيل…"></textarea>
+      </div>
+    </div>
+
+    <div id="qo-form-error" class="form-error" style="display:none"></div>
+
+    <div class="quick-order-summary">
+      <span>الإجمالي</span>
+      <span id="qo-total-val">—</span>
+    </div>
+
+    <button class="cart-place-order-btn" id="qo-confirm-btn">تأكيد الطلب</button>
+  </div>
+
+  <!-- Order Confirmed Overlay -->
+  <div id="thanks-overlay" class="thanks-overlay" aria-hidden="true" style="display:none">
+    <div class="thanks-popup">
+      <div class="thanks-icon">✓</div>
+      <div class="thanks-eyebrow">تم استلام طلبك</div>
+      <h2 class="thanks-title">شكراً لثقتك بنا</h2>
+      <div class="thanks-order-num" id="thanks-order-num"></div>
+      <p class="thanks-msg" id="thanks-msg"></p>
+      <div class="thanks-total" id="thanks-total"></div>
+      <div class="thanks-countdown-wrap">
+        <div class="thanks-countdown-bar" id="thanks-countdown-bar"></div>
+      </div>
+      <p class="thanks-redirect-note">سيتم تحويلك تلقائياً إلى المتجر خلال لحظات…</p>
+      <a href="/shop.html" class="thanks-shop-btn">العودة للمتجر الآن</a>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- Product page JS (ES module — imports config, cart, nav, pixel, etc.) -->
+  <script type="module" src="/js/product.js"></script>
+</body>
+</html>
