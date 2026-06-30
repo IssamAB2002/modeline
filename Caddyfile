@@ -1,4 +1,4 @@
-modeline.dz {
+modeline.online {
     encode gzip
 
     # Django API
@@ -43,6 +43,6 @@ modeline.dz {
     }
 }
 
-www.modeline.dz {
-    redir https://modeline.dz{uri} permanent
+www.modeline.online {
+    redir https://modeline.online{uri} permanent
 }
