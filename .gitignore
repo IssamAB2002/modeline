@@ -16,6 +16,7 @@ client design imgs/
 .claude/
 caddy/
 backend/.env.local
+backend/.env.prod
 frontend/.env.local
 frontend/Meta_Pixel_Integrations.md
 ZR Express.json

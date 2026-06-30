@@ -32,7 +32,6 @@ services:
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
-      - ./frontend/dist:/app/frontend_dist:ro
     networks: [internal]
     command: >
       sh -c "python manage.py migrate &&
@@ -49,25 +48,30 @@ services:
   #   networks: [internal]
   #   command: celery -A config worker -l info
 
-  edge:
+  caddy:
     image: caddy:alpine
-    container_name: modeline_edge
+    container_name: modeline_caddy
     restart: unless-stopped
     depends_on: [backend]
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./Caddyfile.edge:/etc/caddy/Caddyfile:ro
-      - ./frontend/dist:/srv/frontend:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./static-frontend:/srv/static-frontend:ro
       - static_volume:/srv/static:ro
       - media_volume:/srv/media:ro
-    networks: [internal, proxy]   # <- the line that connects Modeline to the shared Caddy
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [internal]
 
 networks:
   internal:
     driver: bridge
-  proxy:
-    external: true
 
 volumes:
   pgdata:
   static_volume:
   media_volume:
+  caddy_data:
+  caddy_config:
