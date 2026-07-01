@@ -8,6 +8,8 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.text import slugify
 
+from .utils import optimize_image_file
+
 
 class TimeStampedModel(models.Model):
     """Abstract base with created/updated timestamps."""
@@ -258,6 +260,10 @@ class Product(TimeStampedModel):
         if not self.slug:
             self.slug = slugify(self.name_ar, allow_unicode=True)
         self._sync_badge_and_availability()
+        if self.image and not self.image._committed:
+            optimized = optimize_image_file(self.image)
+            if optimized is not None:
+                self.image.save(optimized.name, optimized, save=False)
         super().save(*args, **kwargs)
 
     # ---- Domain helpers ---------------------------------------------------
@@ -419,6 +425,13 @@ class ProductImage(TimeStampedModel):
 
     def __str__(self):
         return f"{self.product.name_ar} image #{self.pk}"
+
+    def save(self, *args, **kwargs):
+        if self.image and not self.image._committed:
+            optimized = optimize_image_file(self.image)
+            if optimized is not None:
+                self.image.save(optimized.name, optimized, save=False)
+        super().save(*args, **kwargs)
 
 
 class ProductReview(TimeStampedModel):
