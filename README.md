@@ -34,3 +34,7 @@ python manage.py runserver
 - `GET /api/health/`
 - `GET /api/storefront/`
 
+
+docker exec -t modeline_db pg_dump -U modeline -d modeline -F c -f /tmp/modeline_backup.dump
+
+scp ./modeline_backup.dump admin@167.233.227.248:/tmp/

@@ -512,7 +512,8 @@ const ProductDetailPage = () => {
       position: 'relative',
       background: 'var(--parchment)',
       border: '1px solid var(--border)',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      minWidth: 0
     },
     mainImageWrap: {
       position: 'relative',

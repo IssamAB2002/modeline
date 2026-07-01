@@ -22,6 +22,7 @@
 .slider-wrap {
   position: sticky;
   top: 100px;
+  min-width: 0;
 }
 
 .main-image-wrap {
