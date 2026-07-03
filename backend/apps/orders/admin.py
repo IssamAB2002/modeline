@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -104,8 +105,39 @@ class ThanksMessageAdmin(admin.ModelAdmin):
         return obj.body[:80] + "..." if len(obj.body) > 80 else obj.body
 
 
+class OrderItemAdminForm(forms.ModelForm):
+    class Meta:
+        model = OrderItem
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        product = self.instance.product if self.instance.pk else None
+        if not product:
+            return
+
+        sizes = list(product.sizes.values_list("name", flat=True))
+        current_size = self.instance.selected_size_snapshot
+        if current_size and current_size not in sizes:
+            sizes.append(current_size)
+        self.fields["selected_size_snapshot"] = forms.ChoiceField(
+            choices=[("", "—")] + [(s, s) for s in sizes],
+            required=False, label="المقاس",
+        )
+
+        colors = list(product.colors.values_list("name_ar", flat=True))
+        current_color = self.instance.selected_color_snapshot
+        if current_color and current_color not in colors:
+            colors.append(current_color)
+        self.fields["selected_color_snapshot"] = forms.ChoiceField(
+            choices=[("", "—")] + [(c, c) for c in colors],
+            required=False, label="اللون",
+        )
+
+
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
+    form = OrderItemAdminForm
     list_display = (
         "order", "product_name_snapshot_ar", "sku_snapshot",
         "selected_size_snapshot", "selected_color_snapshot",
