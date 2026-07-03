@@ -103,7 +103,54 @@
     /* Filters sidebar — show inline below table on mobile */
     #changelist-filter { float: none; clear: both; margin: 10px 0 0; width: 100%; }
   }
+
+  /* ── Order status — colored dropdown ─────────────────────
+     Colors the option list so the admin can tell statuses apart
+     at a glance; the closed select box itself is painted by the
+     script below (option background isn't enough on its own). */
+  select[name="status"] option[value="pending"],
+  select[name$="-status"] option[value="pending"] { background-color: #6c757d; color: #fff; }
+
+  select[name="status"] option[value="processing"],
+  select[name$="-status"] option[value="processing"] { background-color: #0d6efd; color: #fff; }
+
+  select[name="status"] option[value="message_sent"],
+  select[name$="-status"] option[value="message_sent"] { background-color: #ffc107; color: #3a2e00; }
+
+  select[name="status"] option[value="shipped"],
+  select[name$="-status"] option[value="shipped"] { background-color: #198754; color: #fff; }
+
+  select[name="status"] option[value="delivered"],
+  select[name$="-status"] option[value="delivered"] { background-color: #fd7e14; color: #fff; }
+
+  select[name="status"] option[value="cancelled"],
+  select[name$="-status"] option[value="cancelled"] { background-color: #dc3545; color: #fff; }
+
+  select[name="status"], select[name$="-status"] { font-weight: 600; border-radius: 4px; }
 </style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var STATUS_COLORS = {
+      pending: ['#6c757d', '#ffffff'],
+      processing: ['#0d6efd', '#ffffff'],
+      message_sent: ['#ffc107', '#3a2e00'],
+      shipped: ['#198754', '#ffffff'],
+      delivered: ['#fd7e14', '#ffffff'],
+      cancelled: ['#dc3545', '#ffffff'],
+    };
+
+    function paintStatusSelect(select) {
+      var colors = STATUS_COLORS[select.value];
+      select.style.backgroundColor = colors ? colors[0] : '';
+      select.style.color = colors ? colors[1] : '';
+    }
+
+    document.querySelectorAll('select[name="status"], select[name$="-status"]').forEach(function (select) {
+      paintStatusSelect(select);
+      select.addEventListener('change', function () { paintStatusSelect(select); });
+    });
+  });
+</script>
 {% endblock %}
 
 {% block branding %}

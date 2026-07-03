@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -15,8 +17,9 @@ class OrderItemInline(admin.TabularInline):
     )
     fields = readonly_fields
     can_delete = False
+    show_change_link = True
     verbose_name = "عنصر الطلب"
-    verbose_name_plural = "عناصر الطلب"
+    verbose_name_plural = "عناصر الطلب (اضغط على عنصر لتعديل المقاس/اللون/الكمية)"
 
 
 @admin.action(description="إرسال إلى ZR Express")
@@ -109,8 +112,22 @@ class OrderItemAdmin(admin.ModelAdmin):
         "quantity", "unit_price_da_snapshot",
     )
     search_fields = ("order__order_number", "sku_snapshot", "product_name_snapshot_ar")
+    # Snapshot fields describing which product/line this is stay locked;
+    # size, color and quantity remain editable so staff can amend an item
+    # after the customer calls in to change them.
     readonly_fields = (
+        "order", "product", "product_name_snapshot_ar", "sku_snapshot",
+        "unit_price_da_snapshot",
+    )
+    fields = (
         "order", "product", "product_name_snapshot_ar", "sku_snapshot",
         "selected_size_snapshot", "selected_color_snapshot",
         "quantity", "unit_price_da_snapshot",
     )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        order = obj.order
+        order.subtotal_da = sum((item.line_total for item in order.items.all()), Decimal("0.00"))
+        order.grand_total_da = order.subtotal_da + order.shipping_da
+        order.save(update_fields=["subtotal_da", "grand_total_da"])

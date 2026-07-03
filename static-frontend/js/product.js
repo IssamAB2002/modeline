@@ -182,7 +182,7 @@ function _renderProductInfo() {
   // Sizes
   const sizes = product.sizes || [];
   const sizesHtml = sizes.length ? `
-    <div class="pi-option-section">
+    <div class="pi-option-section" id="size-option-section">
       <div class="pi-option-label">المقاس: <span id="selected-size-label">${_esc(_selectedSize || '—')}</span></div>
       <div class="pi-size-btns">
         ${sizes.map((s) => `<button class="size-btn" data-size="${_esc(s.name)}">${_esc(s.name)}</button>`).join('')}
@@ -192,7 +192,7 @@ function _renderProductInfo() {
   // Colors
   const colors = product.colors || [];
   const colorsHtml = colors.length ? `
-    <div class="pi-option-section">
+    <div class="pi-option-section" id="color-option-section">
       <div class="pi-option-label">اللون: <span id="selected-color-label">${_esc(_selectedColor || '—')}</span></div>
       <div class="pi-color-swatches">
         ${colors.map((c) => `
@@ -306,6 +306,7 @@ function _wireSizeSelect() {
     _selectedSize = btn.dataset.size;
     const label = document.getElementById('selected-size-label');
     if (label) label.textContent = _selectedSize;
+    document.getElementById('size-option-section')?.classList.remove('error');
   });
 }
 
@@ -322,6 +323,7 @@ function _wireColorSelect() {
     _selectedColor = btn.dataset.color;
     const label = document.getElementById('selected-color-label');
     if (label) label.textContent = _selectedColor;
+    document.getElementById('color-option-section')?.classList.remove('error');
   });
 }
 
@@ -349,6 +351,21 @@ function _wireAddToCart() {
 
     if (!product.in_stock) {
       showToast('هذا المنتج غير متوفر حالياً.');
+      return;
+    }
+
+    const needsSize  = (product.sizes || []).length > 0 && !_selectedSize;
+    const needsColor = (product.colors || []).length > 0 && !_selectedColor;
+
+    if (needsSize || needsColor) {
+      document.getElementById('size-option-section')?.classList.toggle('error', needsSize);
+      document.getElementById('color-option-section')?.classList.toggle('error', needsColor);
+
+      const missing = [needsSize && 'المقاس', needsColor && 'اللون'].filter(Boolean).join(' و');
+      showToast(`يُرجى اختيار ${missing} قبل إتمام الطلب.`);
+
+      document.getElementById(needsSize ? 'size-option-section' : 'color-option-section')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 

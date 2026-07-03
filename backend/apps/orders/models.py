@@ -10,9 +10,10 @@ from apps.shop.models import Product
 class Order(models.Model):
     class Status(models.TextChoices):
         PENDING = "pending", "قيد الانتظار"
-        PROCESSING = "processing", "قيد المعالجة"
-        SHIPPED = "shipped", "تم الشحن"
-        DELIVERED = "delivered", "تم التسليم"
+        PROCESSING = "processing", "قيد التأكيد"
+        MESSAGE_SENT = "message_sent", "تم ارسال رسالة"
+        SHIPPED = "shipped", "مؤكدة"
+        DELIVERED = "delivered", "لم يتم الرد"
         CANCELLED = "cancelled", "ملغى"
 
     class ShippingType(models.TextChoices):

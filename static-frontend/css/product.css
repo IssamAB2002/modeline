@@ -274,7 +274,18 @@
 }
 
 /* Sizes */
-.pi-option-section { margin-bottom: 24px; }
+.pi-option-section { margin-bottom: 24px; transition: box-shadow 0.2s; }
+
+.pi-option-section.error {
+  box-shadow: 0 0 0 1px #8b0000;
+  animation: pi-option-shake 0.4s;
+}
+
+@keyframes pi-option-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
 
 .pi-option-label {
   font-family: 'IBM Plex Sans Arabic', sans-serif;
