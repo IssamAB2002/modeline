@@ -370,6 +370,12 @@ function _wireAddToCart() {
 }
 
 // ── Quick-order drawer ────────────────────────────────────
+// Tracks the cart contents (ids + qty + total) last reported via
+// InitiateCheckout — reopening the drawer without a real change to the
+// cart (e.g. re-clicking "Add to Cart" or the sticky bar) must not
+// re-fire the event and re-report value already sent to Meta.
+let _lastCheckoutSignature = null;
+
 function _updateQuickOrderTotal() {
   const items = getCartItems();
   const subtotal = items.reduce((s, i) => s + i.lineTotal, 0);
@@ -392,7 +398,13 @@ function _openQuickOrder() {
   document.body.classList.add('qo-locked');
 
   const items = getCartItems();
-  trackInitiateCheckout({ items, total: items.reduce((s, i) => s + i.lineTotal, 0) });
+  const total = items.reduce((s, i) => s + i.lineTotal, 0);
+  const signature = items.map((i) => `${i.id}:${i.qty}`).sort().join(',');
+
+  if (signature !== _lastCheckoutSignature) {
+    _lastCheckoutSignature = signature;
+    trackInitiateCheckout({ items, total });
+  }
 }
 
 function _closeQuickOrder() {
@@ -663,6 +675,7 @@ async function _loadRelated() {
       btn.disabled = true;
       try {
         await addToCart(pid, 1);
+        trackAddToCart({ id: pid, name: btn.dataset.name, price: parseFloat(btn.dataset.price) || 0, qty: 1 });
         showToast('تمت الإضافة إلى السلة.');
       } catch {
         showToast('تعذّرت الإضافة.');

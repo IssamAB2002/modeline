@@ -54,7 +54,7 @@ export function renderProductCard(product) {
       <div class="product-img-wrap">
         ${imgHtml}
         ${badgeHtml}
-        <button class="product-quick" data-id="${product.id}">أضف للسلة</button>
+        <button class="product-quick" data-id="${product.id}" data-name="${_esc(product.name)}" data-price="${product.price}">أضف للسلة</button>
       </div>
       <div class="product-content">
         <div class="product-info">

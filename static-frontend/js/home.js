@@ -5,6 +5,7 @@ import { initNav } from './nav.js';
 import { initFooter } from './footer.js';
 import { renderProductCard } from './components.js';
 import { showToast, renderStars } from './utils.js';
+import { trackAddToCart } from './pixel.js';
 
 // ── Trust strip fallback (mirrors home.json) ─────────────
 const TRUST_FALLBACK = [
@@ -134,6 +135,7 @@ function _wireQuickAdd() {
 
     try {
       await addToCart(productId, 1);
+      trackAddToCart({ id: productId, name: btn.dataset.name, price: parseFloat(btn.dataset.price) || 0, qty: 1 });
       showToast('تمت الإضافة إلى السلة — جاري التوجيه…');
       setTimeout(() => { window.location.href = '/cart.html'; }, 1800);
     } catch {

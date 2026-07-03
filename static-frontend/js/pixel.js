@@ -1,5 +1,10 @@
-// Direct port of frontend/src/utils/pixel.js — no changes to event logic.
 const safe = (...args) => typeof window.fbq === 'function' && window.fbq(...args);
+
+// Unique per-call ID — lets Meta dedupe this browser event against a future
+// server-side (Conversions API) event carrying the same eventID.
+function genEventId(prefix) {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
 
 export function trackViewContent({ id, name, category, price }) {
   safe('track', 'ViewContent', {
@@ -9,7 +14,7 @@ export function trackViewContent({ id, name, category, price }) {
     value: price,
     currency: 'DZD',
     content_type: 'product',
-  });
+  }, { eventID: genEventId('vc') });
 }
 
 export function trackAddToCart({ id, name, price, qty = 1 }) {
@@ -20,7 +25,7 @@ export function trackAddToCart({ id, name, price, qty = 1 }) {
     currency: 'DZD',
     num_items: qty,
     content_type: 'product',
-  });
+  }, { eventID: genEventId('atc') });
 }
 
 export function trackInitiateCheckout({ items, total }) {
@@ -30,16 +35,24 @@ export function trackInitiateCheckout({ items, total }) {
     num_items: items.reduce((s, i) => s + i.qty, 0),
     currency: 'DZD',
     content_type: 'product',
-  });
+  }, { eventID: genEventId('ic') });
 }
 
+// Orders already placed in this page's lifetime — guards against a Purchase
+// event firing twice for the same order (e.g. a stray double-invoke).
+const _purchaseTracked = new Set();
+
 export function trackPurchase({ orderId, items, total }) {
+  const key = String(orderId);
+  if (_purchaseTracked.has(key)) return;
+  _purchaseTracked.add(key);
+
   safe('track', 'Purchase', {
     content_ids: items.map((i) => String(i.productId)),
-    order_id: String(orderId),
+    order_id: key,
     value: total,
     num_items: items.reduce((s, i) => s + i.qty, 0),
     currency: 'DZD',
     content_type: 'product',
-  });
+  }, { eventID: `purchase_${key}` });
 }
