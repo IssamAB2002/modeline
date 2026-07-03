@@ -6,7 +6,9 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework import generics
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -201,6 +203,7 @@ class OGProductView(View):
         return response
 
 
+@method_decorator(xframe_options_exempt, name="get")
 class ProductSSRView(View):
     """Serves /product/<pk>/ for the static frontend.
 
@@ -208,6 +211,12 @@ class ProductSSRView(View):
     (__pdp_data__) so product.js can hydrate without an extra API call.
     CSS/JS are served by Caddy from static-frontend/; in local dev Django
     can serve them if static-frontend/ is added to STATICFILES_DIRS.
+
+    Framing is exempted from the site-wide X-Frame-Options: DENY (and
+    replaced below with a CSP frame-ancestors allowlist) because Meta's
+    Events Manager "Set up Events" tool loads this page in an iframe to
+    let you tag Pixel events visually — with DENY in place it can't
+    render the page at all and reports zero events.
     """
 
     def get(self, request, pk):
@@ -233,4 +242,7 @@ class ProductSSRView(View):
         })
         response = HttpResponse(html, content_type="text/html; charset=utf-8")
         response['Cache-Control'] = 'public, max-age=60'
+        response['Content-Security-Policy'] = (
+            "frame-ancestors 'self' https://www.facebook.com https://business.facebook.com"
+        )
         return response
