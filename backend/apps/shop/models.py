@@ -413,6 +413,14 @@ class ProductImage(TimeStampedModel):
         related_name="images",
         verbose_name='المنتج',
     )
+    color = models.ForeignKey(
+        ProductColor,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="images",
+        verbose_name='اللون المرتبط',
+    )
     image = models.ImageField(upload_to="shop/products/gallery/", verbose_name='الصورة')
     alt_text = models.CharField(max_length=160, blank=True, verbose_name='نص بديل')
     order = models.PositiveIntegerField(default=0, verbose_name='الترتيب')

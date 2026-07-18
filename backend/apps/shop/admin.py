@@ -67,9 +67,16 @@ class ProductColorInline(admin.TabularInline):
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-    fields = ("image", "alt_text", "order", "is_active", "preview")
+    fields = ("image", "color", "alt_text", "order", "is_active", "preview")
     readonly_fields = ("preview",)
     ordering = ("order",)
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+        formset.form.base_fields["color"].queryset = (
+            obj.colors.all() if obj is not None else ProductColor.objects.none()
+        )
+        return formset
 
     @admin.display(description="معاينة")
     def preview(self, obj):
@@ -338,8 +345,8 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
-    list_display = ("preview", "product", "order", "is_active", "updated_at")
-    list_filter = ("is_active",)
+    list_display = ("preview", "product", "color", "order", "is_active", "updated_at")
+    list_filter = ("is_active", "color")
     list_editable = ("order", "is_active")
     search_fields = ("product__name_ar", "alt_text")
     autocomplete_fields = ("product",)

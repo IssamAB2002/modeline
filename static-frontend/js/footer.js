@@ -7,6 +7,11 @@ function _buildFooter(contactInfo) {
 
   return `
     <footer>
+      <div class="footer-credit-top">
+        <a href="${fbUrl}" target="_blank" rel="noopener noreferrer">
+          صنع الموقع من طرف Issam AB
+        </a>
+      </div>
       <div class="footer-grid">
         <div>
           <div class="footer-brand">
@@ -52,14 +57,14 @@ function _buildFooter(contactInfo) {
         </div>
       </div>
 
-      <div class="footer-bottom">
-        <span>جميع الحقوق محفوظة © 2026 Modeline</span>
-        <span>حجوط - تيبازة</span>
-      </div>
       <div class="footer-credit">
         <a href="https://www.facebook.com/issam.ab.79393/" target="_blank" rel="noopener noreferrer">
           Website Created By Issam AB
         </a>
+      </div>
+      <div class="footer-bottom">
+        <span>جميع الحقوق محفوظة © 2026 Modeline</span>
+        <span>حجوط - تيبازة</span>
       </div>
     </footer>`;
 }

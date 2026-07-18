@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 
 from django.conf import settings
+from django.db.models import Prefetch
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -63,7 +64,7 @@ def _get_vite_assets():
         _vite_assets_cache = (mtime, result)
     return result
 
-from .models import Baladia, Category, Product, ProductReview, Wilaya
+from .models import Baladia, Category, Product, ProductImage, ProductReview, Wilaya
 from .serializers import (
     BaladiaSerializer,
     CategorySerializer,
@@ -121,7 +122,10 @@ class ProductDetailView(RetrieveAPIView):
     """GET /api/shop/products/<id>/ — single product with full detail."""
 
     serializer_class = ProductDetailSerializer
-    queryset = Product.objects.filter(is_active=True).select_related("category").prefetch_related("images")
+    queryset = Product.objects.filter(is_active=True).select_related("category").prefetch_related(
+        Prefetch("images", queryset=ProductImage.objects.select_related("color")),
+        "colors",
+    )
 
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)

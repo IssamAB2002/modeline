@@ -24,7 +24,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductImage
-        fields = ("url", "alt_text", "order")
+        fields = ("url", "alt_text", "order", "color")
 
     def get_url(self, obj):
         request = self.context.get("request")
@@ -44,7 +44,7 @@ class ProductSizeSerializer(serializers.ModelSerializer):
 class ProductColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductColor
-        fields = ("name_ar", "hex", "order")
+        fields = ("id", "name_ar", "hex", "order")
 
 
 class ProductListSerializer(serializers.ModelSerializer):

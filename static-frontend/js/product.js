@@ -18,10 +18,12 @@ _pdpScript?.remove();
 let _images = [];
 let _currentImg = 0;
 let _zoomed = false;
+let _showImage = null;
 
 // ── Selection state ───────────────────────────────────────
-let _selectedSize  = null;
-let _selectedColor = null;
+let _selectedSize    = null;
+let _selectedColor   = null;
+let _selectedColorId = null;
 let _qty = 1;
 
 // ── Quick-order drawer state ──────────────────────────────
@@ -39,13 +41,30 @@ function _esc(str) {
 // ── Build images array ────────────────────────────────────
 function _buildImages() {
   if (product.image_url) {
-    _images.push({ url: product.image_url, alt: product.name_ar || '' });
+    _images.push({ url: product.image_url, alt: product.name_ar || '', colorId: null });
   }
   (product.images || []).forEach((img) => {
     if (img.url && img.url !== product.image_url) {
-      _images.push({ url: img.url, alt: img.alt_text || product.name_ar || '' });
+      _images.push({ url: img.url, alt: img.alt_text || product.name_ar || '', colorId: img.color ?? null });
     }
   });
+}
+
+// ── Scroll gallery to the image linked to a selected color ─
+function _scrollToColorImage(colorId) {
+  if (colorId == null) return;
+  const idx = _images.findIndex((img) => img.colorId === colorId);
+  if (idx === -1) return;
+
+  _showImage?.(idx);
+
+  document.querySelector(`.thumb[data-idx="${idx}"]`)
+    ?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
+  if (window.matchMedia('(max-width: 820px)').matches) {
+    document.getElementById('main-image-wrap')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // ── Image slider ──────────────────────────────────────────
@@ -76,6 +95,8 @@ function _initSlider() {
     if (nextBtn) nextBtn.classList.toggle('hidden', _images.length <= 1);
     if (dragHint) dragHint.classList.toggle('hidden', _images.length <= 1);
   }
+
+  _showImage = _show;
 
   // Thumbnails
   if (thumbStrip && _images.length > 1) {
@@ -196,7 +217,7 @@ function _renderProductInfo() {
       <div class="pi-option-label">اللون: <span id="selected-color-label">${_esc(_selectedColor || '—')}</span></div>
       <div class="pi-color-swatches">
         ${colors.map((c) => `
-          <button class="color-swatch" data-color="${_esc(c.name_ar)}" title="${_esc(c.name_ar)}"
+          <button class="color-swatch" data-color="${_esc(c.name_ar)}" data-color-id="${c.id}" title="${_esc(c.name_ar)}"
             style="background:${_esc(c.hex || '#ccc')}"></button>`).join('')}
       </div>
     </div>` : '';
@@ -321,9 +342,11 @@ function _wireColorSelect() {
     container.querySelectorAll('.color-swatch').forEach((b) => b.classList.remove('active'));
     btn.classList.add('active');
     _selectedColor = btn.dataset.color;
+    _selectedColorId = parseInt(btn.dataset.colorId, 10) || null;
     const label = document.getElementById('selected-color-label');
     if (label) label.textContent = _selectedColor;
     document.getElementById('color-option-section')?.classList.remove('error');
+    _scrollToColorImage(_selectedColorId);
   });
 }
 

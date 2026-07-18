@@ -888,6 +888,30 @@ footer {
   color: rgba(253, 248, 238, 0.65);
 }
 
+.footer-credit-top {
+  text-align: center;
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid rgba(184, 134, 11, 0.18);
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.footer-credit-top a {
+  color: var(--gold-pale);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(245, 230, 192, 0.4);
+  padding-bottom: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.footer-credit-top a:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
 .footer-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
