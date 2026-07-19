@@ -404,6 +404,44 @@ class Baladia(models.Model):
         return f"{self.name_fr} ({self.wilaya.name_fr})"
 
 
+class Hub(models.Model):
+    """ZR Express hub / stopdesk — a pickup point customers can collect parcels from."""
+
+    class HubType(models.TextChoices):
+        HUB = "hub", "مكتب"
+        SORTING_CENTER_HUB = "sorting-center-hub", "مركز فرز ومكتب"
+        SORTING_CENTER = "sorting-center", "مركز فرز"
+        STOPDESK = "stopdesk", "مكتب توصيل"
+
+    zr_hub_id = models.UUIDField(unique=True, verbose_name='معرّف ZR للمكتب')
+    name = models.CharField(max_length=200, verbose_name='الاسم')
+    type = models.CharField(max_length=30, choices=HubType.choices, default=HubType.HUB, verbose_name='النوع')
+    is_pickup_point = models.BooleanField(default=False, verbose_name='نقطة استلام')
+    is_visible = models.BooleanField(default=False, verbose_name='ظاهر لدى ZR')
+    is_return_center = models.BooleanField(default=False, verbose_name='مركز إرجاع')
+    wilaya = models.ForeignKey(
+        Wilaya,
+        on_delete=models.CASCADE,
+        related_name="hubs",
+        verbose_name='الولاية',
+    )
+    street = models.CharField(max_length=255, blank=True, default='', verbose_name='الشارع')
+    district = models.CharField(max_length=120, blank=True, default='', verbose_name='الدائرة')
+    postal_code = models.CharField(max_length=20, blank=True, default='', verbose_name='الرمز البريدي')
+    phone = models.CharField(max_length=30, blank=True, default='', verbose_name='الهاتف')
+    lat = models.FloatField(null=True, blank=True, verbose_name='خط العرض')
+    lng = models.FloatField(null=True, blank=True, verbose_name='خط الطول')
+    is_active = models.BooleanField(default=True, verbose_name='نشط')
+
+    class Meta:
+        ordering = ("wilaya__code", "name")
+        verbose_name = "مكتب ZR"
+        verbose_name_plural = "مكاتب ZR"
+
+    def __str__(self):
+        return f"{self.name} ({self.wilaya.name_fr})"
+
+
 class ProductImage(TimeStampedModel):
     """Additional gallery images for a product."""
 

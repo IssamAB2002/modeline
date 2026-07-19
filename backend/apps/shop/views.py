@@ -64,10 +64,11 @@ def _get_vite_assets():
         _vite_assets_cache = (mtime, result)
     return result
 
-from .models import Baladia, Category, Product, ProductImage, ProductReview, Wilaya
+from .models import Baladia, Category, Hub, Product, ProductImage, ProductReview, Wilaya
 from .serializers import (
     BaladiaSerializer,
     CategorySerializer,
+    HubSerializer,
     ProductDetailSerializer,
     ProductListSerializer,
     ProductReviewSerializer,
@@ -147,6 +148,19 @@ class BaladiaListView(ListAPIView):
 
     def get_queryset(self):
         qs = Baladia.objects.filter(is_active=True)
+        wilaya_id = self.request.query_params.get("wilaya_id")
+        if wilaya_id:
+            qs = qs.filter(wilaya_id=wilaya_id)
+        return qs
+
+
+class HubListView(ListAPIView):
+    """GET /api/shop/hubs/?wilaya_id=<id> — list pickup-point hubs, optionally filtered by wilaya."""
+
+    serializer_class = HubSerializer
+
+    def get_queryset(self):
+        qs = Hub.objects.filter(is_pickup_point=True, is_visible=True, is_active=True)
         wilaya_id = self.request.query_params.get("wilaya_id")
         if wilaya_id:
             qs = qs.filter(wilaya_id=wilaya_id)

@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.core.management import call_command
 from django.utils.html import format_html
 
-from .models import Baladia, Category, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
+from .models import Baladia, Category, Hub, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
 
 
 # ── Color picker widget ─────────────────────────────────────────────────────
@@ -401,6 +401,29 @@ class BaladiaAdmin(admin.ModelAdmin):
     search_fields = ("name_ar", "name_fr")
     autocomplete_fields = ("wilaya",)
     ordering = ("wilaya__code", "name_fr")
+
+
+# ── Hub Admin ─────────────────────────────────────────────────────────────────
+
+@admin.action(description="🔄 مزامنة مكاتب ZR Express")
+def sync_zr_hubs_action(modeladmin, request, queryset):
+    out = io.StringIO()
+    try:
+        call_command("sync_zr_hubs", stdout=out, stderr=out)
+        modeladmin.message_user(request, f"✅ اكتملت مزامنة المكاتب.\n\n{out.getvalue()}")
+    except Exception as exc:
+        modeladmin.message_user(request, f"❌ خطأ أثناء المزامنة: {exc}", level="error")
+
+
+@admin.register(Hub)
+class HubAdmin(admin.ModelAdmin):
+    list_display = ("name", "wilaya", "type", "is_pickup_point", "is_visible", "is_active")
+    list_editable = ("is_active",)
+    list_filter = ("is_active", "is_pickup_point", "is_visible", "type", "wilaya")
+    search_fields = ("name", "street", "district", "wilaya__name_ar", "wilaya__name_fr")
+    autocomplete_fields = ("wilaya",)
+    ordering = ("wilaya__code", "name")
+    actions = [sync_zr_hubs_action]
 
 
 # ── ProductReview Admin ──────────────────────────────────────────────────────

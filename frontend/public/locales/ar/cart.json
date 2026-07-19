@@ -35,6 +35,8 @@
     "phonePlaceholder": "مثال: +213 5xx xx xx xx",
     "city": "المدينة / الولاية",
     "cityPlaceholder": "مثال: الجزائر",
+    "hub": "مكتب التوصيل",
+    "hubPlaceholder": "اختر المكتب",
     "address": "العنوان",
     "addressPlaceholder": "الشارع، العمارة، الشقة، معلم...",
     "notes": "ملاحظات الطلب (اختياري)",

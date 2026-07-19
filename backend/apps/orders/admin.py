@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import Order, OrderItem, ThanksMessage
-from .zr_service import post_parcel, ZRServiceError
+from .zr_service import delete_parcel, post_parcel, ZRServiceError
 
 
 class OrderItemInline(admin.TabularInline):
@@ -27,7 +27,7 @@ class OrderItemInline(admin.TabularInline):
 def post_to_zr_express(modeladmin, request, queryset):
     success, skipped, errors = 0, 0, 0
 
-    for order in queryset.select_related("wilaya_ref", "baladia_ref").prefetch_related("items"):
+    for order in queryset.select_related("wilaya_ref", "baladia_ref", "hub_ref__wilaya").prefetch_related("items"):
         try:
             post_parcel(order)
             success += 1
@@ -53,6 +53,30 @@ def post_to_zr_express(modeladmin, request, queryset):
         )
 
 
+@admin.action(description="حذف من ZR Express")
+def delete_from_zr_express(modeladmin, request, queryset):
+    success, errors = 0, 0
+
+    for order in queryset:
+        try:
+            delete_parcel(order)
+            success += 1
+        except ZRServiceError as exc:
+            modeladmin.message_user(
+                request,
+                f"تعذّر حذف الطلب {order.order_number}: {exc}",
+                level="error",
+            )
+            errors += 1
+
+    if success:
+        modeladmin.message_user(
+            request,
+            f"تم حذف {success} طلب/طلبات بنجاح من ZR Express.",
+            level="success",
+        )
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
@@ -62,21 +86,21 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ("status", "shipping_type", "zr_submitted")
     list_editable = ("status",)
     search_fields = ("order_number", "full_name", "phone", "city", "baladia")
-    autocomplete_fields = ("wilaya_ref", "baladia_ref")
+    autocomplete_fields = ("wilaya_ref", "baladia_ref", "hub_ref")
     readonly_fields = (
         "order_number", "subtotal_da", "grand_total_da",
         "cart", "created_at", "updated_at",
-        "zr_submitted", "zr_parcel_id", "zr_tracking_number", "zr_posted_at",
+        "zr_submitted", "zr_customer_id", "zr_parcel_id", "zr_tracking_number", "zr_posted_at",
     )
-    actions = [post_to_zr_express]
+    actions = [post_to_zr_express, delete_from_zr_express]
     inlines = [OrderItemInline]
     fieldsets = (
         ("الطلب", {"fields": ("order_number", "status", "cart")}),
         ("طريقة التوصيل", {"fields": ("shipping_type",)}),
         ("بيانات العميل", {"fields": ("full_name", "phone", "city", "baladia", "address_line", "notes")}),
-        ("مراجع التوصيل (ZR)", {"fields": ("wilaya_ref", "baladia_ref")}),
+        ("مراجع التوصيل (ZR)", {"fields": ("wilaya_ref", "baladia_ref", "hub_ref")}),
         ("الإجماليات", {"fields": ("subtotal_da", "shipping_da", "grand_total_da")}),
-        ("ZR Express", {"fields": ("zr_submitted", "zr_parcel_id", "zr_tracking_number", "zr_posted_at")}),
+        ("ZR Express", {"fields": ("zr_submitted", "zr_customer_id", "zr_parcel_id", "zr_tracking_number", "zr_posted_at")}),
         ("معلومات إضافية", {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
     )
 

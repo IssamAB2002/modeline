@@ -25,6 +25,8 @@ const CartPage = () => {
   const [selectedWilaya, setSelectedWilaya] = useState(null);
   const [baladias, setBaladias] = useState([]);
   const [selectedBaladia, setSelectedBaladia] = useState(null);
+  const [hubs, setHubs] = useState([]);
+  const [selectedHub, setSelectedHub] = useState(null);
   const [shippingType, setShippingType] = useState("home");
 
   const [deliveryAddress, setDeliveryAddress] = useState({
@@ -59,6 +61,21 @@ const CartPage = () => {
       })
       .catch(() => setBaladias([]));
   }, [selectedWilaya]);
+
+  useEffect(() => {
+    if (!selectedWilaya || shippingType !== "desk") {
+      setHubs([]);
+      setSelectedHub(null);
+      return;
+    }
+    fetch(`${API}/shop/hubs/?wilaya_id=${selectedWilaya.id}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        setHubs(Array.isArray(data) ? data : []);
+        setSelectedHub(null);
+      })
+      .catch(() => setHubs([]));
+  }, [selectedWilaya, shippingType]);
 
   const [submitting, setSubmitting] = useState(false);
   const [showAdded, setShowAdded] = useState(false);
@@ -120,6 +137,10 @@ const CartPage = () => {
       showToast(t("cart:summary.validationError"), 3000);
       return;
     }
+    if (shippingType === "desk" && (!selectedWilaya || !selectedHub)) {
+      showToast(t("cart:summary.validationError"), 3000);
+      return;
+    }
     if (!cartId || cartItems.length === 0) {
       showToast(t("cart:empty"), 2500);
       return;
@@ -145,6 +166,9 @@ const CartPage = () => {
           baladia: shippingType === "home" ? (selectedBaladia?.name_ar ?? "") : "",
           address_line: shippingType === "home" ? addressLine.trim() : "",
           notes: notes.trim(),
+          wilaya_id: selectedWilaya?.id ?? null,
+          baladia_id: shippingType === "home" ? (selectedBaladia?.id ?? null) : null,
+          hub_id: shippingType === "desk" ? (selectedHub?.id ?? null) : null,
         }),
       });
       if (!res.ok) {
@@ -363,6 +387,30 @@ const CartPage = () => {
                     {baladias.map((b) => (
                       <option key={b.id} value={b.id}>
                         {b.name_ar}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {shippingType === "desk" && selectedWilaya && (
+                <div className="form-group full">
+                  <label className="cart-field-label">
+                    {t("cart:deliveryForm.hub")}
+                    <span style={{ color: "var(--gold)", marginRight: "4px" }}>*</span>
+                  </label>
+                  <select
+                    className="cart-input"
+                    value={selectedHub?.id || ''}
+                    onChange={(e) => {
+                      const h = hubs.find((h) => h.id === parseInt(e.target.value, 10)) || null;
+                      setSelectedHub(h);
+                    }}
+                  >
+                    <option value="">{t("cart:deliveryForm.hubPlaceholder")}</option>
+                    {hubs.map((h) => (
+                      <option key={h.id} value={h.id}>
+                        {h.name}{h.district ? ` — ${h.district}` : h.street ? ` — ${h.street}` : ''}
                       </option>
                     ))}
                   </select>

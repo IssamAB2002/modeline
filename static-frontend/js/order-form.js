@@ -7,6 +7,7 @@ import { formatPrice } from './utils.js';
 
 let _wilayas = [];
 let _selectedWilaya = null;
+let _hubs = [];
 let _shippingType = 'home';
 let _isSubmitting = false;
 let _thanksMsg = '';
@@ -46,7 +47,10 @@ async function _loadWilayas(onChange) {
     const idx = wilayaEl.selectedOptions[0]?.dataset.idx;
     _selectedWilaya = idx !== undefined ? _wilayas[parseInt(idx, 10)] : null;
     onChange();
-    await _loadBaladias(wilayaEl.value);
+    await Promise.all([
+      _loadBaladias(wilayaEl.value),
+      _loadHubs(wilayaEl.value),
+    ]);
   });
 }
 
@@ -71,6 +75,31 @@ async function _loadBaladias(wilayaId) {
   }
 }
 
+async function _loadHubs(wilayaId) {
+  _hubs = [];
+  const hubEl = document.getElementById('qo-field-hub');
+  if (!hubEl) return;
+
+  hubEl.innerHTML = '<option value="">جاري التحميل…</option>';
+
+  if (!wilayaId) {
+    hubEl.innerHTML = '<option value="">— اختر المكتب —</option>';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/shop/hubs/?wilaya_id=${wilayaId}`);
+    _hubs = res.ok ? await res.json() : [];
+    hubEl.innerHTML = '<option value="">— اختر المكتب —</option>'
+      + _hubs.map((h) => {
+        const suffix = h.district ? ` — ${h.district}` : (h.street ? ` — ${h.street}` : '');
+        return `<option value="${h.id}" data-name="${_esc(h.name)}">${_esc(h.name)}${_esc(suffix)}</option>`;
+      }).join('');
+  } catch {
+    hubEl.innerHTML = '<option value="">— اختر المكتب —</option>';
+  }
+}
+
 function _wireShippingToggle(onChange) {
   document.querySelectorAll('#quick-order .shipping-type-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -79,6 +108,9 @@ function _wireShippingToggle(onChange) {
       _shippingType = btn.dataset.type;
       document.getElementById('qo-form-grid')?.classList.toggle('desk-mode', _shippingType === 'desk');
       onChange();
+      if (_shippingType === 'desk' && _selectedWilaya && !_hubs.length) {
+        _loadHubs(document.getElementById('qo-field-wilaya')?.value);
+      }
     });
   });
 }
@@ -89,6 +121,7 @@ function _validate() {
   const wilayaId  = document.getElementById('qo-field-wilaya')?.value;
   const baladiaId = document.getElementById('qo-field-baladia')?.value;
   const address   = document.getElementById('qo-field-address')?.value.trim() || '';
+  const hubId     = document.getElementById('qo-field-hub')?.value;
 
   if (name.length < 2) return 'يُرجى إدخال الاسم الكامل (حرفان على الأقل).';
   if (!phone) return 'يُرجى إدخال رقم الهاتف.';
@@ -96,6 +129,9 @@ function _validate() {
     if (!wilayaId) return 'يُرجى اختيار الولاية.';
     if (!baladiaId) return 'يُرجى اختيار البلدية.';
     if (!address) return 'يُرجى إدخال العنوان التفصيلي.';
+  } else {
+    if (!wilayaId) return 'يُرجى اختيار الولاية.';
+    if (!hubId) return 'يُرجى اختيار مكتب التوصيل.';
   }
   return null;
 }
@@ -126,6 +162,7 @@ export async function placeQuickOrder({ cartId, onSuccess }) {
 
   const wilayaEl  = document.getElementById('qo-field-wilaya');
   const baladiaEl = document.getElementById('qo-field-baladia');
+  const hubEl     = document.getElementById('qo-field-hub');
   const selectedWilayaName  = wilayaEl?.selectedOptions[0]?.textContent?.replace(/^\(\d+\)\s*/, '').trim() || '';
   const selectedBaladiaName = baladiaEl?.selectedOptions[0]?.dataset.name || '';
 
@@ -139,6 +176,9 @@ export async function placeQuickOrder({ cartId, onSuccess }) {
     baladia:       _shippingType === 'home' ? selectedBaladiaName : '',
     address_line:  _shippingType === 'home' ? (document.getElementById('qo-field-address')?.value.trim() || '') : '',
     notes:         document.getElementById('qo-field-notes')?.value.trim() || '',
+    wilaya_id:     wilayaEl?.value ? parseInt(wilayaEl.value, 10) : null,
+    baladia_id:    _shippingType === 'home' && baladiaEl?.value ? parseInt(baladiaEl.value, 10) : null,
+    hub_id:        _shippingType === 'desk' && hubEl?.value ? parseInt(hubEl.value, 10) : null,
   };
 
   const btn = document.getElementById('qo-confirm-btn');

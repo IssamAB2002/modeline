@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Baladia, Category, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
+from .models import Baladia, Category, Hub, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -156,6 +156,12 @@ class BaladiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Baladia
         fields = ("id", "wilaya_id", "name_ar", "name_fr")
+
+
+class HubSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hub
+        fields = ("id", "name", "street", "district", "postal_code", "phone", "lat", "lng", "wilaya_id")
 
 
 class ProductReviewSerializer(serializers.ModelSerializer):

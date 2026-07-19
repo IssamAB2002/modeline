@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     BaladiaListView,
     CategoryListView,
+    HubListView,
     OGProductView,
     ProductDetailView,
     ProductListView,
@@ -18,4 +19,5 @@ urlpatterns = [
     path("og/<int:pk>/", OGProductView.as_view(), name="product-og"),
     path("wilayas/", WilayaListView.as_view(), name="wilaya-list"),
     path("baladias/", BaladiaListView.as_view(), name="baladia-list"),
+    path("hubs/", HubListView.as_view(), name="hub-list"),
 ]

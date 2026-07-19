@@ -234,6 +234,10 @@
 .home-only { display: flex; }
 .desk-mode .home-only { display: none; }
 
+/* Desk-only fields (hub) — hidden for home delivery */
+.desk-only { display: none; }
+.desk-mode .desk-only { display: flex; }
+
 /* === CART SUMMARY (sticky sidebar) ========================= */
 .cart-sidebar { position: sticky; top: 100px; }
 

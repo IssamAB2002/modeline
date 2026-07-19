@@ -66,7 +66,12 @@ class Order(models.Model):
         'shop.Baladia', null=True, blank=True, on_delete=models.SET_NULL,
         related_name='orders', verbose_name='البلدية (مرجع)',
     )
+    hub_ref = models.ForeignKey(
+        'shop.Hub', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='orders', verbose_name='المكتب (مرجع)',
+    )
     zr_submitted = models.BooleanField(default=False, verbose_name='مرسَل لـ ZR')
+    zr_customer_id = models.UUIDField(null=True, blank=True, verbose_name='معرّف ZR للعميل')
     zr_parcel_id = models.UUIDField(null=True, blank=True, verbose_name='معرّف ZR للطرد')
     zr_tracking_number = models.CharField(max_length=50, blank=True, default='', verbose_name='رقم التتبع ZR')
     zr_posted_at = models.DateTimeField(null=True, blank=True, verbose_name='تاريخ الإرسال لـ ZR')

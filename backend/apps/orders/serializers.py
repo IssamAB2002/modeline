@@ -57,6 +57,9 @@ class OrderCreateSerializer(serializers.Serializer):
     baladia = serializers.CharField(max_length=100, allow_blank=True, required=False, default="")
     address_line = serializers.CharField(max_length=400, allow_blank=True, required=False, default="")
     notes = serializers.CharField(allow_blank=True, required=False, default="")
+    wilaya_id = serializers.IntegerField(required=False, allow_null=True, default=None)
+    baladia_id = serializers.IntegerField(required=False, allow_null=True, default=None)
+    hub_id = serializers.IntegerField(required=False, allow_null=True, default=None)
 
     def validate(self, data):
         if data.get("shipping_type") == Order.ShippingType.HOME:
@@ -66,4 +69,13 @@ class OrderCreateSerializer(serializers.Serializer):
                 raise serializers.ValidationError({"baladia": "البلدية مطلوبة لتوصيل البيت."})
             if not data.get("address_line", "").strip():
                 raise serializers.ValidationError({"address_line": "العنوان مطلوب لتوصيل البيت."})
+            if not data.get("wilaya_id"):
+                raise serializers.ValidationError({"wilaya_id": "الولاية مطلوبة لتوصيل البيت."})
+            if not data.get("baladia_id"):
+                raise serializers.ValidationError({"baladia_id": "البلدية مطلوبة لتوصيل البيت."})
+        else:
+            if not data.get("wilaya_id"):
+                raise serializers.ValidationError({"wilaya_id": "الولاية مطلوبة لمكتب التوصيل."})
+            if not data.get("hub_id"):
+                raise serializers.ValidationError({"hub_id": "المكتب مطلوب لمكتب التوصيل."})
         return data

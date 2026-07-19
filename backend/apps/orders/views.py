@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.cart.models import Cart
+from apps.shop.models import Baladia, Hub, Wilaya
 
 from .models import Order, OrderItem, ThanksMessage
 from .serializers import OrderCreateSerializer, OrderSerializer
@@ -38,6 +39,23 @@ class OrderCreateView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        wilaya_ref = baladia_ref = hub_ref = None
+        if data.get("wilaya_id"):
+            try:
+                wilaya_ref = Wilaya.objects.get(pk=data["wilaya_id"])
+            except Wilaya.DoesNotExist:
+                return Response({"detail": "الولاية غير موجودة."}, status=status.HTTP_404_NOT_FOUND)
+        if data.get("baladia_id"):
+            try:
+                baladia_ref = Baladia.objects.get(pk=data["baladia_id"])
+            except Baladia.DoesNotExist:
+                return Response({"detail": "البلدية غير موجودة."}, status=status.HTTP_404_NOT_FOUND)
+        if data.get("hub_id"):
+            try:
+                hub_ref = Hub.objects.get(pk=data["hub_id"])
+            except Hub.DoesNotExist:
+                return Response({"detail": "المكتب غير موجود."}, status=status.HTTP_404_NOT_FOUND)
+
         subtotal = sum(item.line_total for item in cart_items)
         shipping = data.get("shipping_da", 0)
         grand_total = subtotal + shipping
@@ -54,6 +72,9 @@ class OrderCreateView(APIView):
             baladia=data.get("baladia", ""),
             address_line=data.get("address_line", ""),
             notes=data.get("notes", ""),
+            wilaya_ref=wilaya_ref,
+            baladia_ref=baladia_ref,
+            hub_ref=hub_ref,
         )
 
         OrderItem.objects.bulk_create([
