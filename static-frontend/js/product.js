@@ -7,6 +7,7 @@ import { renderProductCard, renderReviewCard, renderStarPickerHtml, initStarPick
 import { showToast, formatPrice, renderStars } from './utils.js';
 import { apiFetch } from './api.js';
 import { trackViewContent, trackAddToCart, trackInitiateCheckout, trackPurchase } from './pixel.js';
+import { trackViewContent as ttViewContent, trackAddToCart as ttAddToCart, trackInitiateCheckout as ttInitiateCheckout, trackPurchase as ttPurchase } from './tiktok.js';
 import { initOrderForm, placeQuickOrder, calcShipping, loadThanksMsg, showThanksOverlay } from './order-form.js';
 
 // ── Read embedded product data ────────────────────────────
@@ -398,6 +399,7 @@ function _wireAddToCart() {
     try {
       await addToCart(product.id, _qty, _selectedSize, _selectedColor);
       trackAddToCart({ id: product.id, name: product.name_ar, price, qty: _qty });
+      ttAddToCart({ id: product.id, name: product.name_ar, price, qty: _qty });
       btn.disabled = false;
       btn.textContent = `أطلب الآن — ${formatPrice(price)}`;
       _openQuickOrder();
@@ -444,6 +446,7 @@ function _openQuickOrder() {
   if (signature !== _lastCheckoutSignature) {
     _lastCheckoutSignature = signature;
     trackInitiateCheckout({ items, total });
+    ttInitiateCheckout({ items, total });
   }
 }
 
@@ -464,6 +467,11 @@ function _wireQuickOrder() {
         const items = getCartItems();
         const subtotal = items.reduce((s, i) => s + i.lineTotal, 0);
         trackPurchase({
+          orderId: order.order_number,
+          items,
+          total: parseFloat(order.grand_total_da ?? subtotal + calcShipping()),
+        });
+        ttPurchase({
           orderId: order.order_number,
           items,
           total: parseFloat(order.grand_total_da ?? subtotal + calcShipping()),
@@ -716,6 +724,7 @@ async function _loadRelated() {
       try {
         await addToCart(pid, 1);
         trackAddToCart({ id: pid, name: btn.dataset.name, price: parseFloat(btn.dataset.price) || 0, qty: 1 });
+        ttAddToCart({ id: pid, name: btn.dataset.name, price: parseFloat(btn.dataset.price) || 0, qty: 1 });
         showToast('تمت الإضافة إلى السلة.');
       } catch {
         showToast('تعذّرت الإضافة.');
@@ -748,6 +757,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Facebook Pixel — ViewContent
   trackViewContent({
+    id:       product.id,
+    name:     product.name_ar,
+    category: product.category?.name_ar || '',
+    price:    parseFloat(product.price) || 0,
+  });
+  // TikTok Pixel — ViewContent
+  ttViewContent({
     id:       product.id,
     name:     product.name_ar,
     category: product.category?.name_ar || '',

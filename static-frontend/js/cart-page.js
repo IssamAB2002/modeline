@@ -6,6 +6,7 @@ import { initFooter } from './footer.js';
 import { apiFetch } from './api.js';
 import { showToast, formatPrice } from './utils.js';
 import { trackInitiateCheckout, trackPurchase } from './pixel.js';
+import { trackInitiateCheckout as ttInitiateCheckout, trackPurchase as ttPurchase } from './tiktok.js';
 
 // ── State ────────────────────────────────────────────────
 let _wilayas = [];
@@ -297,6 +298,11 @@ async function _placeOrder() {
       items,
       total: parseFloat(data.grand_total_da ?? subtotal + _calcShipping()),
     });
+    ttPurchase({
+      orderId: data.order_number,
+      items,
+      total: parseFloat(data.grand_total_da ?? subtotal + _calcShipping()),
+    });
 
     clearCart();
     _showThanks(data);
@@ -373,6 +379,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (items.length) {
     const subtotal = items.reduce((s, i) => s + i.lineTotal, 0);
     trackInitiateCheckout({ items, total: subtotal });
+    ttInitiateCheckout({ items, total: subtotal });
   }
 
   // Cart changes re-render items + summary
