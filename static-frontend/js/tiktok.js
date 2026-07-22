@@ -1,4 +1,6 @@
-const safe = (...args) => typeof window.ttq === 'function' && window.ttq(...args);
+// Unlike fbq, ttq isn't itself callable — methods live on the object
+// (ttq.track(...), ttq.page()), so we dispatch to window.ttq[method](...).
+const safe = (method, ...args) => window.ttq && typeof window.ttq[method] === 'function' && window.ttq[method](...args);
 
 // Unique per-call ID — lets TikTok dedupe this browser event against a future
 // server-side (Events API) event carrying the same event_id.
