@@ -4,11 +4,12 @@ function _buildFooter(contactInfo) {
   const fbUrl   = contactInfo?.facebook_url  || '#';
   const igUrl   = contactInfo?.instagram_url || '#';
   const waUrl   = contactInfo?.whatsapp_url  || '#';
+  const devFbUrl = 'https://www.facebook.com/issam.ab.79393/';
 
   return `
     <footer>
       <div class="footer-credit-top">
-        <a href="${fbUrl}" target="_blank" rel="noopener noreferrer">
+        <a href="${devFbUrl}" target="_blank" rel="noopener noreferrer">
           صنع الموقع من طرف Issam AB
         </a>
       </div>
@@ -58,7 +59,7 @@ function _buildFooter(contactInfo) {
       </div>
 
       <div class="footer-credit">
-        <a href="https://www.facebook.com/issam.ab.79393/" target="_blank" rel="noopener noreferrer">
+        <a href="${devFbUrl}" target="_blank" rel="noopener noreferrer">
           Website Created By Issam AB
         </a>
       </div>
