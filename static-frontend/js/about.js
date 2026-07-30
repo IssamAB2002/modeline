@@ -83,9 +83,10 @@ function _applySettings(settings) {
   const introTitleEl = document.getElementById('about-intro-title');
   if (introTitleEl) introTitleEl.textContent = settings.about_intro_title;
 
-  // Story image
+  // Story image — prefer local uploaded image, then external URL, else keep hardcoded fallback
   const storyImg = document.getElementById('story-img');
-  if (storyImg && settings.about_story_image_url) storyImg.src = settings.about_story_image_url;
+  const storyImgSrc = settings.about_story_image_full_url || settings.about_story_image_url;
+  if (storyImg && storyImgSrc) storyImg.src = storyImgSrc;
   _set('story-img-label', settings.about_story_image_label);
 
   // Story text block
