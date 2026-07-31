@@ -2,12 +2,22 @@ import io
 import os
 
 from django.core.files.base import ContentFile
+from django.core.exceptions import ValidationError
 from PIL import Image, ImageOps
 
 # Longest edge for stored product images — plenty for a full-bleed zoom on any
 # screen while cutting typical 12MP phone photos (4000px+) down to a sane size.
 MAX_IMAGE_DIMENSION = 1600
 JPEG_QUALITY = 82
+
+# Uploaded product videos aren't transcoded, so cap the raw file size to keep
+# storage and page load reasonable.
+MAX_VIDEO_SIZE_MB = 80
+
+
+def validate_video_file_size(file):
+    if file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024:
+        raise ValidationError(f"حجم الفيديو يجب ألا يتجاوز {MAX_VIDEO_SIZE_MB} ميجابايت.")
 
 
 def optimize_image_file(file, max_dimension=MAX_IMAGE_DIMENSION, quality=JPEG_QUALITY):

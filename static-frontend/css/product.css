@@ -34,6 +34,9 @@
 }
 
 .main-image-wrap.zoomed { cursor: zoom-out; }
+.main-image-wrap.video-active { cursor: default; }
+.main-image-wrap.video-active .zoom-hint,
+.main-image-wrap.video-active .drag-hint { display: none; }
 
 #main-img {
   width: 100%;
@@ -48,10 +51,50 @@
   transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
 }
 
+#main-img.hidden { display: none; }
+
 .img-placeholder {
   width: 100%;
   height: 100%;
   background: var(--parchment);
+}
+
+/* Product video slide */
+#main-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+#main-video.hidden { display: none; }
+
+.video-mute-btn {
+  position: absolute;
+  top: 14px;
+  inset-inline-end: 14px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(28, 14, 4, 0.55);
+  color: var(--gold-pale);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  transition: background 0.2s, transform 0.15s;
+}
+.video-mute-btn:hover { background: var(--espresso); }
+.video-mute-btn:active { transform: scale(0.92); }
+.video-mute-btn.hidden { display: none; }
+.video-mute-btn.unmuted { background: var(--gold); color: var(--espresso); }
+.video-mute-btn.unmuted:hover { background: var(--bark); color: var(--gold-pale); }
+
+/* Touch devices: bigger hit target than the 36px desktop button */
+@media (hover: none) and (pointer: coarse) {
+  .video-mute-btn { width: 42px; height: 42px; font-size: 17px; }
 }
 
 .main-badge {
@@ -172,6 +215,36 @@
 }
 .thumb.active { border-color: var(--gold); opacity: 1; }
 .thumb:hover  { opacity: 0.9; }
+
+/* Video thumbnail (span wrapper, since it may have no poster <img>) */
+span.thumb.thumb-video {
+  position: relative;
+  display: block;
+  background: var(--parchment);
+  padding: 0;
+}
+span.thumb.thumb-video img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.thumb-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(28, 14, 4, 0.65);
+  color: var(--gold-pale);
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
 
 /* === PRODUCT INFO COL ====================================== */
 .product-info-col { min-width: 0; }

@@ -20,6 +20,7 @@ let _images = [];
 let _currentImg = 0;
 let _zoomed = false;
 let _showImage = null;
+let _videoMuted = true;
 
 // ── Selection state ───────────────────────────────────────
 let _selectedSize    = null;
@@ -39,14 +40,22 @@ function _esc(str) {
     .replace(/"/g, '&quot;');
 }
 
-// ── Build images array ────────────────────────────────────
+// ── Build gallery slides array (video first, then images) ─
 function _buildImages() {
+  if (product.video_url) {
+    _images.push({
+      type: 'video',
+      url: product.video_url,
+      poster: product.video_thumbnail_url || '',
+      alt: product.name_ar || '',
+    });
+  }
   if (product.image_url) {
-    _images.push({ url: product.image_url, alt: product.name_ar || '', colorId: null });
+    _images.push({ type: 'image', url: product.image_url, alt: product.name_ar || '', colorId: null });
   }
   (product.images || []).forEach((img) => {
     if (img.url && img.url !== product.image_url) {
-      _images.push({ url: img.url, alt: img.alt_text || product.name_ar || '', colorId: img.color ?? null });
+      _images.push({ type: 'image', url: img.url, alt: img.alt_text || product.name_ar || '', colorId: img.color ?? null });
     }
   });
 }
@@ -71,6 +80,8 @@ function _scrollToColorImage(colorId) {
 // ── Image slider ──────────────────────────────────────────
 function _initSlider() {
   const mainImg    = document.getElementById('main-img');
+  const mainVideo  = document.getElementById('main-video');
+  const muteToggle = document.getElementById('video-mute-toggle');
   const mainWrap   = document.getElementById('main-image-wrap');
   const thumbStrip = document.getElementById('thumb-strip');
   const counter    = document.getElementById('img-counter');
@@ -82,8 +93,35 @@ function _initSlider() {
 
   function _show(idx) {
     _currentImg = Math.max(0, Math.min(idx, _images.length - 1));
-    mainImg.src = _images[_currentImg].url;
-    mainImg.alt = _images[_currentImg].alt;
+    const slide = _images[_currentImg];
+
+    if (mainVideo && !mainVideo.classList.contains('hidden') && slide.type !== 'video') {
+      // Leaving the video slide — pause and rewind so it restarts cleanly next time.
+      mainVideo.pause();
+      mainVideo.currentTime = 0;
+    }
+
+    mainWrap?.classList.toggle('video-active', slide.type === 'video');
+
+    if (slide.type === 'video') {
+      mainImg.classList.add('hidden');
+      mainVideo?.classList.remove('hidden');
+      muteToggle?.classList.remove('hidden');
+      if (mainVideo && !mainVideo.src) {
+        mainVideo.src = slide.url; // lazy-load: only fetch once this slide becomes active
+      }
+      if (mainVideo) {
+        mainVideo.muted = _videoMuted;
+        mainVideo.play().catch(() => {});
+      }
+    } else {
+      mainVideo?.classList.add('hidden');
+      muteToggle?.classList.add('hidden');
+      mainImg.classList.remove('hidden');
+      mainImg.src = slide.url;
+      mainImg.alt = slide.alt;
+    }
+
     if (counter) counter.textContent = _images.length > 1 ? `${_currentImg + 1} / ${_images.length}` : '';
 
     // Update thumbs
@@ -91,7 +129,7 @@ function _initSlider() {
       t.classList.toggle('active', i === _currentImg);
     });
 
-    // Hide arrows if single image
+    // Hide arrows if single slide
     if (prevBtn) prevBtn.classList.toggle('hidden', _images.length <= 1);
     if (nextBtn) nextBtn.classList.toggle('hidden', _images.length <= 1);
     if (dragHint) dragHint.classList.toggle('hidden', _images.length <= 1);
@@ -101,9 +139,18 @@ function _initSlider() {
 
   // Thumbnails
   if (thumbStrip && _images.length > 1) {
-    thumbStrip.innerHTML = _images.map((img, i) =>
-      `<img class="thumb${i === 0 ? ' active' : ''}" src="${_esc(img.url)}" alt="${_esc(img.alt)}" loading="lazy" data-idx="${i}">`
-    ).join('');
+    thumbStrip.innerHTML = _images.map((img, i) => {
+      if (img.type === 'video') {
+        const posterHtml = img.poster
+          ? `<img src="${_esc(img.poster)}" alt="${_esc(img.alt)}" loading="lazy">`
+          : '';
+        return `<span class="thumb thumb-video${i === 0 ? ' active' : ''}" data-idx="${i}">
+          ${posterHtml}
+          <span class="thumb-play-icon" aria-hidden="true">▶</span>
+        </span>`;
+      }
+      return `<img class="thumb${i === 0 ? ' active' : ''}" src="${_esc(img.url)}" alt="${_esc(img.alt)}" loading="lazy" data-idx="${i}">`;
+    }).join('');
 
     thumbStrip.addEventListener('click', (e) => {
       const thumb = e.target.closest('.thumb');
@@ -111,11 +158,20 @@ function _initSlider() {
     });
   }
 
-  // Init counter
-  if (counter) counter.textContent = _images.length > 1 ? `1 / ${_images.length}` : '';
-  if (prevBtn) prevBtn.classList.toggle('hidden', _images.length <= 1);
-  if (nextBtn) nextBtn.classList.toggle('hidden', _images.length <= 1);
-  if (dragHint) dragHint.classList.toggle('hidden', _images.length <= 1);
+  // Mute/unmute toggle
+  muteToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!mainVideo) return;
+    _videoMuted = !_videoMuted;
+    mainVideo.muted = _videoMuted;
+    muteToggle.textContent = _videoMuted ? '🔇' : '🔊';
+    muteToggle.classList.toggle('unmuted', !_videoMuted);
+    muteToggle.setAttribute('aria-label', _videoMuted ? 'تفعيل الصوت' : 'كتم الصوت');
+    if (!_videoMuted) mainVideo.play().catch(() => {});
+  });
+
+  // Hydrate the first slide (activates the video branch when slide 0 is a video)
+  _show(0);
 
   prevBtn?.addEventListener('click', (e) => { e.stopPropagation(); _show(_currentImg - 1); });
   nextBtn?.addEventListener('click', (e) => { e.stopPropagation(); _show(_currentImg + 1); });
@@ -126,9 +182,10 @@ function _initSlider() {
     if (e.key === 'ArrowLeft')  _show(_currentImg + 1);
   });
 
-  // Click-to-zoom
+  // Click-to-zoom (images only — video has its own controls)
   if (mainWrap) {
     mainWrap.addEventListener('click', (e) => {
+      if (_images[_currentImg]?.type === 'video') return;
       _zoomed = !_zoomed;
       mainWrap.classList.toggle('zoomed', _zoomed);
     });

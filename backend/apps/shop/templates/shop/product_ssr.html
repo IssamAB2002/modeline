@@ -20,6 +20,10 @@
   <meta property="og:image:height" content="630">
   <link rel="preload" as="image" href="{{ og_image }}">
   {% endif %}
+  {% if og_video %}
+  <meta property="og:video"      content="{{ og_video }}">
+  <meta property="og:video:type" content="video/mp4">
+  {% endif %}
 
   <!-- Commerce meta -->
   <meta property="product:price:amount"   content="{{ product.price }}">
@@ -104,9 +108,14 @@
         <div class="main-image-wrap" id="main-image-wrap">
           {% if og_image %}
           <img id="main-img" src="{{ og_image }}" alt="{{ product.name_ar }}" fetchpriority="high">
+          {% elif og_video_thumbnail %}
+          <img id="main-img" src="{{ og_video_thumbnail }}" alt="{{ product.name_ar }}" fetchpriority="high">
           {% else %}
           <div id="main-img" class="img-placeholder"></div>
           {% endif %}
+          <video id="main-video" class="hidden" playsinline webkit-playsinline loop muted preload="metadata"
+            {% if og_video_thumbnail %}poster="{{ og_video_thumbnail }}"{% endif %}></video>
+          <button class="video-mute-btn hidden" id="video-mute-toggle" aria-label="تفعيل الصوت">🔇</button>
           {% if product.badge %}
           <span class="main-badge badge-{{ product.badge }}">
             {% if product.badge == 'sale' %}تخفيض

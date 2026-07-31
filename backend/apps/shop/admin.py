@@ -210,6 +210,7 @@ class ProductAdmin(admin.ModelAdmin):
         "discount_percent",
         "is_on_sale",
         "image_preview",
+        "video_preview",
     )
     save_on_top = True
 
@@ -265,7 +266,18 @@ class ProductAdmin(admin.ModelAdmin):
         ),
         (
             "الوسائط",
-            {"fields": ("image", "image_url", "image_preview")},
+            {
+                "fields": (
+                    "image",
+                    "image_url",
+                    "image_preview",
+                    "video",
+                    "video_url",
+                    "video_thumbnail",
+                    "video_thumbnail_url",
+                    "video_preview",
+                )
+            },
         ),
         (
             "التسويق",
@@ -332,6 +344,20 @@ class ProductAdmin(admin.ModelAdmin):
                 obj.image_url,
             )
         return "لا توجد صورة."
+
+    @admin.display(description="معاينة الفيديو")
+    def video_preview(self, obj):
+        if not obj:
+            return "لا يوجد فيديو."
+        video_src = obj.video.url if obj.video else obj.video_url
+        if not video_src:
+            return "لا يوجد فيديو."
+        poster_src = obj.video_thumbnail.url if obj.video_thumbnail else obj.video_thumbnail_url
+        return format_html(
+            '<video src="{}" poster="{}" controls muted style="max-height:240px;border-radius:6px;"></video>',
+            video_src,
+            poster_src or "",
+        )
 
     def get_queryset(self, request):
         return (

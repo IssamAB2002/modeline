@@ -95,6 +95,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     sizes = ProductSizeSerializer(many=True, read_only=True)
     colors = ProductColorSerializer(many=True, read_only=True)
     image_url = serializers.SerializerMethodField()
+    video_url = serializers.SerializerMethodField()
+    video_thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -116,6 +118,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "old_price",
             "image_url",
             "images",
+            "video_url",
+            "video_thumbnail_url",
             "badge",
             "rating",
             "review_count",
@@ -136,6 +140,22 @@ class ProductDetailSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.image.url)
             return obj.image.url
         return obj.image_url or None
+
+    def get_video_url(self, obj):
+        request = self.context.get("request")
+        if obj.video:
+            if request:
+                return request.build_absolute_uri(obj.video.url)
+            return obj.video.url
+        return obj.video_url or None
+
+    def get_video_thumbnail_url(self, obj):
+        request = self.context.get("request")
+        if obj.video_thumbnail:
+            if request:
+                return request.build_absolute_uri(obj.video_thumbnail.url)
+            return obj.video_thumbnail.url
+        return obj.video_thumbnail_url or None
 
 
 class WilayaSerializer(serializers.ModelSerializer):

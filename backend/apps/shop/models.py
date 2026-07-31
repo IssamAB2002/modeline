@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Avg
 from django.db.models.signals import post_delete, post_save
@@ -8,7 +8,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.text import slugify
 
-from .utils import optimize_image_file
+from .utils import optimize_image_file, validate_video_file_size
 
 
 class TimeStampedModel(models.Model):
@@ -207,6 +207,31 @@ class Product(TimeStampedModel):
         verbose_name='رابط الصورة',
         help_text="External image URL (used when no uploaded image is present).",
     )
+    video = models.FileField(
+        upload_to="shop/products/videos/",
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["mp4", "mov", "webm"]), validate_video_file_size],
+        verbose_name='ملف الفيديو',
+        help_text="رفع ملف فيديو مباشر (MP4 يُفضّل) — له الأولوية على الرابط أدناه.",
+    )
+    video_url = models.URLField(
+        blank=True,
+        verbose_name='رابط الفيديو',
+        help_text="Fallback external video URL (MP4, HTTP Range-request capable) — used only when no file is uploaded above.",
+    )
+    video_thumbnail = models.ImageField(
+        upload_to="shop/products/videos/thumbnails/",
+        blank=True,
+        null=True,
+        verbose_name='صورة غلاف الفيديو (رفع)',
+        help_text="Poster image shown before the video plays / while it loads — has priority over the URL below.",
+    )
+    video_thumbnail_url = models.URLField(
+        blank=True,
+        verbose_name='رابط صورة غلاف الفيديو',
+        help_text="Fallback external poster URL — used only when no image is uploaded above.",
+    )
 
     # Marketing flags & badges
     is_active = models.BooleanField(default=True, verbose_name='نشط')
@@ -264,6 +289,10 @@ class Product(TimeStampedModel):
             optimized = optimize_image_file(self.image)
             if optimized is not None:
                 self.image.save(optimized.name, optimized, save=False)
+        if self.video_thumbnail and not self.video_thumbnail._committed:
+            optimized = optimize_image_file(self.video_thumbnail)
+            if optimized is not None:
+                self.video_thumbnail.save(optimized.name, optimized, save=False)
         super().save(*args, **kwargs)
 
     # ---- Domain helpers ---------------------------------------------------

@@ -250,11 +250,23 @@ class ProductSSRView(View):
         else:
             og_image = ""
 
+        if product.video:
+            og_video = request.build_absolute_uri(product.video.url)
+        else:
+            og_video = product.video_url
+
+        if product.video_thumbnail:
+            og_video_thumbnail = request.build_absolute_uri(product.video_thumbnail.url)
+        else:
+            og_video_thumbnail = product.video_thumbnail_url
+
         serializer = ProductDetailSerializer(product, context={"request": request})
 
         html = render_to_string("shop/product_ssr.html", {
             "product": product,
             "og_image": og_image,
+            "og_video": og_video,
+            "og_video_thumbnail": og_video_thumbnail,
             "og_url": canonical_url,
             "product_data": serializer.data,
         })
