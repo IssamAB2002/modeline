@@ -1,0 +1,108 @@
+/* ============================================================
+   MODELINE — Gadget Product Theme (product-gadget.css)
+   Loaded ONLY on the Gadget product page (shop/product_gadget_ssr.html),
+   after main.css + product.css + cart.css. It re-skins the shared PDP
+   layout/behavior with a different palette + font, per the brief:
+     Colors: #0782DA / #25A0F8 / #ffffff
+     Font:   Lateef
+   This file intentionally does NOT touch main.css/product.css/cart.css —
+   the classic store keeps its existing gold/cream design untouched.
+   ============================================================ */
+
+/* === 1. PALETTE OVERRIDE ===
+   product.css reads these same custom properties (~95 usages: prices,
+   borders, badges, buttons, tabs, ratings…), so redeclaring them here
+   re-themes almost the whole page for free. */
+body.gadget-theme {
+  --gold: #0782DA;
+  --gold-light: #25A0F8;
+  --gold-pale: #eaf5fe;
+  --cream: #ffffff;
+  --parchment: #f4faff;
+  --bark: #0782DA;
+  --espresso: #06305c;
+  --ink: #0a1f33;
+  --warm-gray: #5b7186;
+  --border: #cfe6fb;
+}
+
+/* === 2. FONT OVERRIDE ===
+   Fonts are hardcoded per-selector across product.css/cart.css (not
+   variable-driven), so force Lateef across the whole subtree instead. */
+body.gadget-theme,
+body.gadget-theme * {
+  font-family: 'Lateef', 'IBM Plex Sans Arabic', sans-serif !important;
+}
+
+body.gadget-theme {
+  background: #ffffff;
+}
+
+/* === 3. MINIMAL HEADER / FOOTER ===
+   Replaces the shared site nav/footer (deliberately not loaded on this
+   page) with a plain, link-free brand mark — the page is a self-contained
+   landing page, not an entry point into the rest of the store. */
+.gadget-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+.gadget-header-logo {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+
+.gadget-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px 40px;
+  font-size: 14px;
+  color: var(--warm-gray);
+}
+
+/* === 4. HERO ===
+   Drop the classic store's heritage-photo hero background in favor of a
+   flat brand-color gradient, and remove the breadcrumb (page is a dead end
+   — nothing upstream to link back to). */
+body.gadget-theme .pdp-hero.gadget-hero {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  padding: 48px 24px 56px;
+}
+
+body.gadget-theme .gadget-hero .page-title,
+body.gadget-theme .gadget-hero .page-subtitle {
+  color: #ffffff;
+}
+
+/* === 5. PRIMARY CTA ===
+   Make sure the main order button reads as a solid brand-blue action
+   (product.css already mostly derives this from --gold/--gold-light). */
+body.gadget-theme .pi-atc-btn,
+body.gadget-theme .cart-place-order-btn,
+body.gadget-theme .pi-sticky-bar .pi-atc-btn {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #ffffff;
+}
+
+body.gadget-theme .pi-atc-btn:hover,
+body.gadget-theme .cart-place-order-btn:hover {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+}
+
+/* === 6. THANKS OVERLAY "close" LINK ===
+   Styled as a plain button rather than a shop-link CTA (it points back at
+   this same product page, not to /shop.html). */
+body.gadget-theme .thanks-shop-btn {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #ffffff;
+}

@@ -8,7 +8,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ("id", "name_ar", "slug", "image_url", "is_featured")
+        fields = ("id", "name_ar", "slug", "image_url", "is_featured", "is_gadget")
 
     def get_image_url(self, obj):
         request = self.context.get("request")

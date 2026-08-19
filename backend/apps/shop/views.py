@@ -64,6 +64,8 @@ def _get_vite_assets():
         _vite_assets_cache = (mtime, result)
     return result
 
+from apps.home.models import FrontSettings
+
 from .models import Baladia, Category, Hub, Product, ProductImage, ProductReview, Wilaya
 from .serializers import (
     BaladiaSerializer,
@@ -262,14 +264,21 @@ class ProductSSRView(View):
 
         serializer = ProductDetailSerializer(product, context={"request": request})
 
-        html = render_to_string("shop/product_ssr.html", {
+        is_gadget = bool(product.category and product.category.is_gadget)
+        template_name = "shop/product_gadget_ssr.html" if is_gadget else "shop/product_ssr.html"
+
+        context = {
             "product": product,
             "og_image": og_image,
             "og_video": og_video,
             "og_video_thumbnail": og_video_thumbnail,
             "og_url": canonical_url,
             "product_data": serializer.data,
-        })
+        }
+        if is_gadget:
+            context["gadget_header_title"] = FrontSettings.load().gadget_header_title_ar
+
+        html = render_to_string(template_name, context)
         response = HttpResponse(html, content_type="text/html; charset=utf-8")
         response['Cache-Control'] = 'public, max-age=60'
         response['Content-Security-Policy'] = (

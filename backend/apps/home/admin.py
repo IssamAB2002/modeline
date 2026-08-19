@@ -53,6 +53,9 @@ class FrontSettingsAdmin(admin.ModelAdmin):
             ("about_stat_3_value", "about_stat_3_label_ar"),
             ("about_stat_4_value", "about_stat_4_label_ar"),
         )}),
+        ("صفحة المنتج (Gadget) — الرأس", {"fields": (
+            "gadget_header_title_ar",
+        )}),
         ("صفحة المنتج — تبويب الشحن", {"fields": (
             "product_shipping_intro_ar",
             "product_shipping_algeria_ar",

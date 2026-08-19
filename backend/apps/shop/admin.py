@@ -99,11 +99,12 @@ class CategoryAdmin(admin.ModelAdmin):
         "order",
         "is_active",
         "is_featured",
+        "is_gadget",
         "product_count",
         "updated_at",
     )
-    list_filter = ("is_active", "is_featured", "parent")
-    list_editable = ("order", "is_active", "is_featured")
+    list_filter = ("is_active", "is_featured", "is_gadget", "parent")
+    list_editable = ("order", "is_active", "is_featured", "is_gadget")
     search_fields = ("name_ar", "slug")
     prepopulated_fields = {"slug": ("name_ar",)}
     autocomplete_fields = ("parent",)
@@ -121,6 +122,16 @@ class CategoryAdmin(admin.ModelAdmin):
         (
             "العرض",
             {"fields": ("order", "is_active", "is_featured")},
+        ),
+        (
+            "جادجت",
+            {
+                "fields": ("is_gadget",),
+                "description": (
+                    "عند التفعيل، تُعرض منتجات هذه الفئة بتصميم منفصل (ألوان وخط مختلفين) "
+                    "ومعزول تماماً عن باقي المتجر."
+                ),
+            },
         ),
         (
             "SEO",

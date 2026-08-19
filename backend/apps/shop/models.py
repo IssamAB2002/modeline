@@ -48,6 +48,15 @@ class Category(TimeStampedModel):
     is_featured = models.BooleanField(
         default=False, verbose_name='مميز', help_text="Promote to landing page category rails."
     )
+    is_gadget = models.BooleanField(
+        default=False,
+        verbose_name='فئة جادجت',
+        help_text=(
+            "Products in this category get the separate Gadget product-page design "
+            "(different colors/font) and are walled off from the classic store — "
+            "no shared nav/footer, no cross-category related products."
+        ),
+    )
 
     # SEO
     meta_title = models.CharField(max_length=160, blank=True, verbose_name='عنوان SEO')

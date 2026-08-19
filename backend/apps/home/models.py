@@ -113,6 +113,14 @@ class FrontSettings(models.Model):
     about_intro_title_ar = models.CharField(max_length=255, blank=True, verbose_name='عنوان مقدمة من نحن', help_text="About intro section title (Arabic). Use {{em}}…{{/em}} for emphasis.")
     about_intro_text_ar = models.TextField(blank=True, verbose_name='نص مقدمة من نحن', help_text="About intro paragraph (Arabic).")
 
+    # ---- Product Page — Gadget Template Header ----
+    gadget_header_title_ar = models.CharField(
+        max_length=100,
+        default="Modeline",
+        verbose_name='عنوان رأس صفحة المنتج (Gadget)',
+        help_text="Top header title shown on Gadget-category product pages (Arabic/brand text).",
+    )
+
     # ---- Product Page — Shipping Tab ----
     product_shipping_intro_ar = models.TextField(
         blank=True,

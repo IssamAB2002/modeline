@@ -535,7 +535,8 @@ function _wireQuickOrder() {
         });
         clearCart();
         _closeQuickOrder();
-        showThanksOverlay(order);
+        // Gadget pages are a dead-end landing page — stay put instead of the classic /shop.html default.
+        showThanksOverlay(order, product.category?.is_gadget ? window.location.href : undefined);
       },
     });
   });
@@ -730,9 +731,12 @@ async function _loadRelated() {
 
   try {
     const catSlug = product.category?.slug;
+    const isGadget = !!product.category?.is_gadget;
     const urls = [];
     if (catSlug) urls.push(`${API}/shop/products/?category=${catSlug}&page_size=4`);
-    urls.push(`${API}/shop/products/?is_new=true&page_size=4`);
+    // Gadget pages are walled off from the classic catalog — never let the
+    // cross-category "is_new" fallback pull in non-gadget products here.
+    if (!isGadget) urls.push(`${API}/shop/products/?is_new=true&page_size=4`);
 
     const results = await Promise.all(urls.map((u) => fetch(u).then((r) => r.ok ? r.json() : null).catch(() => null)));
 
