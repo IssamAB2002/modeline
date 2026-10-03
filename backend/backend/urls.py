@@ -44,3 +44,6 @@ if settings.DEBUG:
         path('', serve, {'document_root': _sf_root, 'path': 'index.html'}),
         re_path(r'^(?P<path>(?:css|js|assets)/.*|[\w-]+\.html|image\.png)$', serve, {'document_root': _sf_root}),
     ]
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
