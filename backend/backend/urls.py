@@ -35,7 +35,9 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]
     # Serve the static-frontend app (css/js/assets + page .html files) so the
     # product SSR page and its nav links (shop/cart/about/contact) work locally
     # without a separate proxy. Caddy's try_files handles this in production.
