@@ -1,0 +1,22 @@
+{
+    auto_https off
+    admin off
+    servers {
+        trusted_proxies static private_ranges
+    }
+}
+
+:{$PORT} {
+    encode gzip
+
+    @backend path /api/* /admin/* /product/* /static/* /media/*
+    handle @backend {
+        reverse_proxy {$BACKEND_URL}
+    }
+
+    handle {
+        root * /srv
+        try_files {path} {path}.html /index.html
+        file_server
+    }
+}

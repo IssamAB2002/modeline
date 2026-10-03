@@ -1,0 +1,3 @@
+FROM caddy:alpine
+COPY deploy/Caddyfile.railway /etc/caddy/Caddyfile
+COPY static-frontend /srv

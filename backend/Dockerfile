@@ -22,5 +22,4 @@ RUN mkdir -p /app/staticfiles /app/media && \
 USER appuser
 
 EXPOSE 8000
-
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn backend.wsgi:application --bind [::]:${PORT:-8000} --workers 3"]
