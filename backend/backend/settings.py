@@ -156,6 +156,19 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Hash static filenames (e.g. main.a1b2c3.css) so WhiteNoise can mark them
+# immutable and cache them for a year — without this, WHITENOISE_MAX_AGE below
+# would make browsers cache stale CSS/JS after every deploy.
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+WHITENOISE_MAX_AGE = 31536000  # 1 year; safe because filenames are hashed above
+
 # Security — all disabled in dev, must be True in production .env
 SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=False)
 SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=0)

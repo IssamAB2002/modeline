@@ -6,7 +6,13 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
+from django.views.decorators.cache import cache_control
 from django.views.static import serve
+
+# Uploaded media (product images/videos) rarely changes once saved, but unlike
+# static files it isn't hashed/versioned, so cache it for a day with
+# revalidation rather than marking it immutable for a year.
+media_serve = cache_control(public=True, max_age=86400)(serve)
 
 from apps.shop.views import ProductSSRView
 
@@ -46,6 +52,10 @@ if settings.DEBUG:
         path('', serve, {'document_root': _sf_root, 'path': 'index.html'}),
         re_path(r'^(?P<path>(?:css|js|assets)/.*|[\w-]+\.html|image\.png)$', serve, {'document_root': _sf_root}),
     ]
-urlpatterns += [
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-]
+else:
+    # In production, Caddy (deploy/Caddyfile.railway) proxies /media/* straight
+    # through to Django rather than serving it from a shared volume, so Django
+    # must attach its own Cache-Control header here.
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', media_serve, {'document_root': settings.MEDIA_ROOT}),
+    ]
