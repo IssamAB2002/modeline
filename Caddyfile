@@ -18,11 +18,13 @@ modeline.online {
         reverse_proxy backend:8000
     }
 
-    # Django-collected static files (admin, DRF)
+    # Django-collected static files (admin, DRF) — WhiteNoise-hashed filenames,
+    # safe to cache for a year and mark immutable.
     @static path /static/*
     handle @static {
         root * /srv/static
         uri strip_prefix /static
+        header Cache-Control "public, max-age=31536000, immutable"
         file_server
     }
 
@@ -32,6 +34,16 @@ modeline.online {
         root * /srv/media
         uri strip_prefix /media
         header Cache-Control "public, max-age=31536000, immutable"
+        file_server
+    }
+
+    # Static frontend — css/js/assets aren't content-hashed, so this can't be
+    # marked immutable — must-revalidate keeps a stale deploy from sticking
+    # past the cache window while still giving 30 days of fast repeat loads.
+    @frontend_assets path /css/* /js/* /assets/*
+    handle @frontend_assets {
+        root * /srv/static-frontend
+        header Cache-Control "public, max-age=2592000, must-revalidate"
         file_server
     }
 

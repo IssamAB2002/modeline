@@ -9,10 +9,11 @@ from django.http import JsonResponse
 from django.views.decorators.cache import cache_control
 from django.views.static import serve
 
-# Uploaded media (product images/videos) rarely changes once saved, but unlike
-# static files it isn't hashed/versioned, so cache it for a day with
-# revalidation rather than marking it immutable for a year.
-media_serve = cache_control(public=True, max_age=86400)(serve)
+# Uploaded media (product images/videos) is never overwritten in place —
+# Django's default FileSystemStorage appends a random suffix instead of
+# replacing a same-named file — so once a URL exists its bytes never change.
+# Safe to cache as long and immutably as hashed static files.
+media_serve = cache_control(public=True, max_age=31536000, immutable=True)(serve)
 
 from apps.shop.views import ProductSSRView
 

@@ -14,6 +14,16 @@
         reverse_proxy {$BACKEND_URL}
     }
 
+    # static-frontend's css/js/assets aren't content-hashed, so this can't be
+    # marked immutable — must-revalidate keeps a stale deploy from sticking
+    # past the cache window while still giving 30 days of fast repeat loads.
+    @assets path /css/* /js/* /assets/*
+    handle @assets {
+        root * /srv
+        header Cache-Control "public, max-age=2592000, must-revalidate"
+        file_server
+    }
+
     handle {
         root * /srv
         try_files {path} {path}.html /index.html
