@@ -1,14 +1,16 @@
 from rest_framework import serializers
 
 from .models import Baladia, Category, Hub, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
+from .utils import get_webp_url
 
 
 class CategorySerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+    image_webp_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        fields = ("id", "name_ar", "slug", "image_url", "is_featured", "is_gadget")
+        fields = ("id", "name_ar", "slug", "image_url", "image_webp_url", "is_featured", "is_gadget")
 
     def get_image_url(self, obj):
         request = self.context.get("request")
@@ -18,13 +20,21 @@ class CategorySerializer(serializers.ModelSerializer):
             return obj.image.url
         return None
 
+    def get_image_webp_url(self, obj):
+        webp_url = get_webp_url(obj.image) if obj.image else None
+        if not webp_url:
+            return None
+        request = self.context.get("request")
+        return request.build_absolute_uri(webp_url) if request else webp_url
+
 
 class ProductImageSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
+    webp_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductImage
-        fields = ("url", "alt_text", "order", "color")
+        fields = ("url", "webp_url", "alt_text", "order", "color")
 
     def get_url(self, obj):
         request = self.context.get("request")
@@ -33,6 +43,13 @@ class ProductImageSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.image.url)
             return obj.image.url
         return None
+
+    def get_webp_url(self, obj):
+        webp_url = get_webp_url(obj.image) if obj.image else None
+        if not webp_url:
+            return None
+        request = self.context.get("request")
+        return request.build_absolute_uri(webp_url) if request else webp_url
 
 
 class ProductSizeSerializer(serializers.ModelSerializer):
@@ -52,6 +69,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     is_on_sale = serializers.BooleanField(read_only=True)
     image_url = serializers.SerializerMethodField()
+    image_webp_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -65,6 +83,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             "price",
             "old_price",
             "image_url",
+            "image_webp_url",
             "badge",
             "rating",
             "review_count",
@@ -83,6 +102,13 @@ class ProductListSerializer(serializers.ModelSerializer):
             return obj.image.url
         return obj.image_url or None
 
+    def get_image_webp_url(self, obj):
+        webp_url = get_webp_url(obj.image) if obj.image else None
+        if not webp_url:
+            return None
+        request = self.context.get("request")
+        return request.build_absolute_uri(webp_url) if request else webp_url
+
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     """Full serializer for the product detail page."""
@@ -95,6 +121,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     sizes = ProductSizeSerializer(many=True, read_only=True)
     colors = ProductColorSerializer(many=True, read_only=True)
     image_url = serializers.SerializerMethodField()
+    image_webp_url = serializers.SerializerMethodField()
     video_url = serializers.SerializerMethodField()
     video_thumbnail_url = serializers.SerializerMethodField()
 
@@ -117,6 +144,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "price",
             "old_price",
             "image_url",
+            "image_webp_url",
             "images",
             "video_url",
             "video_thumbnail_url",
@@ -140,6 +168,13 @@ class ProductDetailSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.image.url)
             return obj.image.url
         return obj.image_url or None
+
+    def get_image_webp_url(self, obj):
+        webp_url = get_webp_url(obj.image) if obj.image else None
+        if not webp_url:
+            return None
+        request = self.context.get("request")
+        return request.build_absolute_uri(webp_url) if request else webp_url
 
     def get_video_url(self, obj):
         request = self.context.get("request")

@@ -28,6 +28,7 @@ function _normalizeProduct(p) {
     badge:       badgeRaw,
     badgeType:   badgeRaw ? badgeRaw.toLowerCase() : null,
     image:       p.image_url || '',
+    imageWebp:   p.image_webp_url || '',
     rating:      parseFloat(p.rating) || 0,
     reviewCount: p.review_count || 0,
   };

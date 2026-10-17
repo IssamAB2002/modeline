@@ -46,7 +46,9 @@ export function renderProductCard(product) {
   const priceClass = product.oldPrice ? ' price-sale' : '';
 
   const imgHtml = product.image
-    ? `<img src="${product.image}" alt="${_esc(product.name)}" loading="lazy">`
+    ? (product.imageWebp
+        ? `<picture><source srcset="${product.imageWebp}" type="image/webp"><img src="${product.image}" alt="${_esc(product.name)}" loading="lazy"></picture>`
+        : `<img src="${product.image}" alt="${_esc(product.name)}" loading="lazy">`)
     : `<div style="width:100%;height:100%;background:#e8dfc8"></div>`;
 
   return `

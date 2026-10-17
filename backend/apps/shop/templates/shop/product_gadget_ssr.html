@@ -101,7 +101,15 @@
       <div class="slider-wrap" id="slider-wrap">
         <div class="main-image-wrap" id="main-image-wrap">
           {% if og_image %}
-          <img id="main-img" src="{{ og_image }}" alt="{{ product.name_ar }}" fetchpriority="high">
+          <picture>
+            {% if og_image_webp_srcset %}
+            <source type="image/webp" srcset="{{ og_image_webp_srcset }}" sizes="(min-width: 900px) 600px, 100vw">
+            {% endif %}
+            {% if og_image_fallback_srcset %}
+            <source srcset="{{ og_image_fallback_srcset }}" sizes="(min-width: 900px) 600px, 100vw">
+            {% endif %}
+            <img id="main-img" src="{{ og_image }}" alt="{{ product.name_ar }}" fetchpriority="high">
+          </picture>
           {% elif og_video_thumbnail %}
           <img id="main-img" src="{{ og_video_thumbnail }}" alt="{{ product.name_ar }}" fetchpriority="high">
           {% else %}

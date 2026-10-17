@@ -51,11 +51,11 @@ function _buildImages() {
     });
   }
   if (product.image_url) {
-    _images.push({ type: 'image', url: product.image_url, alt: product.name_ar || '', colorId: null });
+    _images.push({ type: 'image', url: product.image_webp_url || product.image_url, alt: product.name_ar || '', colorId: null });
   }
   (product.images || []).forEach((img) => {
     if (img.url && img.url !== product.image_url) {
-      _images.push({ type: 'image', url: img.url, alt: img.alt_text || product.name_ar || '', colorId: img.color ?? null });
+      _images.push({ type: 'image', url: img.webp_url || img.url, alt: img.alt_text || product.name_ar || '', colorId: img.color ?? null });
     }
   });
 }
@@ -758,6 +758,7 @@ async function _loadRelated() {
             badge:       badgeRaw,
             badgeType:   badgeRaw ? badgeRaw.toLowerCase() : null,
             image:       p.image_url || '',
+            imageWebp:   p.image_webp_url || '',
             rating:      parseFloat(p.rating) || 0,
             reviewCount: p.review_count || 0,
           });

@@ -8,7 +8,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.text import slugify
 
-from .utils import optimize_image_file, validate_video_file_size
+from .utils import generate_responsive_variants, optimize_image_file, validate_external_image_url, validate_video_file_size
 
 
 class TimeStampedModel(models.Model):
@@ -81,7 +81,14 @@ class Category(TimeStampedModel):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name_ar, allow_unicode=True)
+        image_changed = bool(self.image and not self.image._committed)
+        if image_changed:
+            optimized = optimize_image_file(self.image)
+            if optimized is not None:
+                self.image.save(optimized.name, optimized, save=False)
         super().save(*args, **kwargs)
+        if image_changed:
+            generate_responsive_variants(self.image)
 
     def get_absolute_url(self):
         return reverse("shop:category_detail", kwargs={"slug": self.slug})
@@ -214,6 +221,7 @@ class Product(TimeStampedModel):
     image_url = models.URLField(
         blank=True,
         verbose_name='رابط الصورة',
+        validators=[validate_external_image_url],
         help_text="External image URL (used when no uploaded image is present).",
     )
     video = models.FileField(
@@ -239,6 +247,7 @@ class Product(TimeStampedModel):
     video_thumbnail_url = models.URLField(
         blank=True,
         verbose_name='رابط صورة غلاف الفيديو',
+        validators=[validate_external_image_url],
         help_text="Fallback external poster URL — used only when no image is uploaded above.",
     )
 
@@ -294,15 +303,21 @@ class Product(TimeStampedModel):
         if not self.slug:
             self.slug = slugify(self.name_ar, allow_unicode=True)
         self._sync_badge_and_availability()
-        if self.image and not self.image._committed:
+        image_changed = bool(self.image and not self.image._committed)
+        if image_changed:
             optimized = optimize_image_file(self.image)
             if optimized is not None:
                 self.image.save(optimized.name, optimized, save=False)
-        if self.video_thumbnail and not self.video_thumbnail._committed:
+        thumb_changed = bool(self.video_thumbnail and not self.video_thumbnail._committed)
+        if thumb_changed:
             optimized = optimize_image_file(self.video_thumbnail)
             if optimized is not None:
                 self.video_thumbnail.save(optimized.name, optimized, save=False)
         super().save(*args, **kwargs)
+        if image_changed:
+            generate_responsive_variants(self.image)
+        if thumb_changed:
+            generate_responsive_variants(self.video_thumbnail)
 
     # ---- Domain helpers ---------------------------------------------------
     def _sync_badge_and_availability(self):
@@ -511,11 +526,14 @@ class ProductImage(TimeStampedModel):
         return f"{self.product.name_ar} image #{self.pk}"
 
     def save(self, *args, **kwargs):
-        if self.image and not self.image._committed:
+        image_changed = bool(self.image and not self.image._committed)
+        if image_changed:
             optimized = optimize_image_file(self.image)
             if optimized is not None:
                 self.image.save(optimized.name, optimized, save=False)
         super().save(*args, **kwargs)
+        if image_changed:
+            generate_responsive_variants(self.image)
 
 
 class ProductReview(TimeStampedModel):

@@ -67,6 +67,7 @@ def _get_vite_assets():
 from apps.home.models import FrontSettings
 
 from .models import Baladia, Category, Hub, Product, ProductImage, ProductReview, Wilaya
+from .utils import get_responsive_sources
 from .serializers import (
     BaladiaSerializer,
     CategorySerializer,
@@ -262,6 +263,8 @@ class ProductSSRView(View):
         else:
             og_video_thumbnail = product.video_thumbnail_url
 
+        og_image_sources = get_responsive_sources(product.image) if product.image else None
+
         serializer = ProductDetailSerializer(product, context={"request": request})
 
         is_gadget = bool(product.category and product.category.is_gadget)
@@ -270,6 +273,8 @@ class ProductSSRView(View):
         context = {
             "product": product,
             "og_image": og_image,
+            "og_image_webp_srcset": og_image_sources["webp_srcset"] if og_image_sources else "",
+            "og_image_fallback_srcset": og_image_sources["fallback_srcset"] if og_image_sources else "",
             "og_video": og_video,
             "og_video_thumbnail": og_video_thumbnail,
             "og_url": canonical_url,
