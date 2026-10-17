@@ -79,6 +79,21 @@ ul {
   font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 
+/* #topbar and #nav-container start empty and are filled by nav.js after its
+   settings fetch resolves — reserve their collapsed height up front so the
+   nav/hero don't jump down once it lands (CLS). */
+#topbar {
+  min-height: 37px;
+}
+
+#nav-container {
+  min-height: 80px;
+}
+
+#footer-container {
+  min-height: 280px;
+}
+
 /* === 4. NAVIGATION === */
 nav {
   background: var(--cream);
@@ -330,7 +345,7 @@ nav {
 .page-hero {
   background:
     linear-gradient(to bottom, rgba(28, 14, 4, 0.65), rgba(28, 14, 4, 0.58)),
-    url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80') center 40%/cover no-repeat;
+    url('/assets/hero-showroom.webp') center 40%/cover no-repeat;
   padding: 90px 60px 80px;
   text-align: center;
 }
@@ -576,6 +591,9 @@ nav {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 28px;
+  /* Grids are empty until their page's JS fetches products — reserve
+     roughly one row's height so the sections below don't jump (CLS). */
+  min-height: 420px;
 }
 
 .product-card {

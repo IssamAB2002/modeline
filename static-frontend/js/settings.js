@@ -32,7 +32,7 @@ const DEFAULTS = {
   about_stat_3_label: 'عائلة حرفية',
   about_stat_4_value: '4k+',
   about_stat_4_label: 'عميل سعيد',
-  about_story_image_url: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&q=80',
+  about_story_image_url: '/assets/story-heritage.jpg',
   about_story_image_full_url: '',
   about_story_image_label: 'تلمسان — مجموعة 2024',
 

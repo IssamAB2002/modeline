@@ -10,7 +10,7 @@
   background-color: var(--espresso);
   background-image:
     linear-gradient(to bottom, rgba(28, 14, 4, 0.55) 0%, rgba(28, 14, 4, 0.30) 60%, rgba(28, 14, 4, 0.70) 100%),
-    url('https://images.unsplash.com/photo-1597466599360-3b596c3d7cb7?w=1600&q=80');
+    url('/assets/hero-showroom.webp');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -155,6 +155,10 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   text-align: center;
+  /* #trust-strip is empty until home.js's fetch resolves — reserve
+     roughly its filled height so the testimonials/footer below don't
+     jump up then back down (CLS). */
+  min-height: 190px;
 }
 
 .trust-item {
@@ -199,6 +203,9 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
+  /* #testimonials-grid is this same element, filled asynchronously by
+     home.js — reserve space to avoid shifting the newsletter section (CLS). */
+  min-height: 260px;
 }
 
 .test-card {
@@ -259,7 +266,7 @@
   background-color: var(--espresso);
   background-image:
     linear-gradient(rgba(28, 14, 4, 0.88), rgba(28, 14, 4, 0.88)),
-    url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80');
+    url('/assets/hero-showroom.webp');
   background-position: center;
   background-size: cover;
   padding: 90px 60px;
