@@ -91,6 +91,17 @@ function _initSlider() {
 
   if (!mainImg || !_images.length) return;
 
+  // The SSR'd <picture><source srcset=...> markup (webp + responsive variants
+  // for the og/first image) wins over any later `mainImg.src = ...` as long as
+  // a <source> is still present — the img's own src is only consulted when no
+  // source matches, so a direct src swap on slide change is otherwise a no-op.
+  // Drop the sources once JS owns the gallery; the already-resolved first
+  // image stays on screen, and later slides can set mainImg.src normally.
+  const picture = mainImg.closest('picture');
+  if (picture && _images.length > 1) {
+    picture.querySelectorAll('source').forEach((s) => s.remove());
+  }
+
   function _show(idx) {
     _currentImg = Math.max(0, Math.min(idx, _images.length - 1));
     const slide = _images[_currentImg];
