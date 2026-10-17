@@ -1,3 +1,11 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY frontend-build/package.json frontend-build/package-lock.json ./frontend-build/
+RUN cd frontend-build && npm ci
+COPY frontend-build/build.mjs ./frontend-build/
+COPY static-frontend ./static-frontend
+RUN cd frontend-build && npm run build
+
 FROM caddy:alpine
 COPY deploy/Caddyfile.railway /etc/caddy/Caddyfile
-COPY static-frontend /srv
+COPY --from=builder /app/dist /srv

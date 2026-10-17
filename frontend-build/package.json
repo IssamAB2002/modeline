@@ -1,0 +1,12 @@
+{
+  "name": "modeline-static-frontend-build",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Bundles/minifies static-frontend/ (CSS + JS) into dist/ for production deploy. Not used in local dev — Caddy serves static-frontend/ raw there.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}

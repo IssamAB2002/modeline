@@ -1,6 +1,5 @@
-frontend/node_modules/
-frontend/dist/
-frontend/.vite/
+frontend-build/node_modules/
+/dist/
 backend/venv/
 backend/__pycache__/
 backend/**/__pycache__/
@@ -17,8 +16,6 @@ client design imgs/
 caddy/
 backend/.env.local
 backend/.env.prod
-frontend/.env.local
-frontend/Meta_Pixel_Integrations.md
 ZR Express.json
 ZR_Express_rates.md
 ZR_Express_Territories.md
