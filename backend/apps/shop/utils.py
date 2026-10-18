@@ -161,6 +161,19 @@ def get_webp_url(field_file):
     return None
 
 
+def _image_width(storage, name):
+    """Read just the pixel width of a stored image. Image.open() only parses
+    the header until something forces a full decode, so this never reads the
+    whole file — cheap enough to call once per srcset build.
+    """
+    try:
+        with storage.open(name, "rb") as fh:
+            with Image.open(fh) as img:
+                return img.size[0]
+    except Exception:
+        return None
+
+
 def get_responsive_sources(field_file, widths=RESPONSIVE_WIDTHS):
     """Return {"webp_srcset", "fallback_srcset"} for an image field's
     generated variants, checking storage so a missing/ungenerated variant is
@@ -184,7 +197,13 @@ def get_responsive_sources(field_file, widths=RESPONSIVE_WIDTHS):
 
     full_webp = f"{base}.webp"
     if storage.exists(full_webp):
-        webp_entries.append(f"{storage.url(full_webp)} {MAX_IMAGE_DIMENSION}w")
+        # Label with the file's real pixel width, not the MAX_IMAGE_DIMENSION
+        # cap — most uploads are narrower than the cap, and a width claim
+        # the browser can't trust defeats the point of a srcset: it may
+        # pick this "1600w" entry over a correctly-labeled smaller variant
+        # that was actually wide enough.
+        full_width = _image_width(storage, full_webp) or MAX_IMAGE_DIMENSION
+        webp_entries.append(f"{storage.url(full_webp)} {full_width}w")
 
     if not webp_entries and not fallback_entries:
         return None
