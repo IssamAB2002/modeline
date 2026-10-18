@@ -49,10 +49,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lateef:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- Preconnect to the media/API origin — product images are served from
+       here, so this hides the DNS+TLS handshake behind the initial HTML
+       fetch instead of paying for it right before the LCP image request. -->
+  <link rel="preconnect" href="https://api.modeline.store" crossorigin>
+
   <!-- Static frontend CSS — product-gadget.css re-themes colors/font over the shared layout -->
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/product.css">
-  <link rel="stylesheet" href="/css/cart.css"><!-- reused for quick-order form fields + thanks overlay -->
+  <!-- cart.css only styles the quick-order drawer/thanks overlay, both
+       hidden until after a user action — load it without blocking render. -->
+  <link rel="preload" as="style" href="/css/cart.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/css/cart.css"></noscript>
   <link rel="stylesheet" href="/css/product-gadget.css">
 
   <!-- Facebook Pixel -->
