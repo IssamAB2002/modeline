@@ -858,17 +858,21 @@ async function _loadRelated() {
 document.addEventListener('DOMContentLoaded', async () => {
   _buildImages();
 
-  await loadCart();
-
-  await Promise.all([
-    initNav('/product/'),
-    initFooter(),
-    loadThanksMsg(),
-  ]);
-
+  // The product gallery/info/quick-order wiring only need the SSR-embedded
+  // product data — render them immediately instead of waiting on nav,
+  // footer, cart and thanks-message, which each cost their own API round
+  // trip and used to sit in front of this on the critical path.
   _initSlider();
   _renderProductInfo();
   _wireQuickOrder();
+
+  // Nav/footer/cart/thanks-message load in parallel in the background —
+  // addToCart() only needs the cart id already cached in localStorage, so
+  // nothing here blocks on loadCart() finishing.
+  loadCart();
+  initNav('/product/');
+  initFooter();
+  loadThanksMsg();
 
   // Non-blocking: related products
   _loadRelated();
