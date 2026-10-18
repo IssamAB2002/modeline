@@ -1,0 +1,13 @@
+{
+  "name": "Modeline",
+  "description": "Algerian e-commerce store for handmade traditional Algerian clothing and accessories.",
+  "url": "https://modeline.store/",
+  "resources": [
+    {
+      "name": "Product Catalog",
+      "type": "product-feed",
+      "url": "https://modeline.store/shop.html",
+      "description": "Browsable catalog of traditional Algerian clothing and accessories."
+    }
+  ]
+}

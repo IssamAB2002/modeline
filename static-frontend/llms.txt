@@ -1,0 +1,19 @@
+# Modeline
+
+> Modeline is an Algerian e-commerce store selling handmade traditional
+> Algerian clothing and accessories (qaftan, burnous, haik, and related
+> heritage pieces), shipped across Algeria with cash-on-delivery.
+
+## Pages
+
+- [Home](https://modeline.store/): brand story, featured products, trust signals.
+- [Shop](https://modeline.store/shop.html): full product catalog with filtering and sorting.
+- [About](https://modeline.store/about.html): brand story and customer reviews.
+- [Contact](https://modeline.store/contact.html): contact information and support.
+- [Cart](https://modeline.store/cart.html): shopping cart and checkout.
+
+## Notes
+
+- Product pages live at `https://modeline.store/product/<id>/` and include
+  structured Open Graph and product metadata (price, availability, images).
+- All content is in Arabic (ar-DZ).
