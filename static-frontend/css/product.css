@@ -835,6 +835,22 @@ span.thumb.thumb-video img {
 
 .pi-sticky-bar .pi-atc-btn { flex: 1; padding: 13px 18px; }
 
+/* Attention pulse — fires 3x when the sticky bar first appears, then
+   stops on its own (finite animation, no JS cleanup needed). transform-only
+   so it runs on the compositor thread with no layout/paint cost. */
+@keyframes pi-sticky-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+.pi-sticky-bar .pi-atc-btn.pulse {
+  animation: pi-sticky-pulse 1.2s ease-in-out 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-sticky-bar .pi-atc-btn.pulse { animation: none; }
+}
+
 /* === QUICK ORDER — mobile bottom sheet / desktop centered modal === */
 .quick-order-backdrop {
   position: fixed;

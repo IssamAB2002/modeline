@@ -600,8 +600,19 @@ function _wireStickyBar() {
     document.getElementById('atc-btn')?.click();
   });
 
+  // Draw attention to the sticky CTA the first time it appears (3 finite
+  // pulses via CSS animation, then it stops on its own — see .pulse in
+  // product.css) without nagging on every scroll back into view.
+  let _pulseFired = false;
   const observer = new IntersectionObserver(
-    ([entry]) => bar.classList.toggle('visible', !entry.isIntersecting),
+    ([entry]) => {
+      const show = !entry.isIntersecting;
+      bar.classList.toggle('visible', show);
+      if (show && !_pulseFired) {
+        _pulseFired = true;
+        stickyBtn?.classList.add('pulse');
+      }
+    },
     { threshold: 0 }
   );
   observer.observe(actions);
