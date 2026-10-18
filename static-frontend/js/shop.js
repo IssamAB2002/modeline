@@ -33,6 +33,7 @@ function _norm(p) {
     badgeType:   badgeRaw ? badgeRaw.toLowerCase() : null,
     image:       p.image_url || '',
     imageWebp:   p.image_webp_url || '',
+    imageWebpSrcset: p.image_webp_srcset || '',
     rating:      parseFloat(p.rating) || 0,
     reviewCount: p.review_count || 0,
     isNew:       !!p.is_new,
@@ -108,7 +109,7 @@ function _renderProducts() {
   }
 
   grid.className = _viewMode === 'list' ? 'product-list' : 'product-grid';
-  grid.innerHTML = items.map((p) => renderProductCard(p)).join('');
+  grid.innerHTML = items.map((p, i) => renderProductCard(p, { priority: i < 4 })).join('');
 }
 
 // ── Pagination ───────────────────────────────────────────

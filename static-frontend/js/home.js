@@ -29,6 +29,7 @@ function _normalizeProduct(p) {
     badgeType:   badgeRaw ? badgeRaw.toLowerCase() : null,
     image:       p.image_url || '',
     imageWebp:   p.image_webp_url || '',
+    imageWebpSrcset: p.image_webp_srcset || '',
     rating:      parseFloat(p.rating) || 0,
     reviewCount: p.review_count || 0,
   };
@@ -52,7 +53,7 @@ async function _loadProducts() {
       grid.innerHTML = '<p class="section-empty-msg">لا توجد قطع مميزة متاحة بعد.</p>';
       return;
     }
-    grid.innerHTML = products.map((p) => renderProductCard(_normalizeProduct(p))).join('');
+    grid.innerHTML = products.map((p, i) => renderProductCard(_normalizeProduct(p), { priority: i < 4 })).join('');
   } catch {
     grid.innerHTML = '<p class="section-empty-msg">لا توجد قطع مميزة متاحة بعد.</p>';
   }

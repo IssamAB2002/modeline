@@ -40,6 +40,14 @@ function _esc(str) {
     .replace(/"/g, '&quot;');
 }
 
+// ── srcset helper: smallest-width URL, used for the ~133px thumb strip
+// so it never downloads the full-resolution gallery image for a tiny icon.
+function _smallestSrcsetUrl(srcset) {
+  if (!srcset) return null;
+  const first = srcset.split(',')[0]?.trim();
+  return first ? first.split(' ')[0] : null;
+}
+
 // ── Build gallery slides array (video first, then images) ─
 function _buildImages() {
   if (product.video_url) {
@@ -51,11 +59,25 @@ function _buildImages() {
     });
   }
   if (product.image_url) {
-    _images.push({ type: 'image', url: product.image_webp_url || product.image_url, alt: product.name_ar || '', colorId: null });
+    _images.push({
+      type: 'image',
+      url: product.image_webp_url || product.image_url,
+      webpSrcset: product.image_webp_srcset || '',
+      fallbackSrcset: product.image_fallback_srcset || '',
+      alt: product.name_ar || '',
+      colorId: null,
+    });
   }
   (product.images || []).forEach((img) => {
     if (img.url && img.url !== product.image_url) {
-      _images.push({ type: 'image', url: img.webp_url || img.url, alt: img.alt_text || product.name_ar || '', colorId: img.color ?? null });
+      _images.push({
+        type: 'image',
+        url: img.webp_url || img.url,
+        webpSrcset: img.webp_srcset || '',
+        fallbackSrcset: img.fallback_srcset || '',
+        alt: img.alt_text || product.name_ar || '',
+        colorId: img.color ?? null,
+      });
     }
   });
 }
@@ -91,16 +113,15 @@ function _initSlider() {
 
   if (!mainImg || !_images.length) return;
 
-  // The SSR'd <picture><source srcset=...> markup (webp + responsive variants
-  // for the og/first image) wins over any later `mainImg.src = ...` as long as
-  // a <source> is still present — the img's own src is only consulted when no
-  // source matches, so a direct src swap on slide change is otherwise a no-op.
-  // Drop the sources once JS owns the gallery; the already-resolved first
-  // image stays on screen, and later slides can set mainImg.src normally.
+  // The SSR'd <picture><source srcset=...> (webp + responsive width variants)
+  // only matches the og/first image's URLs. A plain `mainImg.src = ...` swap
+  // is a no-op while a matching <source> is present, so on every slide change
+  // we also rewrite each <source>'s srcset to that slide's own responsive
+  // variants (gallery images carry the same webp/fallback srcset from the
+  // API) — keeping every slide on a width-matched image, not just the first.
   const picture = mainImg.closest('picture');
-  if (picture && _images.length > 1) {
-    picture.querySelectorAll('source').forEach((s) => s.remove());
-  }
+  const webpSource = picture?.querySelector('source[type="image/webp"]');
+  const fallbackSource = picture?.querySelector('source:not([type])');
 
   function _show(idx) {
     _currentImg = Math.max(0, Math.min(idx, _images.length - 1));
@@ -129,6 +150,17 @@ function _initSlider() {
       mainVideo?.classList.add('hidden');
       muteToggle?.classList.add('hidden');
       mainImg.classList.remove('hidden');
+      // An empty/absent srcset removes a <source> from picture's candidate
+      // list (per spec), so slides without generated variants fall through
+      // to mainImg.src below.
+      if (webpSource) {
+        if (slide.webpSrcset) webpSource.setAttribute('srcset', slide.webpSrcset);
+        else webpSource.removeAttribute('srcset');
+      }
+      if (fallbackSource) {
+        if (slide.fallbackSrcset) fallbackSource.setAttribute('srcset', slide.fallbackSrcset);
+        else fallbackSource.removeAttribute('srcset');
+      }
       mainImg.src = slide.url;
       mainImg.alt = slide.alt;
     }
@@ -160,7 +192,8 @@ function _initSlider() {
           <span class="thumb-play-icon" aria-hidden="true">▶</span>
         </span>`;
       }
-      return `<img class="thumb${i === 0 ? ' active' : ''}" src="${_esc(img.url)}" alt="${_esc(img.alt)}" loading="lazy" data-idx="${i}">`;
+      const thumbSrc = _smallestSrcsetUrl(img.webpSrcset) || _smallestSrcsetUrl(img.fallbackSrcset) || img.url;
+      return `<img class="thumb${i === 0 ? ' active' : ''}" src="${_esc(thumbSrc)}" alt="${_esc(img.alt)}" loading="lazy" data-idx="${i}">`;
     }).join('');
 
     thumbStrip.addEventListener('click', (e) => {
@@ -770,6 +803,7 @@ async function _loadRelated() {
             badgeType:   badgeRaw ? badgeRaw.toLowerCase() : null,
             image:       p.image_url || '',
             imageWebp:   p.image_webp_url || '',
+            imageWebpSrcset: p.image_webp_srcset || '',
             rating:      parseFloat(p.rating) || 0,
             reviewCount: p.review_count || 0,
           });

@@ -22,8 +22,12 @@ const BADGE_CLASS = {
 //
 // product shape:
 //   { id, name, origin, price, oldPrice?, badge?, badgeType?,
-//     image, rating?, reviewCount?, desc? }
-export function renderProductCard(product) {
+//     image, imageWebp?, imageWebpSrcset?, rating?, reviewCount?, desc? }
+// opts.priority: true for above-the-fold cards (first grid row) — skips
+// lazy-loading and raises fetch priority so it can compete for LCP.
+const CARD_SIZES = '(min-width: 1024px) 280px, (min-width: 640px) 45vw, 90vw';
+
+export function renderProductCard(product, opts = {}) {
   const badgeLabel = product.badgeType
     ? (BADGE_AR[product.badgeType] ?? product.badge ?? '')
     : (product.badge ?? '');
@@ -45,10 +49,14 @@ export function renderProductCard(product) {
     : '';
   const priceClass = product.oldPrice ? ' price-sale' : '';
 
+  const loadingAttrs = opts.priority
+    ? 'loading="eager" fetchpriority="high"'
+    : 'loading="lazy"';
+
   const imgHtml = product.image
     ? (product.imageWebp
-        ? `<picture><source srcset="${product.imageWebp}" type="image/webp"><img src="${product.image}" alt="${_esc(product.name)}" loading="lazy"></picture>`
-        : `<img src="${product.image}" alt="${_esc(product.name)}" loading="lazy">`)
+        ? `<picture><source srcset="${product.imageWebpSrcset || product.imageWebp}" sizes="${CARD_SIZES}" type="image/webp"><img src="${product.image}" alt="${_esc(product.name)}" ${loadingAttrs}></picture>`
+        : `<img src="${product.image}" alt="${_esc(product.name)}" ${loadingAttrs}>`)
     : `<div style="width:100%;height:100%;background:#e8dfc8"></div>`;
 
   return `

@@ -1,7 +1,21 @@
 from rest_framework import serializers
 
 from .models import Baladia, Category, Hub, Product, ProductColor, ProductImage, ProductReview, ProductSize, Wilaya
-from .utils import get_webp_url
+from .utils import get_responsive_sources, get_webp_url
+
+
+def _absolutize_srcset(request, srcset):
+    """`get_responsive_sources()` returns storage-relative URLs inside the
+    srcset string (e.g. "/media/x-320w.webp 320w, ..."); make each entry
+    absolute the same way the sibling url_/webp_url fields already are.
+    """
+    if not srcset or not request:
+        return srcset or None
+    entries = []
+    for entry in srcset.split(", "):
+        url, width = entry.rsplit(" ", 1)
+        entries.append(f"{request.build_absolute_uri(url)} {width}")
+    return ", ".join(entries)
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -31,10 +45,12 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductImageSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
     webp_url = serializers.SerializerMethodField()
+    webp_srcset = serializers.SerializerMethodField()
+    fallback_srcset = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductImage
-        fields = ("url", "webp_url", "alt_text", "order", "color")
+        fields = ("url", "webp_url", "webp_srcset", "fallback_srcset", "alt_text", "order", "color")
 
     def get_url(self, obj):
         request = self.context.get("request")
@@ -50,6 +66,18 @@ class ProductImageSerializer(serializers.ModelSerializer):
             return None
         request = self.context.get("request")
         return request.build_absolute_uri(webp_url) if request else webp_url
+
+    def get_webp_srcset(self, obj):
+        sources = get_responsive_sources(obj.image) if obj.image else None
+        if not sources or not sources["webp_srcset"]:
+            return None
+        return _absolutize_srcset(self.context.get("request"), sources["webp_srcset"])
+
+    def get_fallback_srcset(self, obj):
+        sources = get_responsive_sources(obj.image) if obj.image else None
+        if not sources or not sources["fallback_srcset"]:
+            return None
+        return _absolutize_srcset(self.context.get("request"), sources["fallback_srcset"])
 
 
 class ProductSizeSerializer(serializers.ModelSerializer):
@@ -70,6 +98,7 @@ class ProductListSerializer(serializers.ModelSerializer):
     is_on_sale = serializers.BooleanField(read_only=True)
     image_url = serializers.SerializerMethodField()
     image_webp_url = serializers.SerializerMethodField()
+    image_webp_srcset = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -84,6 +113,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             "old_price",
             "image_url",
             "image_webp_url",
+            "image_webp_srcset",
             "badge",
             "rating",
             "review_count",
@@ -109,6 +139,12 @@ class ProductListSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         return request.build_absolute_uri(webp_url) if request else webp_url
 
+    def get_image_webp_srcset(self, obj):
+        sources = get_responsive_sources(obj.image) if obj.image else None
+        if not sources or not sources["webp_srcset"]:
+            return None
+        return _absolutize_srcset(self.context.get("request"), sources["webp_srcset"])
+
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     """Full serializer for the product detail page."""
@@ -122,6 +158,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     colors = ProductColorSerializer(many=True, read_only=True)
     image_url = serializers.SerializerMethodField()
     image_webp_url = serializers.SerializerMethodField()
+    image_webp_srcset = serializers.SerializerMethodField()
+    image_fallback_srcset = serializers.SerializerMethodField()
     video_url = serializers.SerializerMethodField()
     video_thumbnail_url = serializers.SerializerMethodField()
 
@@ -145,6 +183,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "old_price",
             "image_url",
             "image_webp_url",
+            "image_webp_srcset",
+            "image_fallback_srcset",
             "images",
             "video_url",
             "video_thumbnail_url",
@@ -175,6 +215,18 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             return None
         request = self.context.get("request")
         return request.build_absolute_uri(webp_url) if request else webp_url
+
+    def get_image_webp_srcset(self, obj):
+        sources = get_responsive_sources(obj.image) if obj.image else None
+        if not sources or not sources["webp_srcset"]:
+            return None
+        return _absolutize_srcset(self.context.get("request"), sources["webp_srcset"])
+
+    def get_image_fallback_srcset(self, obj):
+        sources = get_responsive_sources(obj.image) if obj.image else None
+        if not sources or not sources["fallback_srcset"]:
+            return None
+        return _absolutize_srcset(self.context.get("request"), sources["fallback_srcset"])
 
     def get_video_url(self, obj):
         request = self.context.get("request")
