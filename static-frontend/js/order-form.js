@@ -120,7 +120,6 @@ function _validate() {
   const phone     = document.getElementById('qo-field-phone')?.value.trim() || '';
   const wilayaId  = document.getElementById('qo-field-wilaya')?.value;
   const baladiaId = document.getElementById('qo-field-baladia')?.value;
-  const address   = document.getElementById('qo-field-address')?.value.trim() || '';
   const hubId     = document.getElementById('qo-field-hub')?.value;
 
   if (name.length < 2) return 'يُرجى إدخال الاسم الكامل (حرفان على الأقل).';
@@ -128,7 +127,6 @@ function _validate() {
   if (_shippingType === 'home') {
     if (!wilayaId) return 'يُرجى اختيار الولاية.';
     if (!baladiaId) return 'يُرجى اختيار البلدية.';
-    if (!address) return 'يُرجى إدخال العنوان التفصيلي.';
   } else {
     if (!wilayaId) return 'يُرجى اختيار الولاية.';
     if (!hubId) return 'يُرجى اختيار مكتب التوصيل.';

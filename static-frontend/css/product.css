@@ -7,6 +7,11 @@
 
 .pdp-hero-title { font-size: clamp(28px, 4vw, 52px); }
 
+/* Promo topbar disabled on the product page for now — it was adding to the
+   stack of fixed chrome (topbar + nav + hero) pushing the product photo
+   below the first viewport on mobile. */
+#topbar { display: none; min-height: 0; }
+
 /* === PRODUCT LAYOUT ======================================== */
 .product-layout {
   display: grid;
@@ -123,6 +128,10 @@
   font-family: 'IBM Plex Sans Arabic', sans-serif;
   font-size: 10px;
   letter-spacing: 0.12em;
+  /* "1 / 8" sits inside an RTL document — without isolating its direction
+     the bidi algorithm visually reorders it to "8 / 1". */
+  direction: ltr;
+  unicode-bidi: isolate;
   color: var(--gold-pale);
   background: rgba(28, 14, 4, 0.55);
   padding: 4px 10px;
@@ -783,7 +792,27 @@ span.thumb.thumb-video img {
   }
 
   .slider-wrap { position: static; }
-  .pdp-hero { padding: 40px 20px 30px; }
+
+  /* Mobile PDP: the full showroom-photo hero used on Shop/About/Contact
+     pushes the product photo, price and sizes off the first screen for
+     ad traffic. Swap the background photo for a flat brand color and
+     cut the padding so the fold lands on the product, not the banner. */
+  .pdp-hero {
+    padding: 10px 20px 8px;
+    background: #1c0e04;
+  }
+  .pdp-hero .page-subtitle { display: none; }
+  .pdp-hero-title { font-size: 17px; margin-bottom: 0; }
+
+  /* Trim the sticky nav a bit too — every fixed pixel above the fold here
+     is a pixel the product photo and price don't get. */
+  nav {
+    min-height: 60px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  #nav-container { min-height: 60px; }
+
   .related-grid { padding: 0 20px; grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -839,8 +868,10 @@ span.thumb.thumb-video img {
    stops on its own (finite animation, no JS cleanup needed). transform-only
    so it runs on the compositor thread with no layout/paint cost. */
 @keyframes pi-sticky-pulse {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.05); }
+  0%, 100%  { transform: scale(1) translateX(0); }
+  10%, 30%  { transform: scale(1.04) translateX(-3px); }
+  20%, 40%  { transform: scale(1.04) translateX(3px); }
+  50%       { transform: scale(1.04) translateX(0); }
 }
 
 .pi-sticky-bar .pi-atc-btn.pulse {
@@ -915,6 +946,106 @@ span.thumb.thumb-video img {
   margin-bottom: 20px;
 }
 
+/* Order summary: thumbnail/name/size per line, then a cost breakdown,
+   so the checkout sheet shows what's being bought and why the total
+   jumped from the product price (product + shipping = total). */
+.quick-order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.qo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.qo-item-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: var(--border);
+}
+
+.qo-item-info { flex: 1; min-width: 0; }
+
+.qo-item-name {
+  font-size: 13px;
+  color: var(--espresso);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qo-item-meta { font-size: 11px; color: var(--warm-gray); margin-top: 2px; }
+
+.qo-item-price {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bark);
+  white-space: nowrap;
+}
+
+.qo-item-qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.qo-qty-btn {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border);
+  background: none;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--espresso);
+  cursor: pointer;
+}
+.qo-qty-btn:hover { border-color: var(--gold); color: var(--bark); }
+.qo-qty-btn:disabled { opacity: 0.4; cursor: default; }
+
+.qo-qty-val {
+  font-size: 13px;
+  color: var(--espresso);
+  min-width: 14px;
+  text-align: center;
+}
+
+.qo-item-remove {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--warm-gray);
+  cursor: pointer;
+}
+.qo-item-remove:hover { color: var(--espresso); }
+
+.quick-order-breakdown {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 13px;
+  color: var(--warm-gray);
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qo-row { display: flex; justify-content: space-between; }
+
 .quick-order-summary {
   display: flex;
   justify-content: space-between;
@@ -923,9 +1054,7 @@ span.thumb.thumb-video img {
   font-size: 15px;
   font-weight: 600;
   color: var(--espresso);
-  padding: 14px 0;
-  margin-top: 16px;
-  border-top: 2px solid var(--gold);
+  padding: 10px 0 4px;
 }
 .quick-order-summary span:last-child { font-size: 18px; color: var(--bark); }
 

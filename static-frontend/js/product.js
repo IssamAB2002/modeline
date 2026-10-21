@@ -1,5 +1,5 @@
 import { API } from './config.js';
-import { loadCart, addToCart, getCartId, getCartItems, clearCart } from './cart.js';
+import { loadCart, addToCart, getCartId, getCartItems, clearCart, removeItem, updateQty } from './cart.js';
 import { loadSettings } from './settings.js';
 import { initNav } from './nav.js';
 import { initFooter } from './footer.js';
@@ -27,9 +27,6 @@ let _selectedSize    = null;
 let _selectedColor   = null;
 let _selectedColorId = null;
 let _qty = 1;
-
-// ── Quick-order drawer state ──────────────────────────────
-let _orderFormReady = false;
 
 // ── Escape helper ─────────────────────────────────────────
 function _esc(str) {
@@ -287,12 +284,15 @@ function _renderProductInfo() {
     ? `<span class="pi-badge ${badgeRaw}">${BADGE_AR[badgeRaw] ?? badgeRaw}</span>`
     : '';
 
-  // Rating
-  const ratingHtml = `
+  // Rating — hidden until the product has at least one real review, since
+  // a visible "0.0 · 0" with empty stars reads as negative social proof.
+  const ratingHtml = reviewCount > 0
+    ? `
     <div class="pi-rating">
       <span class="stars">${renderStars(rating)}</span>
       <span>${rating.toFixed(1)} · ${reviewCount} تقييم</span>
-    </div>`;
+    </div>`
+    : '';
 
   // Price
   const priceHtml = `
@@ -494,20 +494,19 @@ function _wireAddToCart() {
       return;
     }
 
-    btn.disabled = true;
-    btn.textContent = '...';
+    // Open the sheet right away — addToCart() is a real network round trip
+    // (ensure-cart + add-item), and making the tap wait on it is what used
+    // to show a multi-second "..." spinner before checkout even appeared.
+    _openQuickOrder({ pending: true });
 
     try {
       await addToCart(product.id, _qty, _selectedSize, _selectedColor);
       trackAddToCart({ id: product.id, name: product.name_ar, price, qty: _qty });
       ttAddToCart({ id: product.id, name: product.name_ar, price, qty: _qty });
-      btn.disabled = false;
-      btn.textContent = `أطلب الآن — ${formatPrice(price)}`;
-      _openQuickOrder();
+      _refreshQuickOrderCart();
     } catch {
+      _closeQuickOrder();
       showToast('تعذّرت الإضافة، يُرجى المحاولة مجدداً.');
-      btn.disabled = false;
-      btn.textContent = `أطلب الآن — ${formatPrice(price)}`;
     }
   });
 }
@@ -522,23 +521,67 @@ let _lastCheckoutSignature = null;
 function _updateQuickOrderTotal() {
   const items = getCartItems();
   const subtotal = items.reduce((s, i) => s + i.lineTotal, 0);
+  const shipping = calcShipping();
+
+  const itemsEl = document.getElementById('qo-order-items');
+  if (itemsEl) {
+    itemsEl.innerHTML = items.map((i) => `
+      <div class="qo-item">
+        ${i.image ? `<img class="qo-item-img" src="${_esc(i.image)}" alt="">` : ''}
+        <div class="qo-item-info">
+          <div class="qo-item-name">${_esc(i.productName)}</div>
+          <div class="qo-item-meta">${[i.selectedSize, i.selectedColor].filter(Boolean).map(_esc).join(' · ')}${i.selectedSize || i.selectedColor ? ' · ' : ''}الكمية: ${i.qty}</div>
+        </div>
+        <div class="qo-item-price">${formatPrice(i.lineTotal)}</div>
+        <div class="qo-item-qty">
+          <button type="button" class="qo-qty-btn" data-action="dec" data-item-id="${i.id}" aria-label="إنقاص الكمية">−</button>
+          <span class="qo-qty-val">${i.qty}</span>
+          <button type="button" class="qo-qty-btn" data-action="inc" data-item-id="${i.id}" aria-label="زيادة الكمية">+</button>
+        </div>
+        <button type="button" class="qo-item-remove" data-item-id="${i.id}" aria-label="إزالة المنتج">×</button>
+      </div>`).join('');
+  }
+
+  const subtotalEl = document.getElementById('qo-subtotal-val');
+  const shippingEl = document.getElementById('qo-shipping-val');
   const totalEl = document.getElementById('qo-total-val');
-  if (totalEl) totalEl.textContent = formatPrice(subtotal + calcShipping());
+  if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
+  if (shippingEl) shippingEl.textContent = formatPrice(shipping);
+  if (totalEl) totalEl.textContent = formatPrice(subtotal + shipping);
 }
 
-function _openQuickOrder() {
+// `pending: true` opens the sheet before addToCart() has resolved, so the
+// tap-to-sheet transition isn't gated on a cart API round trip. The caller
+// follows up with _refreshQuickOrderCart() once the cart is confirmed.
+function _openQuickOrder({ pending = false } = {}) {
   const drawer = document.getElementById('quick-order');
   if (!drawer) return;
 
-  if (!_orderFormReady) {
-    _orderFormReady = true;
-    initOrderForm(_updateQuickOrderTotal);
-  }
-
-  _updateQuickOrderTotal();
   drawer.classList.add('open');
   document.getElementById('qo-backdrop')?.classList.add('open');
   document.body.classList.add('qo-locked');
+
+  _setQuickOrderPending(pending);
+
+  if (!pending) _refreshQuickOrderCart();
+}
+
+function _setQuickOrderPending(isPending) {
+  const confirmBtn = document.getElementById('qo-confirm-btn');
+  if (confirmBtn) confirmBtn.disabled = isPending;
+  if (!isPending) return;
+
+  ['qo-subtotal-val', 'qo-shipping-val', 'qo-total-val'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '...';
+  });
+  const itemsEl = document.getElementById('qo-order-items');
+  if (itemsEl) itemsEl.innerHTML = '';
+}
+
+function _refreshQuickOrderCart() {
+  _updateQuickOrderTotal();
+  _setQuickOrderPending(false);
 
   const items = getCartItems();
   const total = items.reduce((s, i) => s + i.lineTotal, 0);
@@ -560,6 +603,44 @@ function _closeQuickOrder() {
 function _wireQuickOrder() {
   document.getElementById('qo-close')?.addEventListener('click', _closeQuickOrder);
   document.getElementById('qo-backdrop')?.addEventListener('click', _closeQuickOrder);
+
+  // Lets the client drop a line they added by mistake (e.g. tapped "أطلب
+  // الآن" twice) without leaving the sheet. Closes the sheet if that was
+  // the last item left — nothing to check out anymore.
+  document.getElementById('qo-order-items')?.addEventListener('click', async (e) => {
+    const qtyBtn = e.target.closest('.qo-qty-btn');
+    if (qtyBtn) {
+      // updateQty() only corrects the line total once its PATCH resolves,
+      // so (unlike remove) we wait on it here rather than show a stale
+      // price — this is a quick in-sheet tweak, not the first-tap path.
+      const itemId = parseInt(qtyBtn.dataset.itemId, 10);
+      const item = getCartItems().find((i) => i.id === itemId);
+      if (!item) return;
+
+      const newQty = qtyBtn.dataset.action === 'inc' ? item.qty + 1 : item.qty - 1;
+      if (newQty < 1) return;
+
+      qtyBtn.closest('.qo-item-qty').querySelectorAll('.qo-qty-btn').forEach((b) => { b.disabled = true; });
+      await updateQty(itemId, newQty);
+      _refreshQuickOrderCart();
+      return;
+    }
+
+    const btn = e.target.closest('.qo-item-remove');
+    if (!btn) return;
+
+    const itemId = parseInt(btn.dataset.itemId, 10);
+    // removeItem() updates the local cart synchronously (before its own
+    // internal await on the delete request), so the sheet reflects the
+    // removal immediately instead of waiting on that network round trip.
+    removeItem(itemId);
+    _refreshQuickOrderCart();
+
+    if (getCartItems().length === 0) {
+      _closeQuickOrder();
+      showToast('تمت إزالة المنتج من السلة.');
+    }
+  });
 
   document.getElementById('qo-confirm-btn')?.addEventListener('click', () => {
     placeQuickOrder({
@@ -866,13 +947,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   _renderProductInfo();
   _wireQuickOrder();
 
-  // Nav/footer/cart/thanks-message load in parallel in the background —
-  // addToCart() only needs the cart id already cached in localStorage, so
-  // nothing here blocks on loadCart() finishing.
+  // Nav/footer/cart/thanks-message/wilayas load in parallel in the
+  // background — addToCart() only needs the cart id already cached in
+  // localStorage, so nothing here blocks on loadCart() finishing. Loading
+  // the wilaya list now (instead of lazily on first drawer open) means
+  // it's already populated by the time the user taps "أطلب الآن".
   loadCart();
   initNav('/product/');
   initFooter();
   loadThanksMsg();
+  initOrderForm(_updateQuickOrderTotal);
 
   // Non-blocking: related products
   _loadRelated();

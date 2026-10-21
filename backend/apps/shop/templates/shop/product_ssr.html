@@ -97,21 +97,10 @@
 
     <!-- PAGE HERO -->
     <div class="page-hero pdp-hero">
-      <div class="breadcrumb">
-        <a href="/">الرئيسية</a>
-        <span>·</span>
-        <a href="/shop.html">المتجر</a>
-        <span>·</span>
-        <span>{{ product.name_ar }}</span>
-      </div>
       <h1 class="page-title pdp-hero-title">{{ product.name_ar }}</h1>
       {% if product.origin %}
       <p class="page-subtitle">{{ product.origin }}</p>
       {% endif %}
-    </div>
-
-    <div class="gold-rule">
-      <span class="gold-rule-icon">Modeline</span>
     </div>
 
     <!-- PRODUCT LAYOUT -->
@@ -227,8 +216,8 @@
         </select>
       </div>
       <div class="form-group full home-only">
-        <label class="form-label" for="qo-field-address">العنوان التفصيلي *</label>
-        <input id="qo-field-address" class="cart-input" type="text" placeholder="الحي، الشارع، رقم البناء…" autocomplete="street-address">
+        <label class="form-label" for="qo-field-address">الحي / أقرب معلم (اختياري)</label>
+        <input id="qo-field-address" class="cart-input" type="text" placeholder="مثال: حي النصر، قرب المسجد الكبير" autocomplete="street-address">
       </div>
       <div class="form-group full desk-only">
         <label class="form-label" for="qo-field-hub">مكتب التوصيل *</label>
@@ -243,6 +232,19 @@
     </div>
 
     <div id="qo-form-error" class="form-error" style="display:none"></div>
+
+    <div class="quick-order-items" id="qo-order-items"></div>
+
+    <div class="quick-order-breakdown">
+      <div class="qo-row">
+        <span>المنتجات</span>
+        <span id="qo-subtotal-val">—</span>
+      </div>
+      <div class="qo-row">
+        <span>التوصيل</span>
+        <span id="qo-shipping-val">—</span>
+      </div>
+    </div>
 
     <div class="quick-order-summary">
       <span>الإجمالي</span>
